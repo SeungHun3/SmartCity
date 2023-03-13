@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "129481751082",
+    "project_id": "solaseado",
+    "storage_bucket": "solaseado.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:129481751082:android:fe92dc33a8eedad4f26153",
+        "android_client_info": {
+          "package_name": "com.Mammo6.Test_LidarSample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "129481751082-6oi4hpr8ub72mhvnb8scfoqnbjavv7lt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqilniuBco5GL6IOlEYj1_GAJaJp1QKos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "129481751082-6oi4hpr8ub72mhvnb8scfoqnbjavv7lt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
