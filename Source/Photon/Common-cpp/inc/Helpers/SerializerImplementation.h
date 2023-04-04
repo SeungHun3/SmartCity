@@ -50,7 +50,7 @@ namespace ExitGames
 				bool writeCustom(const void* data, nByte customType);
 				bool writeObject(const Object* obj, bool setType);
 				void writeByteArray(const nByte* byteArr, int length);
-				bool writeArray(const Object* obj);
+				bool writeArray(const Object* obj, bool setType);
 				bool writeArrayHelper(const void* pData, nByte type, nByte customType, unsigned int dimensions, short* arraySizes, unsigned int recursionDepth);
 				bool writeArrayType(const void* pData, nByte type, nByte customType, short i);
 

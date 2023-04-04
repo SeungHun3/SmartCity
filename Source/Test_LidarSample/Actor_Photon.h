@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SH_PhotonListener.h"
+#include "Photon/SH_PhotonListener.h"
 #include "GameFramework/Actor.h"
 #include "Actor_Photon.generated.h"
 

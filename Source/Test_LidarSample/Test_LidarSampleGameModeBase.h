@@ -48,6 +48,11 @@ public:
 	// 현재 애니메이션 상태 변경 이벤트
 	void changeAnim(uint8 anim);
 
+	// 안드로이드 위치 정보 활성화
+	UFUNCTION(BlueprintCallable)
+		void CheckLocationEnabled();
+	UFUNCTION(BlueprintImplementableEvent)
+		void CheckLocationEnabledEvent();
 	//// 스트리밍 레벨 로드 
 	//void LoadStreamLevel(const FString& Level);
 };

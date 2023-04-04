@@ -1,3 +1,3 @@
 #pragma once
 
-#define _EG_ANDROID_PLATFORM 1
+#define _EG_WINDOWS_PLATFORM 1

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ROSBridgeHandler.h"
-#include "Lidar_Basic.h"
+#include "LiDAR/Lidar_Basic.h"
 #include "Actor_RosActor.generated.h"
 
 UCLASS()

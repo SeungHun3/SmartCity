@@ -5,8 +5,8 @@
 #include "Pawn_LidarPlayer.h"
 #include "Character_Player.h"
 
-#include "FROSStringSubScriber.h"
-#include "FROSAddTwoIntsClient.h"
+#include "LiDAR/FROSStringSubScriber.h"
+#include "LiDAR/FROSAddTwoIntsClient.h"
 
 // Sets default values
 AActor_RosActor::AActor_RosActor()

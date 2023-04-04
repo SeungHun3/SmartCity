@@ -72,10 +72,10 @@ void AActor_Photon::ErrorCheckMessage(const FString& message, int error)
 void AActor_Photon::ConnectLogin(const FString& username)
 {
 	srand(GETTIMEMS());
-	m_pListener = new SH_PhotonListener(this);
-	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion), (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT);
-	m_pListener->SetClient(m_pClient);
-	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
+	//m_pListener = new SH_PhotonListener(this);
+	//m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion)); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
+	//m_pListener->SetClient(m_pClient);
+	//m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
 }
 
 // 텍스트 메세지 출력 
