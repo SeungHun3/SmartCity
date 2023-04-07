@@ -43,6 +43,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Test
+	UFUNCTION(BlueprintCallable)
+	TArray<FString> getSubscribeList() {
+		return SubscribeList;
+	}
 	// Message 
 	UFUNCTION(BlueprintCallable)
 		void SendMessageEvent(const FString& Message);
@@ -74,7 +79,6 @@ public:
 	// Blueprint Binding Func
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_ConnectComplete();
-	
 	
 public:
 	class SH_PhotonChatListener* m_pListener;

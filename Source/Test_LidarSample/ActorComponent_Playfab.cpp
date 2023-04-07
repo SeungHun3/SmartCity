@@ -207,7 +207,7 @@ void UActorComponent_Playfab::ErrorScript(const PlayFab::FPlayFabCppError& error
 	{
 		// CheckerCharacterName = error.ErrorName;
 		bCheckerCreateChracter = false;
-		// 실패 위젯 변경점 전달 
+		// 실패시 위젯 변경점 전달 
 		if (PlayerOwner)
 			PlayerOwner->CustomizingWidgetNameChecker(bCheckerCreateChracter);
 	}
