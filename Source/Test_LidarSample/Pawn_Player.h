@@ -33,4 +33,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/////////////////////////////////////////////////////////////////////////////////
+	// Player Playfab Data Binding 
+	// 캐릭터 생성 여부에 따른 로직 변경점
+	UFUNCTION(BlueprintImplementableEvent)
+		void InitPlayFabUserTitleData(bool bChecker);
+	// 캐릭터 생성 닉네임 확인
+	UFUNCTION(BlueprintImplementableEvent)
+		void CustomizingWidgetNameChecker(bool bChecker);
+	// 캐릭터 생성 닉네임 화인 + 금칙어 
+	UFUNCTION(BlueprintImplementableEvent)
+		void updateDisplayNameEvent(bool bChecker);
+
 };

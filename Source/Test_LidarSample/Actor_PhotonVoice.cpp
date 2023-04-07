@@ -10,7 +10,6 @@
 using namespace ExitGames::Voice;
 
 #define Voice_AppID "4688d25f-b9ff-449a-a2a4-5c081f77fd40"
-#define CHAT_AppID "bd96a445-11ab-4bc6-bb45-71b681b17273"
 
 // bd96a445-11ab-4bc6-bb45-71b681b17273
 AActor_PhotonVoice::AActor_PhotonVoice() : 

@@ -2,6 +2,8 @@
 
 
 #include "ActorComponent_Playfab.h"
+#include "Pawn_Player.h"
+
 #include "Core/PlayFabClientAPI.h"
 
 #include "PlayFabJsonObject.h"
@@ -25,9 +27,10 @@ void UActorComponent_Playfab::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...C9B19 Playfab title ID
+	// Playfab title ID
 	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("C9B19");
-	
+	// Player Pawn 
+	PlayerOwner = Cast<APawn_Player>(GetOwner());
 }
 
 // Called every frame
@@ -199,14 +202,15 @@ void UActorComponent_Playfab::ErrorScript(const PlayFab::FPlayFabCppError& error
 		UE_LOG(LogTemp, Log, TEXT("// Item not found"));
 		return;
 	}
-
-	//// 중복 이름 , 이름 생성 조건 실패 (string 3 ~24)
-	//if (error.ErrorName == "NameNotAvailable" || "InvalidParams")
-	//{
-	//	CheckerCharacterName = error.ErrorName;
-	//	bCheckerCreateChracter = false;
-	//	CustomizingWidgetNameChecker(false);
-	//}
+	// 중복 이름 , 이름 생성 조건 실패 (string 3 ~24)
+	if (error.ErrorName == "NameNotAvailable" || "InvalidParams")
+	{
+		// CheckerCharacterName = error.ErrorName;
+		bCheckerCreateChracter = false;
+		// 실패 위젯 변경점 전달 
+		if (PlayerOwner)
+			PlayerOwner->CustomizingWidgetNameChecker(bCheckerCreateChracter);
+	}
 	//// 아이템 구매 실패
 	//// "WrongPrice" || "WrongVirtualCurrency") // ItemNotFound , StoreNotFound
 	//if (error.ErrorName == "InsufficientFunds")
@@ -242,9 +246,10 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 	UE_LOG(LogTemp, Log, TEXT("// getStringData :: %s"), *getStringData);
 
 	// 플레이어 디폴드 데이터 업데이트
-	if (Selection == "updateDefaultValue")
+	if (Selection == "UpdataDefaultValue")
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Playfab _ updateDefaultValue :: %s"), *getStringData);
+		getUserTitleData();
 	}
 }
 
@@ -297,12 +302,6 @@ void UActorComponent_Playfab::getUserTitleData(FString targetTitle)
 						// Fellowship = record->Value;
 						UE_LOG(LogTemp, Log, TEXT("// GetUserData() Fellowship :: %s "), *record->Value);
 					}
-					// 저장 스킨 컬러
-					else if (it == FString("Skincolor"))
-					{
-						// CustomData.Skin = *record->Value;
-						// setPlayerSkinCostume(*record->Value);
-					}
 					// 캐릭터 생성 여부 체크
 					else if (it == FString("Createcharacter"))
 					{
@@ -310,19 +309,15 @@ void UActorComponent_Playfab::getUserTitleData(FString targetTitle)
 						{
 							bCheckerCreateChracter = true;
 							UE_LOG(LogTemp, Log, TEXT("// Checker Create Chracter :: %d "), true);
-							// 캐릭터 플레이팹 데이터 가져오기.
-							// 인벤토리 > 
-							
 						}
 						else
 						{
 							bCheckerCreateChracter = false;
 							UE_LOG(LogTemp, Log, TEXT("// Checker Create Chracter :: %d "), false);
-							// 캐릭터 생성 하기
-							// createPlayfabCharacterEvent();
 						}
 						// 캐릭터 생성 초기 데이터 
-						// InitPlayFabUserTitleData(bCheckerCreateChracter);
+						if (PlayerOwner)
+							PlayerOwner->InitPlayFabUserTitleData(bCheckerCreateChracter);
 					}
 					else
 						UE_LOG(LogTemp, Log, TEXT("// GetUserData() Key ( %s ) , Value ( %s ) "), *it, *record->Value);
@@ -426,4 +421,39 @@ void UActorComponent_Playfab::getInventoryList()
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
+}
+// 유저 닉네임 업데이트 (중복 체크, 변경)
+void UActorComponent_Playfab::updateUserTitleName(const FString& DisplayName)
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+
+	PlayFab::ClientModels::FUpdateUserTitleDisplayNameRequest request;
+	request.DisplayName = DisplayName;
+	// 금칙어 체크
+	//AProjectSeoulGameModeBase* gm = Cast<AProjectSeoulGameModeBase>(GetWorld()->GetAuthGameMode());
+	//if (gm)
+	//{
+	//	bForbidden = gm->FindCheckBadName(DisplayName);
+	//	if (bForbidden)
+	//	{
+	//		updateDisplayNameEvent(false);
+	//		UE_LOG(LogTemp, Error, TEXT("// Forbidden Name "));
+	//		return;
+	//	}
+	//}
+
+	ClientAPI->UpdateUserTitleDisplayName(
+		request,
+		PlayFab::UPlayFabClientAPI::FUpdateUserTitleDisplayNameDelegate::CreateLambda([&](const PlayFab::ClientModels::FUpdateUserTitleDisplayNameResult& result) {
+
+			UserCharacterName = result.DisplayName;
+			bCheckerCreateChracter = true;
+
+			UE_LOG(LogTemp, Log, TEXT("// Success Create DisplayName :: %s "), *result.DisplayName);
+			if (PlayerOwner)
+				PlayerOwner->updateDisplayNameEvent(bCheckerCreateChracter);
+
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+	);
 }

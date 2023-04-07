@@ -56,6 +56,9 @@ protected:
 
 	FString ErrorFunctionName;
 
+	// Player Playfab 데이터 연동을 위한 바인딩
+	class APawn_Player* PlayerOwner;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -65,6 +68,9 @@ public:
 		void Login_Custom(const FString& customid);
 	UFUNCTION(BlueprintCallable)
 		void Login_Email(const FString& email, const FString& pw);
+	// 유저 닉네임 업데이트 (중복 체크, 변경)
+	UFUNCTION(BlueprintCallable)
+		void updateUserTitleName(const FString& DisplayName);
 
 	// Playfab 스크립트 호출
 	// // 스크립트 매개변수 x
@@ -90,5 +96,6 @@ public:
 	void getUserTitleName();
 	// 유저 인벤토리 정보
 	void getInventoryList();
+	
 
 };
