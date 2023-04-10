@@ -88,7 +88,7 @@ void AActor_PhotonChat::SendPrivateMessage(const FString& username, const FStrin
 // 채팅 채널 변경 
 void AActor_PhotonChat::setTargetSubscribe(enum_PhotonChat target)
 {
-	targetSubscribe = FString(TEXT("Channel_%d"), (int)target);
+	targetSubscribe = FString::Printf(TEXT("Channel_%d"), (int)target);
 
 	// 변경에 따른 UI 수정
 	// ChangeTargetSubscribe(target);
@@ -102,12 +102,12 @@ void AActor_PhotonChat::Chat_ConnectComplete(void)
 	TArray<FString> ChannelList;
 	for (int i = 0; i < (int)enum_PhotonChat::Max; i++)
 	{
-		ChannelList.Add(FString(TEXT("Channel_%d"), i));
+		ChannelList.Add(FString::Printf(TEXT("Channel_%d"), i));
 	}
 	AddSubscribeEvent(ChannelList);
 
 	// 디폴트 채널 설정
-	targetSubscribe = FString(TEXT("Channel_%d"), (int)enum_PhotonChat::Public);
+	targetSubscribe = FString::Printf(TEXT("Channel_%d"), (int)enum_PhotonChat::Public);
 	
 	// Blueprint
 	Blueprint_ConnectComplete();
@@ -121,4 +121,10 @@ void AActor_PhotonChat::Chat_AddSubscribe(const FString& Channel)
 void AActor_PhotonChat::Chat_RemoveSubscribe(const FString& Channel)
 {
 	SubscribeList.Remove(Channel);
+}
+// 메세지 출력 
+void AActor_PhotonChat::Chat_getMessageEvent(const FString& ChannelName, const FString& sender, const FString& Message)
+{
+	// 메세지 위젯 출력 
+	Blueprint_getMessageEvent(ChannelName, sender, Message);
 }

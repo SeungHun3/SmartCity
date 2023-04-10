@@ -211,6 +211,7 @@ void UActorComponent_Playfab::ErrorScript(const PlayFab::FPlayFabCppError& error
 		if (PlayerOwner)
 			PlayerOwner->CustomizingWidgetNameChecker(bCheckerCreateChracter);
 	}
+	
 	//// 아이템 구매 실패
 	//// "WrongPrice" || "WrongVirtualCurrency") // ItemNotFound , StoreNotFound
 	//if (error.ErrorName == "InsufficientFunds")
@@ -250,6 +251,13 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Playfab _ updateDefaultValue :: %s"), *getStringData);
 		getUserTitleData();
+	}
+	else if (Selection == "Createcharacter")
+	{
+		UE_LOG(LogTemp, Log, TEXT("// Playfab _ Createcharacter :: %s"), *getStringData);
+		// Test _ 캐릭터 생성 완료시 다음 로직 구현 처리 
+		if (PlayerOwner)
+			PlayerOwner->Blueprint_CreateCharacter();
 	}
 }
 
@@ -349,7 +357,9 @@ void UActorComponent_Playfab::getUserTitleName()
 
 			UserCharacterName = result.AccountInfo.Get()->TitleInfo->DisplayName;
 			UE_LOG(LogTemp, Log, TEXT("// getAccountInfo titleName :: %s "), *UserCharacterName);
-
+			// Change Dispaly Name ::
+			if (PlayerOwner)
+				PlayerOwner->ChangeDisplayName(UserCharacterName);
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);

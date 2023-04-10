@@ -22,5 +22,7 @@ public:
 	virtual void Chat_AddSubscribe(const FString& Channel) {}
 	virtual void Chat_RemoveSubscribe(const FString& Channel) {}
 
+	// Chat Mesage 
+	virtual void Chat_getMessageEvent(const FString& ChannelName, const FString& sender, const FString& Message) {}
 
 };

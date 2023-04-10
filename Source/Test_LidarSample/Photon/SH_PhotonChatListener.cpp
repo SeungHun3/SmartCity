@@ -56,7 +56,7 @@ void SH_PhotonChatListener::serverErrorReturn(int errorCode)
 void SH_PhotonChatListener::connectReturn(int errorCode, const Common::JString& errorString)
 {
 	Console::get().writeLine(Common::JString("// PhotonChat errorCode ConnectReturn :: ") + errorCode);
-	if (ErrorCode::OK)
+	if (errorCode == ErrorCode::OK)
 	{
 		// 기본 채널 접속
 		Common::JVector<Common::JString> channels;
@@ -119,7 +119,8 @@ void SH_PhotonChatListener::onGetMessages(const Common::JString& channelName, co
 		{
 			ExitGames::Common::JString Check = ExitGames::Common::ValueObject<ExitGames::Common::JString>(messages[i]).getDataCopy();
 			// JString* data = ((ValueObject<JString*>*)obj)->getDataCopy();
-			Console::get().writeLine(Common::JString("// // Senders :: ") + senders[i] + Common::JString("// Message :: ") + Check);
+			// Console::get().writeLine(Common::JString("// // Senders :: ") + senders[i] + Common::JString("// Message :: ") + Check);
+			m_pView->Chat_getMessageEvent(FString(UTF8_TO_TCHAR(channelName.UTF8Representation().cstr())) , FString(UTF8_TO_TCHAR(senders[i].UTF8Representation().cstr())), FString(UTF8_TO_TCHAR(Check.UTF8Representation().cstr())));
 		}
 		else
 		{

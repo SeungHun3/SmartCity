@@ -70,16 +70,19 @@ public:
 	
 	// 포톤 챗 접속 성공 
 	void Chat_ConnectComplete(void) override;
+	void Chat_getMessageEvent(const FString& ChannelName, const FString& sender, const FString& Message) override;
+
 	// 구독 채널 추가 
-	void Chat_AddSubscribe(const FString& Channel);
+	void Chat_AddSubscribe(const FString& Channel) override;
 	// 구독 채널 제거
-	void Chat_RemoveSubscribe(const FString& Channel);
+	void Chat_RemoveSubscribe(const FString& Channel) override;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Blueprint Binding Func
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_ConnectComplete();
-	
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_getMessageEvent(const FString& ChannelName, const FString& Sender, const FString& Message);
 public:
 	class SH_PhotonChatListener* m_pListener;
 

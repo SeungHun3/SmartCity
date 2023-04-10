@@ -45,4 +45,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void updateDisplayNameEvent(bool bChecker);
 
+	// 캐릭터 생성 완료 후 로직 처리
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_CreateCharacter();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+		void ChangeDisplayName(const FString& UserCharacterName);
+
 };
