@@ -61,10 +61,12 @@ void UActorComponent_Playfab::Login_Custom(const FString& customid)
 			LastLoginTime = result.LastLoginTime.mValue.ToString();
 
 			UE_LOG(LogTemp, Log, TEXT("// custom Login Success :: %s ( %s )"), *PlayFabID, *LastLoginTime);
-			UE_LOG(LogTemp, Log, TEXT("// SessionTicket :: ( %s )"), *result.AuthenticationContext->GetClientSessionTicket());
+			// UE_LOG(LogTemp, Log, TEXT("// SessionTicket :: ( %s )"), *result.AuthenticationContext->GetClientSessionTicket());
 
 			// 서버 접속 여부 체크
 			// getServerTitleData(result.NewlyCreated);
+
+			// 로그인 성공 // NewlyCreated 최근 생성 계정 판단
 			SuccessLogin(result.NewlyCreated);
 
 			}),
@@ -88,7 +90,7 @@ void UActorComponent_Playfab::Login_Email(const FString& email, const FString& p
 			PlayFabID = result.PlayFabId;
 			LastLoginTime = result.LastLoginTime.mValue.ToString();
 			UE_LOG(LogTemp, Log, TEXT("// EmailAddress Login Success :: %s ( %s )"), *PlayFabID, *LastLoginTime);
-			UE_LOG(LogTemp, Log, TEXT("// SessionTicket :: ( %s )"), *result.AuthenticationContext->GetClientSessionTicket());
+			// UE_LOG(LogTemp, Log, TEXT("// SessionTicket :: ( %s )"), *result.AuthenticationContext->GetClientSessionTicket());
 			// getUserTitleData();
 
 			}),
@@ -304,14 +306,8 @@ void UActorComponent_Playfab::getUserTitleData(FString targetTitle)
 				if (record)
 				{
 					UserTitleData.Add(it, record->Value);
-					// 친밀도
-					if (it == FString("Fellowship"))
-					{
-						// Fellowship = record->Value;
-						UE_LOG(LogTemp, Log, TEXT("// GetUserData() Fellowship :: %s "), *record->Value);
-					}
 					// 캐릭터 생성 여부 체크
-					else if (it == FString("Createcharacter"))
+					if (it == FString("Createcharacter"))
 					{
 						if (*record->Value == FString("1"))
 						{
@@ -323,25 +319,45 @@ void UActorComponent_Playfab::getUserTitleData(FString targetTitle)
 							bCheckerCreateChracter = false;
 							UE_LOG(LogTemp, Log, TEXT("// Checker Create Chracter :: %d "), false);
 						}
-						// 캐릭터 생성 초기 데이터 
-						if (PlayerOwner)
-							PlayerOwner->InitPlayFabUserTitleData(bCheckerCreateChracter);
+					}
+					// 친밀도
+					else if (it == FString("Fellowship"))
+					{
+						// Fellowship = record->Value;
+						UE_LOG(LogTemp, Log, TEXT("// GetUserData() Fellowship :: %s "), *record->Value);
 					}
 					else
 						UE_LOG(LogTemp, Log, TEXT("// GetUserData() Key ( %s ) , Value ( %s ) "), *it, *record->Value);
 				}
 			}
-			// UserCharacterName // Playfab Display Name 체크
-			getUserTitleName();
-			// 업적 데이터 체크
-			// getStatisticsEvent();
-			// 공지 정보 체크
-			// getNoticeEvent();
+			// 캐릭터 생성 여부
+			if (PlayerOwner)
+				PlayerOwner->InitPlayFabUserTitleData(bCheckerCreateChracter);
 
-			// updateUserTitleData(UserTitleData);
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
+}
+// 인게임 접속시 플레이어 데이터 로드 
+// 로딩 구성 추가 하기. 테스트 버전 딜레이 임시 추가
+// PlayerOwner->Check_getIngameLoadingCount()
+void UActorComponent_Playfab::getIngamePlayerData()
+{
+	// Check_getIngameLoadingCount :: 게임 정보 데이터를 불러오는 함수 수량 체크
+	// Test Count :: 2
+	if (PlayerOwner)
+		PlayerOwner->Test_LoadingCount = 2;
+
+	// 인벤토리 정보
+	getInventoryList();
+	// UserCharacterName // Playfab Display Name 체크
+	getUserTitleName();
+	// 업적 데이터 체크
+	// getStatisticsEvent();
+	// 공지 정보 체크
+	// getNoticeEvent();
+
+	// updateUserTitleData(UserTitleData);
 }
 // 유저 닉네임
 void UActorComponent_Playfab::getUserTitleName()
@@ -357,9 +373,8 @@ void UActorComponent_Playfab::getUserTitleName()
 
 			UserCharacterName = result.AccountInfo.Get()->TitleInfo->DisplayName;
 			UE_LOG(LogTemp, Log, TEXT("// getAccountInfo titleName :: %s "), *UserCharacterName);
-			// Change Dispaly Name ::
 			if (PlayerOwner)
-				PlayerOwner->ChangeDisplayName(UserCharacterName);
+				PlayerOwner->Check_getIngameLoadingCount();
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
@@ -425,9 +440,16 @@ void UActorComponent_Playfab::getInventoryList()
 			if (result.VirtualCurrency.Contains("GC"))
 			{
 				const int* findVC = result.VirtualCurrency.Find("GC");
-				// updateInventoryCoin(FString::FromInt(findVC[0]));
+				if (PlayerOwner)
+				{
+					PlayerOwner->VirtualCoin = FString::FromInt(findVC[0]);
+					// PlayerOwner->updateInventoryCoin(FString::FromInt(findVC[0]));
+					PlayerOwner->updateInventoryCoin();
+				}
 			}
 
+			if (PlayerOwner)
+				PlayerOwner->Check_getIngameLoadingCount();
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
@@ -460,6 +482,7 @@ void UActorComponent_Playfab::updateUserTitleName(const FString& DisplayName)
 			bCheckerCreateChracter = true;
 
 			UE_LOG(LogTemp, Log, TEXT("// Success Create DisplayName :: %s "), *result.DisplayName);
+			
 			if (PlayerOwner)
 				PlayerOwner->updateDisplayNameEvent(bCheckerCreateChracter);
 

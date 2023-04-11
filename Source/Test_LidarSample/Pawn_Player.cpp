@@ -2,6 +2,7 @@
 
 
 #include "Pawn_Player.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 // Sets default values
 APawn_Player::APawn_Player()
@@ -32,3 +33,7 @@ void APawn_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 }
 
+FString APawn_Player::getLoginDeviceID()
+{
+	return FGenericPlatformMisc::GetMacAddressString();
+}

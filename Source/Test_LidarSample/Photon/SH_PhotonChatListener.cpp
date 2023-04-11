@@ -59,9 +59,9 @@ void SH_PhotonChatListener::connectReturn(int errorCode, const Common::JString& 
 	if (errorCode == ErrorCode::OK)
 	{
 		// 기본 채널 접속
-		Common::JVector<Common::JString> channels;
-		channels.addElement(L"TEST");
-		m_pChatClient->opSubscribe(channels);
+		// Common::JVector<Common::JString> channels;
+		// channels.addElement(L"TEST");
+		// m_pChatClient->opSubscribe(channels);
 		
 		// AActor_PhotonChat function 
 		m_pView->Chat_ConnectComplete();

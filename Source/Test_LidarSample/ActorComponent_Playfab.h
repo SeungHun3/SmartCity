@@ -71,6 +71,9 @@ public:
 	// 유저 닉네임 업데이트 (중복 체크, 변경)
 	UFUNCTION(BlueprintCallable)
 		void updateUserTitleName(const FString& DisplayName);
+	// 인게임 로직 전 유저 데이터 정보 로드
+	UFUNCTION(BlueprintCallable)
+		void getIngamePlayerData();
 
 	// Playfab 스크립트 호출
 	// // 스크립트 매개변수 x

@@ -98,7 +98,10 @@ void AActor_PhotonChat::setTargetSubscribe(enum_PhotonChat target)
 // Basic Class override / Binding Event 
 void AActor_PhotonChat::Chat_ConnectComplete(void)
 {
-	// 기본 채널 구독하기 enum_PhotonChat
+	// 기본 채널 구독하기 
+	// Test 목록 :: enum_PhotonChat
+	// Test Channel name :: Channel_(enum_PhotonChat)
+
 	TArray<FString> ChannelList;
 	for (int i = 0; i < (int)enum_PhotonChat::Max; i++)
 	{
