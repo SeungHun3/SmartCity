@@ -34,27 +34,27 @@ void AActor_PhotonVoice::EndPlay(const EEndPlayReason::Type endPlayReason)
 	delete mpPhotonLib;
 }
 
+// 마이크 캡처, 인식
 AActor_PhotonAudioIn* AActor_PhotonVoice::createAudioIn()
 {
 	return GetWorld()->SpawnActor<AActor_PhotonAudioIn>();
 }
-
 void AActor_PhotonVoice::destroyAudioIn(AActor_PhotonAudioIn* a)
 {
 	GetWorld()->DestroyActor(a);
 }
 
+// 보이스 챗 출력 
 AActor_PhotonAudioOut* AActor_PhotonVoice::createAudioOut()
 {
 	return GetWorld()->SpawnActor<AActor_PhotonAudioOut>();
 }
-
 void AActor_PhotonVoice::destroyAudioOut(AActor_PhotonAudioOut* a)
 {
 	GetWorld()->DestroyActor(a);
 }
 
-
+// 포톤 보이스 업데이트
 void AActor_PhotonVoice::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -64,12 +64,12 @@ void AActor_PhotonVoice::Tick(float DeltaSeconds)
 	}
 }
 
+// 포톤 보이스 접속. Playfab ID 통일하기.
 void AActor_PhotonVoice::Connect(const FString& Vociename)
 {
 	Console::get().writeLine(L"// Connecting...");
 	mpPhotonLib->connect(TCHAR_TO_UTF8(*Vociename));
 }
-
 void AActor_PhotonVoice::Disconnect(void)
 {
 	mpPhotonLib->disconnect();

@@ -17,7 +17,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bWalk = false;
-	UPROPERTY(BlueprintReadWrite , Category = "Photon")
+	UPROPERTY(BlueprintReadWrite, Category = "Photon")
 		int PlayerNr;
 	UPROPERTY(BlueprintReadWrite, Category = "Photon")
 		FString PlayerName;

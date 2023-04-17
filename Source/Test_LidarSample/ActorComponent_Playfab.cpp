@@ -83,6 +83,11 @@ void UActorComponent_Playfab::Login_Email(const FString& email, const FString& p
 	request.Email = email;
 	request.Password = pw;
 
+	ClientModels::FPurchaseItemRequest asd;
+	
+	ClientAPI->PurchaseItem(asd);
+
+
 	ClientAPI->LoginWithEmailAddress(
 		request,
 		UPlayFabClientAPI::FLoginWithEmailAddressDelegate::CreateLambda([&](const ClientModels::FLoginResult& result) {
