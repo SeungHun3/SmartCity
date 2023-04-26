@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Pawn_Player.h"
-#include "TP/TP_Listner.h"
+#include "PhotonListner_Solaseado.h"
 #include "GameFramework/Actor.h"
 #include "Actor_SolaseadoPhoton.generated.h"
 
@@ -53,7 +53,7 @@ protected:
 
 	// 포톤 클라이언트
 	ExitGames::LoadBalancing::Client* m_pClient;
-	TP_Listner* m_pListener;
+	PhotonListner_Solaseado* m_pListener;
 
 	// 캐릭터 위치 포톤 업데이트
 	void movePlayer(FVector Loc);

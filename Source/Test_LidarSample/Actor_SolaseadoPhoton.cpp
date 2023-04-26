@@ -97,7 +97,7 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 {
 	srand(GETTIMEMS());
-	m_pListener = new TP_Listner(this);
+	m_pListener = new PhotonListner_Solaseado(this);
 	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion)); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
 	m_pListener->SetClient(m_pClient);
 	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
@@ -108,7 +108,7 @@ void AActor_SolaseadoPhoton::DummyConnectLogin(const FString& username, APawn_Pl
 	srand(GETTIMEMS());
 
 	LocalPlayer = dummy;
-	m_pListener = new TP_Listner(this);
+	m_pListener = new PhotonListner_Solaseado(this);
 	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion)); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
 	m_pListener->SetClient(m_pClient);
 	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
