@@ -77,7 +77,8 @@ public class Test_LidarSample : ModuleRules
 			//	PublicAdditionalLibraries.Add(Path.Combine(FirebasePath, "libs", "windows", "VS2019", "MD", "x64", "Release", Firebaselibraries[i] + ".lib"));
 			//}
 			
-			PublicIncludePaths.Add(FirebasePath + "/include");
+			// 파이어 베이스 x
+			// PublicIncludePaths.Add(FirebasePath + "/include");
 			// PrivateIncludePaths.Add(FirebasePath + "/include");
 
 			// 보이스챗 추가 라이브러리
@@ -116,6 +117,7 @@ public class Test_LidarSample : ModuleRules
 
 	public Test_LidarSample(ReadOnlyTargetRules Target) : base(Target)
 	{
+		bUseUnity = false;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Voice" ,

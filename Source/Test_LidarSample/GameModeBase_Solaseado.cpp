@@ -85,13 +85,7 @@ void AGameModeBase_Solaseado::MoveLevel(enum_Level level , bool bFade)
 	FadeOn = bFade;
 	// 화변 전환. Duration time
 	FadeIn();
-	// Check Delta Time 
-	float CurrentDeltaTime;
-	const UWorld* world = GetWorld();
-	if (world)
-	{
-		CurrentDeltaTime = world->GetDeltaSeconds();
-	}
+
 	GetWorld()->GetTimerManager().SetTimer(FadeTimer, this, &AGameModeBase_Solaseado::LoadLevel, 0.01f, false, FadeDuration);
 }
 // 빠른 레벨 이동 
@@ -106,6 +100,7 @@ void AGameModeBase_Solaseado::LoadLevel()
 {
 	ChangeLevel(OpenLevel);
 }
+
 void AGameModeBase_Solaseado::ChangeLevel(const FString& openLevel , bool bFade)
 {
 	FLatentActionInfo latent;
@@ -133,4 +128,162 @@ void AGameModeBase_Solaseado::ChangeLevel(const FString& openLevel , bool bFade)
 		latent.ExecutionFunction = "LoadStreamLevelFinish";
 		UGameplayStatics::LoadStreamLevel(this, FName(OpenLevel), true, true, latent);
 	}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Seamless Load Level System
+// 현재 레벨에서 로드할 이웃 레벨 체크
+TArray<FString> AGameModeBase_Solaseado::Check_OutsideLevel(const FString& targetLevel)
+{
+	TArray<FString> OutSideLevel;
+	OutSideLevel.Empty();
+
+	// 1. 이름 분리 SimPoly 이후 넘버만 사용
+	FString str = "SimPoly";
+	FString LevelName = targetLevel;
+	if (LevelName.IsEmpty())
+		return OutSideLevel;
+
+	const TCHAR* str1 = FCString::Strstr(*LevelName, *str);
+	FString Level_Num = FString(str1 + str.Len());
+	
+	// 레벨 네임 1~16 까지. 환산식에선 배열구조 0 ~ 15 사용 . 추가 변환값 +1 원상 복구.
+	int LevelRow = getTargetLevelRow(Level_Num);
+	int LevelCol = getTargetLevelCol(Level_Num);
+
+	// 추가 기능  > 8면 추가
+	bool bUp = false;
+	bool bDown = false;
+	bool bRight = false;
+	bool bLift = false;
+
+	if (LevelRow + 1 < MaxRow)
+	{								
+		// +1 추가 변환값.
+		OutSideLevel.Add(str + FString::FromInt((LevelRow + 1) * MaxCol + LevelCol + 1));
+		bUp = true;
+	}
+	if (LevelRow - 1 >= 0)
+	{
+		OutSideLevel.Add(str + FString::FromInt((LevelRow - 1) * MaxCol + LevelCol + 1));
+		bDown = true;
+	}
+	// MaxCol;
+	if (LevelCol + 1 < MaxCol)
+	{
+		OutSideLevel.Add(str + FString::FromInt((LevelRow)*MaxCol + LevelCol + 1 + 1));
+		bRight = true;
+	}
+	if (LevelCol - 1 >= 0)
+	{
+		OutSideLevel.Add(str + FString::FromInt((LevelRow)*MaxCol + LevelCol - 1 + 1));
+		bLift = true;
+	}
+
+	//// 8면 추가
+	//if (bUp)
+	//{
+	//	if (bRight)
+	//	{
+	//		OutSideLevel.Add(str + FString::FromInt((LevelRow + 1) * MaxCol + (LevelCol + 1) + 1));
+	//	}
+	//	if (bLift)
+	//	{
+	//		OutSideLevel.Add(str + FString::FromInt((LevelRow + 1) * MaxCol + (LevelCol - 1) + 1));
+	//	}
+	//}
+	//if (bDown)
+	//{
+	//	if (bRight)
+	//	{
+	//		OutSideLevel.Add(str + FString::FromInt((LevelRow - 1) * MaxCol + (LevelCol + 1) + 1));
+	//	}
+	//	if (bLift)
+	//	{
+	//		OutSideLevel.Add(str + FString::FromInt((LevelRow - 1) * MaxCol + (LevelCol - 1) + 1));
+	//	}
+	//}
+	return OutSideLevel;
+}
+
+// 주변 이웃 레벨 언로드.
+void AGameModeBase_Solaseado::Seamless_UnloadOutsideLevel(const TArray<FString>& unload)
+{
+	Check_UnloadLevel = unload;
+	// OpenLevel 제외
+	Check_UnloadLevel.Remove(OpenLevel);
+	// Check_UnloadLevel 목록 전체 언로드 작업.
+	Check_UnloadOutsideLevel();
+}
+void AGameModeBase_Solaseado::Seamless_LoadOutsideLevel(const TArray<FString>& unload)
+{
+	Check_LoadLevel = unload;
+	// CurrentLevel 제외
+	Check_LoadLevel.Remove(CurrentLevel);
+	// Check_UnloadLevel 목록 전체 언로드 작업.
+	Check_LoadOutsideLevel();
+}
+
+// seamless 레벨 언로드시 OpenLevel은 언로드 금지.
+void AGameModeBase_Solaseado::Check_UnloadOutsideLevel()
+{
+	// 이웃 레벨 언로드 이름
+	FString Check_OutsideUnloadLevel;
+	if (Check_UnloadLevel.Num() > 0)
+	{
+		Check_OutsideUnloadLevel = Check_UnloadLevel[0];
+	}
+	else
+	{
+		// 이웃 레벨 언로드 완료 후 > 필요 레벨 로드 작업 추가.
+		Seamless_LoadOutsideLevel(Check_OutsideLevel(OpenLevel));
+		return;
+	}
+	
+	FLatentActionInfo latent;
+	latent.CallbackTarget = this;
+	latent.UUID = GetUniqueID();
+	latent.Linkage = 0;
+
+	latent.ExecutionFunction = "Check_UnloadOutsideLevel";
+	UGameplayStatics::UnloadStreamLevel(this, FName(Check_OutsideUnloadLevel), latent, false);
+
+	Check_UnloadLevel.Remove(Check_OutsideUnloadLevel);
+}
+// seamless 레벨 언로드시 OpenLevel은 언로드 금지.
+void AGameModeBase_Solaseado::Check_LoadOutsideLevel()
+{
+	// 이웃 레벨 언로드 이름
+	FString Check_OutsideloadLevel;
+	if (Check_LoadLevel.Num() > 0)
+	{
+		if(Check_LoadLevel.IsValidIndex(0))
+			Check_OutsideloadLevel = Check_LoadLevel[0];
+	}
+	else
+	{
+		// Finished >> 필요 레벨 로드 완료 후 처리.
+		CurrentLevel = OpenLevel;
+		UE_LOG(LogTemp, Log, TEXT("// Test _ Seamless OutsideLevel Check_LoadLevel"));
+		return;
+	}
+
+	FLatentActionInfo latent;
+	latent.CallbackTarget = this;
+	latent.UUID = GetUniqueID();
+	latent.Linkage = 0;
+
+	latent.ExecutionFunction = "Check_LoadOutsideLevel";
+	UGameplayStatics::LoadStreamLevel(this, FName(Check_OutsideloadLevel), true, true, latent);
+
+	Check_LoadLevel.Remove(Check_OutsideloadLevel);
+}
+//  Seamless Level Load 
+void AGameModeBase_Solaseado::SeamlessLevelLoad(const FString& openLevel)
+{
+	// 다음 오픈 레벨 체크.
+	OpenLevel = openLevel;
+	// 언로드 로직 완료 후 주변 레벨 로드 작업.
+	// 현재 레벨 (CurrentLevel) 해당하는 이웃 레벨 처리.
+	UE_LOG(LogTemp, Log, TEXT("// SeamlessLevelLoad CurrentLevel( %s ) "), *CurrentLevel);
+	Seamless_UnloadOutsideLevel(Check_OutsideLevel(CurrentLevel));
 }

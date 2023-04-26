@@ -12,6 +12,7 @@ enum class enum_Level : uint8
 	Intro,
 	Login,
 	Solaseado = 2,
+	SimPoly1,
 	None,
 };
 
@@ -33,6 +34,9 @@ public:
 		case enum_Level::Solaseado:
 			str = "Solaseado";
 			break;
+		case enum_Level::SimPoly1: // SimPoly 생략
+			str = "SimPoly1";
+			break;
 		}
 		return str;
 	}
@@ -47,15 +51,21 @@ class TEST_LIDARSAMPLE_API AGameModeBase_Solaseado : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-
 	virtual void BeginPlay() override;
 
 	FString CurrentLevel = FString("");
 	FString OpenLevel;
 	FLevel FOpenLevel;
 
+	// 현재 심리스 레벨 구조가 가지는 최대 Row
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		int MaxRow = 4;
+	// 현재 심리스 레벨 구조가 가지는 최대 Col
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		int MaxCol = 4;
+
 	// Move Level Finished 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "SH_")
 		FStreamLevelFinish StreamLevelFinish;
 
 private:
@@ -74,6 +84,29 @@ private:
 
 	// 페이드 시작 타이머
 	FTimerHandle FadeTimer;
+	// 이웃 레벨 언로드 목록
+	TArray<FString> Check_UnloadLevel;
+	// 이웃 레벨 언로드 목록
+	TArray<FString> Check_LoadLevel;
+
+	UFUNCTION()
+		void Check_UnloadOutsideLevel();
+	UFUNCTION()
+		void Check_LoadOutsideLevel();
+
+	// 현재 레벨이 가지는 Row, Col 변환 / Level - 1 변환값 적용.
+	int getTargetLevelRow(const FString& target) {
+		return (FCString::Atoi(*target) - 1) / MaxRow;
+	}
+	int getTargetLevelCol(const FString& target) {
+		return (FCString::Atoi(*target) - 1) % MaxCol;
+	}
+	// 현재 로드 레벨에서 주변 이웃 레벨 체크
+	TArray<FString> Check_OutsideLevel(const FString& targetLevel);
+
+	// 이웃 레벨 로드 & 언로드
+	void Seamless_UnloadOutsideLevel(const TArray<FString>& unload);
+	void Seamless_LoadOutsideLevel(const TArray<FString>& unload);
 
 public:
 	void OpenStreamLevel(enum_Level level);
@@ -89,9 +122,13 @@ public:
 	UFUNCTION()
 		void LoadStreamLevelFinish();
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SH_")
 		void MoveLevel(enum_Level level, bool bFade = true);
-	// 페이트 x , 빠른 레벨 이동
-	UFUNCTION(BlueprintCallable)
+	// fade in & out x , 빠른 레벨 이동
+	UFUNCTION(BlueprintCallable, Category = "SH_")
 		void FastMoveLevel(enum_Level level);
+
+	// 
+	UFUNCTION(BlueprintCallable, Category = "SH_")
+		void SeamlessLevelLoad(const FString& openLevel);
 };
