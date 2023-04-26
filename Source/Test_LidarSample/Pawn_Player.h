@@ -21,6 +21,8 @@ public:
 		int PlayerNr;
 	UPROPERTY(BlueprintReadWrite, Category = "Photon")
 		FString PlayerName;
+	UPROPERTY(BlueprintReadWrite)
+		bool isInRoom = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Playfab")
 		int Test_LoadingCount;
@@ -28,6 +30,12 @@ public:
 	// 가상 통화 
 	UPROPERTY(BlueprintReadWrite, Category = "Playfab")
 		FString VirtualCoin;
+
+	//로컬 플레이어인지
+	bool bLocal = false;
+
+	//참가 인원수
+	uint8 ParticipantClient;
 
 protected:
 	// Called when the game starts or when spawned
@@ -67,4 +75,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_CreateCharacter();
 	
+
+	// 참가중인 인원수 체크
+	void AddClentPlayerCount();
+	void RemoveClentPlayerCount();
 };

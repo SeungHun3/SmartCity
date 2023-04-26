@@ -24,6 +24,7 @@ void APawn_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 }
 
 // Called to bind functionality to input
@@ -36,4 +37,14 @@ void APawn_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 FString APawn_Player::getLoginDeviceID()
 {
 	return FGenericPlatformMisc::GetMacAddressString();
+}
+
+void APawn_Player::AddClentPlayerCount()
+{
+	++ParticipantClient;
+}
+
+void APawn_Player::RemoveClentPlayerCount()
+{
+	--ParticipantClient;
 }
