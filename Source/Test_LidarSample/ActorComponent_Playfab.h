@@ -86,6 +86,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ScriptCustomArray(const FString& FunctionName, const FString& FieldName, const TArray<FString>& StringArray);
 
+
+	////////////////////////////////////////////////////////////
+	// 승훈 코스튬
+	////////////////////////////////////////////////////////////
+	UFUNCTION(BlueprintCallable)
+	void UploadMyCustom(const FString& FunctionName, const FString& FieldName, const TArray<int> ItemIDs);
+
+	////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////
+	
+
+
 	// Playfab 스크립트 호출 콜벡 이벤트 처리
 	void ScriptResponseEvent(FJsonValue* value);
 
@@ -99,6 +111,7 @@ public:
 	void getUserTitleName();
 	// 유저 인벤토리 정보
 	void getInventoryList();
+	
 	
 
 };

@@ -266,6 +266,12 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 		if (PlayerOwner)
 			PlayerOwner->Blueprint_CreateCharacter();
 	}
+	else if (Selection == "SeunghunGrant")
+	{
+		UE_LOG(LogTemp, Log, TEXT("// Playfab _ GrantSuccess__call__getUserTitleData"));
+		// 서버에서 아이템을 주고 인벤토리에 넣는다 -> 타이틀 데이터 가져오고나서 레벨이동시작
+		getIngamePlayerData();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -494,4 +500,24 @@ void UActorComponent_Playfab::updateUserTitleName(const FString& DisplayName)
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 	);
+}
+
+/////////////////////////////////Grant -> getinGamePlayerData -> level이동
+// 승훈 업로드 코스튬, Grant 
+
+void UActorComponent_Playfab::UploadMyCustom(const FString& FunctionName, const FString& FieldName,const TArray<int> ItemIDs)
+{
+
+
+	TArray<FString> FirstCostumeData;
+
+
+	for (auto it : ItemIDs)
+	{
+		FirstCostumeData.Push(FString::FromInt(it));
+
+	}
+
+	// 커스텀 데이터 일단 저장
+	ScriptCustomArray(FunctionName, FieldName, FirstCostumeData);
 }
