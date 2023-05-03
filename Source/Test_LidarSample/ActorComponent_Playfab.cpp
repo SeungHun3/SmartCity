@@ -619,7 +619,7 @@ void UActorComponent_Playfab::getStoreItemList(const FString& CatalogVersion, co
 			// 전부 담고나서 배열을 넘겨주기
 			if (PlayerOwner)
 			{
-				//PlayerOwner->UpdateStore(ShopDatas);
+				PlayerOwner->UpdateStore(ShopDatas);
 			}
 			//PlayerOwner->Seunghun_ShopUpdate(ShopDatas);
 
