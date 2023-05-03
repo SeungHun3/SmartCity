@@ -18,7 +18,10 @@ UActorComponent_Playfab::UActorComponent_Playfab()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+		// 금칙어 리스트 > 닉네임
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindBadNameData(TEXT("/Game/Project/DataTable/Data_BadName"));
+	if (FindBadNameData.Succeeded())
+		BadNameTable = FindBadNameData.Object;
 }
 
 // Called when the game starts
@@ -461,7 +464,6 @@ void UActorComponent_Playfab::getInventoryList()
 				if (PlayerOwner)
 				{
 					PlayerOwner->VirtualCoin = FString::FromInt(findVC[0]);
-					// PlayerOwner->updateInventoryCoin(FString::FromInt(findVC[0]));
 					PlayerOwner->updateInventoryCoin();
 				}
 			}
@@ -473,6 +475,24 @@ void UActorComponent_Playfab::getInventoryList()
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
 }
+// 넥네임 금칙어 체크하기
+bool UActorComponent_Playfab::FindCheckBadName(const FString& name)
+{
+	TArray<FName> outputBadNameCheckRow = BadNameTable->GetRowNames();
+
+	// 닉네임 구조 공백문자 x
+	for (auto it : outputBadNameCheckRow)
+	{
+		FBadNameTable* data = BadNameTable->FindRow<FBadNameTable>(*it.ToString(), "");
+		int32 Bad = name.Find(data->BadString);
+		if (Bad >= 0)
+		{
+			UE_LOG(LogTemp, Log, TEXT("// Bad String Find Point Number :: %d "), Bad);
+			return true;
+		}
+	}
+	return false;
+}
 // 유저 닉네임 업데이트 (중복 체크, 변경)
 void UActorComponent_Playfab::updateUserTitleName(const FString& DisplayName)
 {
@@ -480,18 +500,15 @@ void UActorComponent_Playfab::updateUserTitleName(const FString& DisplayName)
 
 	PlayFab::ClientModels::FUpdateUserTitleDisplayNameRequest request;
 	request.DisplayName = DisplayName;
-	// 금칙어 체크
-	//AProjectSeoulGameModeBase* gm = Cast<AProjectSeoulGameModeBase>(GetWorld()->GetAuthGameMode());
-	//if (gm)
-	//{
-	//	bForbidden = gm->FindCheckBadName(DisplayName);
-	//	if (bForbidden)
-	//	{
-	//		updateDisplayNameEvent(false);
-	//		UE_LOG(LogTemp, Error, TEXT("// Forbidden Name "));
-	//		return;
-	//	}
-	//}
+
+	if (FindCheckBadName(DisplayName))
+	{
+		// 금칙어 처리 추가 하기.
+		if (PlayerOwner)
+			PlayerOwner->updateDisplayNameEvent(false);
+		UE_LOG(LogTemp, Error, TEXT("// Forbidden Name :: %s "), *DisplayName);
+		return;
+	}
 
 	ClientAPI->UpdateUserTitleDisplayName(
 		request,

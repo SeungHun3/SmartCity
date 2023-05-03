@@ -7,9 +7,21 @@
 #include "PlayFab.h"
 #include "Core/PlayFabError.h"
 #include "Core/PlayFabClientDataModels.h"
+#include "Engine/DataTable.h"
 
 #include "Components/ActorComponent.h"
 #include "ActorComponent_Playfab.generated.h"
+
+// 금칙어 정보 
+USTRUCT(BlueprintType)
+struct FBadNameTable : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString BadString;
+};
 
 // 아이템 정보
 USTRUCT(BlueprintType)
@@ -85,9 +97,15 @@ protected:
 	// 인벤토리 아이템 정보 리스트
 	TArray<FItemproperty> InventoryProperty;
 
+	// 금칙어 데이터 테이블
+	UDataTable* BadNameTable;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	// 금칙어 체크 
+	bool FindCheckBadName(const FString& name);
 
 	// Playfab 간편 로그인
 	UFUNCTION(BlueprintCallable)
