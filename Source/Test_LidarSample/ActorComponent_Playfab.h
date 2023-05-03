@@ -7,6 +7,8 @@
 #include "PlayFab.h"
 #include "Core/PlayFabError.h"
 #include "Core/PlayFabClientDataModels.h"
+#include "Struct_Customizing.h"
+
 
 #include "Components/ActorComponent.h"
 #include "ActorComponent_Playfab.generated.h"
@@ -92,6 +94,15 @@ public:
 	////////////////////////////////////////////////////////////
 	UFUNCTION(BlueprintCallable)
 	void UploadMyCustom(const FString& FunctionName, const FString& FieldName, const TArray<int> ItemIDs);
+
+	/// 
+	///  상점 목록 업데이트
+	/// 
+	UFUNCTION(BlueprintCallable)
+	void getStoreItemList(const FString& CatalogVersion,const FString& StoreID);
+
+
+
 
 	////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////
