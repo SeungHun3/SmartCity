@@ -584,5 +584,63 @@ void UActorComponent_Playfab::UploadMyCustom(const FString& FunctionName, const 
 		FirstCostumeData.Push(FString::FromInt(it));
 	}
 	// 커스텀 데이터 일단 저장
+
 	ScriptCustomArray(FunctionName, FieldName, FirstCostumeData);
+}
+
+void UActorComponent_Playfab::getStoreItemList(const FString& CatalogVersion, const FString& StoreID)
+{
+
+	if (CatalogVersion.IsEmpty() && StoreID.IsEmpty())
+	{
+		UE_LOG(LogTemp, Log, TEXT("// Empty CatalogVersion or StoreID"));
+		return;
+	}
+
+
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	ClientModels::FGetStoreItemsRequest request;
+
+	// 상점 정보 셋팅
+	request.CatalogVersion = CatalogVersion; //"SolaseadoStore";
+	FString version = request.CatalogVersion;
+	request.StoreId = StoreID; //"SeungHunTest";
+	FString StoreId = request.StoreId;
+	
+
+	ClientAPI->GetStoreItems(
+		request,// 요구사항 담아서 전송
+		// 회신
+		UPlayFabClientAPI::FGetStoreItemsDelegate::CreateLambda([&, version, StoreId](const ClientModels::FGetStoreItemsResult& result) {
+
+			TArray<FITemInfo> ShopDatas;
+
+
+			for (auto it : result.Store)
+			{
+				if (it.VirtualCurrencyPrices.Contains("GC"))
+				{
+					//GC코인을 가지고 있는 Store 중에서
+					FITemInfo infoTemp;
+					infoTemp.ItemID = it.ItemId;
+					infoTemp.ItemPrice = *it.VirtualCurrencyPrices.Find("GC");
+					infoTemp.StoreID = StoreId;
+					infoTemp.VirtualCurrency = "GC";
+					//정보 담자마자 업데이트 함수하거나
+					ShopDatas.Push(infoTemp);
+
+					//getMyInventory(infoTemp);
+				}
+			}
+			// 전부 담고나서 배열을 넘겨주기
+			if (PlayerOwner)
+			{
+				PlayerOwner->UpdateStore(ShopDatas);
+			}
+			//PlayerOwner->Seunghun_ShopUpdate(ShopDatas);
+
+			}// 에러함수 (넣지않음)
+	));
+
+
 }

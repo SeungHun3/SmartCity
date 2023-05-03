@@ -9,6 +9,7 @@
 #include "Core/PlayFabClientDataModels.h"
 #include "Engine/DataTable.h"
 
+
 #include "Components/ActorComponent.h"
 #include "ActorComponent_Playfab.generated.h"
 
@@ -35,6 +36,18 @@ public:
 		FString ItemInstanceId;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString ItemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int RemainingUses;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int UnitPrice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString colorData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bItemEquipment = false;
+};
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int RemainingUses;
@@ -141,6 +154,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UploadMyCustom(const FString& FunctionName, const FString& FieldName, const TArray<int> ItemIDs);
 
+	/// 
+	///  상점 목록 업데이트
+	/// 
+	UFUNCTION(BlueprintCallable)
+	void getStoreItemList(const FString& CatalogVersion,const FString& StoreID);
+
+
+
+
 	////////////////////////////////////////////////////////////
 
 	// Playfab 스크립트 호출 콜벡 이벤트 처리
@@ -160,4 +182,7 @@ public:
 	void getStatisticsEvent();
 	// 공지 내용
 	void getNoticeEvent(int NoticeCount);
+	
+	
+
 };
