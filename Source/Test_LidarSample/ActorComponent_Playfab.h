@@ -37,6 +37,17 @@ public:
 };
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int RemainingUses;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int UnitPrice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString colorData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bItemEquipment = false;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEST_LIDARSAMPLE_API UActorComponent_Playfab : public UActorComponent
 {
@@ -106,14 +117,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 		const TArray<FItemproperty> getInventoryItemList() { return InventoryProperty; }
 
-	// Playfab 스크립트 호출
-	// // 스크립트 매개변수 x
+	//////////////////////////////////////////////////////////////////
+	//// Playfab 스크립트 호출
+	//// 스크립트 매개변수 x
 	UFUNCTION(BlueprintCallable)
 		void ScriptCustomNotField(const FString& FunctionName);
-	// // 스크립트 매개변수 o
+	//// 스크립트 매개변수 o
 	UFUNCTION(BlueprintCallable)
 		void ScriptCustom(const FString& FunctionName, const FString& FieldName, const FString& value);
-	// // 스크립트 매개변수 배열
+	//// 스크립트 매개변수 배열
 	UFUNCTION(BlueprintCallable)
 		void ScriptCustomArray(const FString& FunctionName, const FString& FieldName, const TArray<FString>& StringArray);
 
@@ -134,9 +146,6 @@ public:
 
 
 	////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////
-	
-
 
 	// Playfab 스크립트 호출 콜벡 이벤트 처리
 	void ScriptResponseEvent(FJsonValue* value);
