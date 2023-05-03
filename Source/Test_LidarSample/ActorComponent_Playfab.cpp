@@ -21,7 +21,6 @@ UActorComponent_Playfab::UActorComponent_Playfab()
 	// ...
 }
 
-
 // Called when the game starts
 void UActorComponent_Playfab::BeginPlay()
 {
@@ -359,14 +358,17 @@ void UActorComponent_Playfab::getIngamePlayerData()
 	if (PlayerOwner)
 		PlayerOwner->Test_LoadingCount = 2;
 
+	// Test_LoadingCount Check :: o
 	// 인벤토리 정보
 	getInventoryList();
 	// UserCharacterName // Playfab Display Name 체크
 	getUserTitleName();
+
+	// Test_LoadingCount Check :: x
 	// 업적 데이터 체크
-	// getStatisticsEvent();
+	getStatisticsEvent();
 	// 공지 정보 체크
-	// getNoticeEvent();
+	getNoticeEvent(3);
 
 	// updateUserTitleData(UserTitleData);
 }
@@ -401,52 +403,57 @@ void UActorComponent_Playfab::getInventoryList()
 		request,
 		PlayFab::UPlayFabClientAPI::FGetUserInventoryDelegate::CreateLambda([&](const PlayFab::ClientModels::FGetUserInventoryResult& result) {
 
-			//InventoryProperty.Reset();
+			InventoryProperty.Reset();
 			UE_LOG(LogTemp, Log, TEXT("// getInventoryList :: Len ( %d )"), result.Inventory.Num());
 
-			//for (auto it : result.Inventory)
-			//{
-			//	FItemproperty Invendata;
-			//	Invendata.ItemId = it.ItemId;
-			//	Invendata.ItemInstanceId = it.ItemInstanceId;
-			//	Invendata.ItemClass = it.ItemClass;
-			//	Invendata.RemainingUses = it.RemainingUses;
-			//	Invendata.UnitPrice = it.UnitPrice;
-			//	if (it.CustomData.Contains("Color"))
-			//	{
-			//		FString* colorData = it.CustomData.Find("Color");
-			//		Invendata.colorData = colorData[0];
-			//		UE_LOG(LogTemp, Log, TEXT("// getInventoryList :: Color ( %s )"), *Invendata.colorData);
-			//	}
-			//	else
-			//		UE_LOG(LogTemp, Log, TEXT("// Error : getInventoryList(id : %s ) Not Find ColorData"), *it.ItemId);
+			for (auto it : result.Inventory)
+			{
+				FItemproperty Invendata;
+				Invendata.ItemId = it.ItemId;
+				Invendata.ItemInstanceId = it.ItemInstanceId;
+				Invendata.ItemClass = it.ItemClass;
+				Invendata.RemainingUses = it.RemainingUses;
+				Invendata.UnitPrice = it.UnitPrice;
 
-			//	if (CheckUsertitleData("Body", Invendata)) {
+				// 아이템 컬러 정보 저장 방법 결정이 필요.
+				// 아이템 색상 정보를 테이블과 데이터 처리 방법? 
+				/*if (it.CustomData.Contains("Color"))
+				{
+					FString* colorData = it.CustomData.Find("Color");
+					Invendata.colorData = colorData[0];
+					UE_LOG(LogTemp, Log, TEXT("// getInventoryList :: Color ( %s )"), *Invendata.colorData);
+				}
+				else
+					UE_LOG(LogTemp, Log, TEXT("// Error : getInventoryList(id : %s ) Not Find ColorData"), *it.ItemId);*/
 
-			//		TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
-			//		CustomData.Body = ChangeBody;
-			//	}
-			//	else if (CheckUsertitleData("Eyebrow", Invendata)) {
-			//		TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
-			//		CustomData.Eyebrow = ChangeBody;
-			//	}
-			//	else if (CheckUsertitleData("Eyes", Invendata)) {
-			//		TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
-			//		CustomData.Eyes = ChangeBody;
-			//	}
-			//	else if (CheckUsertitleData("Hair", Invendata)) {
-			//		TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
-			//		CustomData.Hair = ChangeBody;
-			//	}
-			//	else if (CheckUsertitleData("Lips", Invendata)) {
-			//		TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
-			//		CustomData.Lips = ChangeBody;
-			//	}
-			//	// 인벤토리 아이템 정보 리스트
-			//	InventoryProperty.Add(Invendata);
-			//	// 인벤토리 슬롯 추가 
-			//	updateInventoryItem(Invendata);
-			//}
+				// 커스터마이지 관련 데이터 저장 구분.
+				/*if (CheckUsertitleData("Body", Invendata)) {
+
+					TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
+					CustomData.Body = ChangeBody;
+				}
+				else if (CheckUsertitleData("Eyebrow", Invendata)) {
+					TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
+					CustomData.Eyebrow = ChangeBody;
+				}
+				else if (CheckUsertitleData("Eyes", Invendata)) {
+					TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
+					CustomData.Eyes = ChangeBody;
+				}
+				else if (CheckUsertitleData("Hair", Invendata)) {
+					TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
+					CustomData.Hair = ChangeBody;
+				}
+				else if (CheckUsertitleData("Lips", Invendata)) {
+					TTuple<FName, FName> ChangeBody(FName(*Invendata.ItemId), FName(*Invendata.colorData));
+					CustomData.Lips = ChangeBody;
+				}*/
+				// 인벤토리 아이템 정보 리스트
+				InventoryProperty.Add(Invendata);
+
+				// 인벤토리 위젯 슬롯 추가 함수 연결
+				// updateInventoryItem(Invendata);
+			}
 
 			if (result.VirtualCurrency.Contains("GC"))
 			{
@@ -459,6 +466,7 @@ void UActorComponent_Playfab::getInventoryList()
 				}
 			}
 
+			// 로딩 카운터 체크 후 다음 레벨 진행 여부 확인.
 			if (PlayerOwner)
 				PlayerOwner->Check_getIngameLoadingCount();
 			}),
@@ -501,24 +509,66 @@ void UActorComponent_Playfab::updateUserTitleName(const FString& DisplayName)
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 	);
 }
+// 업적 데이터 getStatisticsEvent
+// 미션 데이터 & 통계(랭킹) 데이터 
+void UActorComponent_Playfab::getStatisticsEvent()
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	PlayFab::ClientModels::FGetPlayerStatisticsRequest request;
+
+	ClientAPI->GetPlayerStatistics(
+		request,
+		PlayFab::UPlayFabClientAPI::FGetPlayerStatisticsDelegate::CreateLambda([&](const PlayFab::ClientModels::FGetPlayerStatisticsResult& result) {
+
+			TMap<FString, int> MissionData;
+			for (auto it : result.Statistics)
+			{
+				MissionData.Add(it.StatisticName, it.Value);
+			}
+			// 업적 데이터 관리
+			// updateMissionEvent(MissionData);
+
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+		);
+}
+// 공지 정보 가져오기 NoticeCount 가져올 공지 수
+void UActorComponent_Playfab::getNoticeEvent(int NoticeCount)
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+
+	PlayFab::ClientModels::FGetTitleNewsRequest request;
+	request.Count = NoticeCount;
+
+	ClientAPI->GetTitleNews(
+		request,
+		PlayFab::UPlayFabClientAPI::FGetTitleNewsDelegate::CreateLambda([&](const PlayFab::ClientModels::FGetTitleNewsResult& result) {
+
+			for (auto it : result.News)
+			{
+				// 공지 팝업을 위한 정보 처리
+				// 제목 // 내용
+				// updateNotice(it.Title, it.Body);
+				UE_LOG(LogTemp, Log, TEXT("// getNotice Body :: %s "), *it.Body);
+			}
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
+}
 
 /////////////////////////////////Grant -> getinGamePlayerData -> level이동
 // 승훈 업로드 코스튬, Grant 
-
 void UActorComponent_Playfab::UploadMyCustom(const FString& FunctionName, const FString& FieldName,const TArray<int> ItemIDs)
 {
-
-
 	TArray<FString> FirstCostumeData;
-
 
 	for (auto it : ItemIDs)
 	{
 		FirstCostumeData.Push(FString::FromInt(it));
-
 	}
 
-	// 커스텀 데이터 저장 후 PlayFab으로 전달 
+	// 커스텀 데이터 일단 저장
+
 	ScriptCustomArray(FunctionName, FieldName, FirstCostumeData);
 }
 
@@ -569,7 +619,7 @@ void UActorComponent_Playfab::getStoreItemList(const FString& CatalogVersion, co
 			// 전부 담고나서 배열을 넘겨주기
 			if (PlayerOwner)
 			{
-				PlayerOwner->UpdateStore(ShopDatas);
+				//PlayerOwner->UpdateStore(ShopDatas);
 			}
 			//PlayerOwner->Seunghun_ShopUpdate(ShopDatas);
 

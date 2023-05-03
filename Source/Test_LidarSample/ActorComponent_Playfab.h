@@ -13,6 +13,29 @@
 #include "Components/ActorComponent.h"
 #include "ActorComponent_Playfab.generated.h"
 
+USTRUCT(BlueprintType)
+struct FItemproperty
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemId;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemInstanceId;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int RemainingUses;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int UnitPrice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString colorData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bItemEquipment = false;
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEST_LIDARSAMPLE_API UActorComponent_Playfab : public UActorComponent
@@ -61,6 +84,9 @@ protected:
 	// Player Playfab 데이터 연동을 위한 바인딩
 	class APawn_Player* PlayerOwner;
 
+	// 인벤토리 아이템 정보 리스트
+	TArray<FItemproperty> InventoryProperty;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -76,6 +102,9 @@ public:
 	// 인게임 로직 전 유저 데이터 정보 로드
 	UFUNCTION(BlueprintCallable)
 		void getIngamePlayerData();
+	// 인벤토리 아이템 정보 데이터
+	UFUNCTION(BlueprintCallable)
+		const TArray<FItemproperty> getInventoryItemList() { return InventoryProperty; }
 
 	// Playfab 스크립트 호출
 	// // 스크립트 매개변수 x
@@ -122,6 +151,10 @@ public:
 	void getUserTitleName();
 	// 유저 인벤토리 정보
 	void getInventoryList();
+	// 업적 데이터
+	void getStatisticsEvent();
+	// 공지 내용
+	void getNoticeEvent(int NoticeCount);
 	
 	
 
