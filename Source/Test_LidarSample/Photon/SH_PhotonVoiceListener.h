@@ -88,10 +88,21 @@ private:
 	int64 mReceiveCount;
 
 	bool mVoicesCreated;
+
+	//나가는 데이터 스트림을 나타냅니다.(아이디 포함)
 	std::vector<ExitGames::Voice::LocalVoice*> mLocalVoices;
+
+	//오디오 푸셔 인터페이스
+	//IAudioPusher는 준비가 될 때마다 오디오 데이터를 푸시합니다.
 	std::vector<ExitGames::Voice::IAudioPusher<short>*> mAudioSources;
+
+	//오디오 패킷 싱크
 	std::vector<ExitGames::Voice::IAudioOut<short>*> mAudioPlayers;
 
 	IAudioInFactory* mpAudioInFactory;
 	IAudioOutFactory* mpAudioOutFactory;
+
+public:
+	//id와 플레이어 넘버를 저장한다.
+	ExitGames::Common::Hashtable mCharacterInfo;
 };

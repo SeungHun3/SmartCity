@@ -25,7 +25,7 @@ using namespace ExitGames::Voice;
 using namespace ExitGames::Voice::AudioUtil;
 
 static const bool DIRECT = false; // send audio peer to peer (debug echo mode is not supported)
-static const bool DEBUG_ECHO_MODE_INIT = true; // initial state of local voice debug echo mode (streaming back to client via server)
+static const bool DEBUG_ECHO_MODE_INIT = false; // initial state of local voice debug echo mode (streaming back to client via server)
 
 static Common::JString gameName = L"Test_VoiceBasics";
 
@@ -53,6 +53,7 @@ void SH_PhotonVoiceListener::remoteVoiceRemoveCallback(void* opaque)
 	delete ri;
 }
 
+//사운드 출력부 제거 콜백
 void SH_PhotonVoiceListener::remoteVoiceRemoveCallback(AActor_PhotonAudioOut* out)
 {
 	out->getPlayer()->stop();
@@ -66,6 +67,7 @@ void SH_PhotonVoiceListener::remoteVoiceInfoCallback(void* opaque, int channelId
 	static_cast<SH_PhotonVoiceListener*>(opaque)->remoteVoiceInfoCallback(channelId, playerId, voiceId, voiceInfo, options);
 }
 
+//여기서 플레이어 접속 콜백
 void SH_PhotonVoiceListener::remoteVoiceInfoCallback(int channelId, int playerId, nByte voiceId, VoiceInfo const& voiceInfo, RemoteVoiceOptions& options)
 {
 	AudioOutDelayConfig delayConfig(200, 500, 1000, 5);
@@ -79,6 +81,9 @@ void SH_PhotonVoiceListener::remoteVoiceInfoCallback(int channelId, int playerId
 	IAudioOut<short>* p = out->getPlayer();
 	p->start(voiceInfo.getSamplingRate(), voiceInfo.getChannels(), voiceInfo.getFrameDurationSamples());
 	mAudioPlayers.push_back(out->getPlayer());
+	
+
+	//제거 콜백 세팅
 	options.setRemoteVoiceRemoveAction(new RemoveInfo(this, out), remoteVoiceRemoveCallback);
 
 	options.setOutput(out->getPlayer(), frameDataCallback);
@@ -100,14 +105,21 @@ SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Com
 #	pragma warning(pop)
 #endif
 {
+	// 주어진 LoadBalancing 클라이언트를 기반으로 VoiceClient에 대한 전송을 제공합니다.
+	// VoiceClient 생성 및 유지
 	mpTransport = new LoadBalancingTransport(mLoadBalancingClient, *this, DIRECT);
+	//음성 클라이언트는 IVoiceTransport를 통해 네트워크의 다른 클라이언트와 상호 작용합니다.
 	mpVoiceClient = new VoiceClient(mpTransport);
-	mpVoiceClient->setOnRemoteVoiceInfoAction(this, remoteVoiceInfoCallback);
+	mpVoiceClient->setOnRemoteVoiceInfoAction(this, remoteVoiceInfoCallback);//여기서 네트워크 접속하는 플레이어 데이터 콜백함수 세팅
 
-	mpTransport->setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::INFO)); // all instances of VoiceClient that use mpTransport
-	mLoadBalancingClient.setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::WARNINGS)); // that instance of LoadBalancingClient and its implementation details
+	mpTransport->setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::INFO)); // all instances of VoiceClient that use mpTransport //mpTransport를 사용하는 VoiceClient의 모든 인스턴스
+	mLoadBalancingClient.setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::WARNINGS)); // that instance of LoadBalancingClient and its implementation details // 해당 LoadBalancingClient 인스턴스 및 해당 구현 세부 정보
 	mLogger.setListener(*this);
-	mLogger.setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::WARNINGS)); // this class
+	mLogger.setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::WARNINGS)); // this 
+
+
+
+
 	Common::Base::setListener(this);
 	Common::Base::setDebugOutputLevel(DEBUG_RELEASE(Common::DebugLevel::INFO, Common::DebugLevel::WARNINGS)); // all classes that inherit from Base
 }
@@ -115,9 +127,13 @@ SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Com
 SH_PhotonVoiceListener::~SH_PhotonVoiceListener(void)
 {
 	for (unsigned int i = 0; i < mAudioSources.size(); i++)
+	{
 		delete mAudioSources[i];
+	}
 	for (unsigned int i = 0; i < mLocalVoices.size(); i++)
+	{
 		mLocalVoices[i]->removeSelf();
+	}
 	// sources and players are AActor's destroyed automatically
 	delete mpVoiceClient;
 	delete mpTransport;
@@ -129,14 +145,20 @@ void SH_PhotonVoiceListener::update(void)
 	switch (mState)
 	{
 	case State::INITIALIZED:
-		connect(L"TestPhotonVoice");
-		mState = State::CONNECTING;
+		//생성은 아이디를 받고 수동으로 해준다.
+		// 
+		//connect(L"TestPhotonVoice");
+		//mState = State::CONNECTING;
 		break;
 	case State::CONNECTED:
 	{
 		RoomOptions opt;
 		if (DIRECT)
 			opt.setDirectMode(DirectMode::ALL_TO_ALL);
+		opt.setPublishUserID(true);
+		opt.setMaxPlayers(0);
+
+
 		mLoadBalancingClient.opJoinOrCreateRoom(gameName, opt);
 		mState = State::JOINING;
 	}
@@ -163,13 +185,20 @@ void SH_PhotonVoiceListener::update(void)
 	mpTransport->service();
 	mpVoiceClient->service();
 
+	//플레이어마다 업데이트 해준다.
 	for (unsigned int i = 0; i < mAudioPlayers.size(); i++)
+	{
 		mAudioPlayers[i]->service();
+		//mAudioPlayers[i].
+		//UE_LOG(LogTemp, Error, TEXT("Update player %d"),i);
+	}
 }
 
 void SH_PhotonVoiceListener::connect(const Common::JString& name)
 {
+	// + GETTIMEMS()
 	mLoadBalancingClient.connect(ConnectOptions().setAuthenticationValues(AuthenticationValues().setUserID(name)));
+	mState = State::CONNECTING;
 }
 
 void SH_PhotonVoiceListener::disconnect(void)
@@ -182,7 +211,7 @@ void SH_PhotonVoiceListener::toggleEcho(void)
 	for (unsigned int i = 0; i < mLocalVoices.size(); i++)
 	{
 		mLocalVoices[i]->setDebugEchoMode(!mLocalVoices[i]->getDebugEchoMode());
-		Console::get().writeLine(mLocalVoices[i]->getName() + L" echo: " + (mLocalVoices[i]->getDebugEchoMode() ? L"ON" : L"OFF"));
+		//Console::get().writeLine(mLocalVoices[i]->getName() + L" echo: " + (mLocalVoices[i]->getDebugEchoMode() ? L"ON" : L"OFF"));
 	}
 }
 
@@ -223,6 +252,7 @@ void SH_PhotonVoiceListener::sendData(void)
 	event.put(static_cast<nByte>(0), ++mSendCount);
 	// send to ourselves only
 	int myPlayerNumber = mLoadBalancingClient.getLocalPlayer().getNumber();
+	
 	mLoadBalancingClient.opRaiseEvent(true, event, 0, RaiseEventOptions().setTargetPlayers(&myPlayerNumber, 1));
 	if (mSendCount >= MAX_SENDCOUNT)
 		mState = State::SENT_DATA;
@@ -242,42 +272,44 @@ void SH_PhotonVoiceListener::debugReturn(int debugLevel, const Common::JString& 
 		UE_LOG(LogTemp, Log, TEXT("%hs"), string.UTF8Representation().cstr());
 		break;
 	}
-	Console::get().debugReturn(debugLevel, string);
+	//Console::get().debugReturn(debugLevel, string);
 }
 
 void SH_PhotonVoiceListener::connectionErrorReturn(int errorCode)
 {
 	EGLOG(Common::DebugLevel::ERRORS, L"code: %d", errorCode);
-	Console::get().writeLine(Common::JString(L"received connection error ") + errorCode);
+	//Console::get().writeLine(Common::JString(L"received connection error ") + errorCode);
 	mState = State::DISCONNECTED;
 }
 
 void SH_PhotonVoiceListener::clientErrorReturn(int errorCode)
 {
 	EGLOG(Common::DebugLevel::ERRORS, L"code: %d", errorCode);
-	Console::get().writeLine(Common::JString(L"received error ") + errorCode + L" from client");
+	//Console::get().writeLine(Common::JString(L"received error ") + errorCode + L" from client");
 }
 
 void SH_PhotonVoiceListener::warningReturn(int warningCode)
 {
 	EGLOG(Common::DebugLevel::WARNINGS, L"code: %d", warningCode);
-	Console::get().writeLine(Common::JString(L"received warning ") + warningCode + L" from client");
+	//Console::get().writeLine(Common::JString(L"received warning ") + warningCode + L" from client");
 }
 
 void SH_PhotonVoiceListener::serverErrorReturn(int errorCode)
 {
 	EGLOG(Common::DebugLevel::ERRORS, L"code: %d", errorCode);
-	Console::get().writeLine(Common::JString(L"received error ") + errorCode + " from server");
+	//Console::get().writeLine(Common::JString(L"received error ") + errorCode + " from server");
 }
 
+//제대로 player 정보값을 읽지 못함. 혹은 제대로 못 보내는건지...
 void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVector<int>& playernrs, const Player& player)
 {
 	LoadBalancingListener::joinRoomEventAction(playerNr, playernrs, player);
 
 	EGLOG(Common::DebugLevel::INFO, L"%ls joined the game", player.getName().cstr());
-	Console::get().writeLine(L"");
+	//Console::get().writeLine(L"");
 	Console::get().writeLine(Common::JString(L"player ") + playerNr + L" " + player.getName() + L" has joined the game");
 
+	//최초로 들어갔을때만 저장한다.
 	if (!mVoicesCreated)
 	{
 		//ToneAudioPusher<short>* audioSource0=new ToneAudioPusher<short>(440, 100, 16000, 1);
@@ -288,6 +320,8 @@ void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVe
 		//mLocalVoices.push_back(v0);
 
 		IAudioPusher<short>* audioSource2 = new AudioIn(mpAudioInFactory);
+
+		
 		VoiceInfo i2 = VoiceInfo::createAudioOpus(16000, audioSource2->getChannels(), 20000, 30000);
 		// default or user's decoder
 		LocalVoiceAudio<short>* v2 = mpVoiceClient->createLocalVoiceAudioFromSource(i2, audioSource2, 0);
@@ -295,10 +329,24 @@ void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVe
 		v2->getVoiceDetector()->setOn(false);
 		mAudioSources.push_back(audioSource2);
 		mLocalVoices.push_back(v2);
-
+		
+		//Cast<AudioIn>(audioSource2)->MuteInputSound(true);
+		v2->setTransmitEnabled(false);
 		mVoicesCreated = true;
+		{
+			FString str = UTF8_TO_TCHAR(v2->getName().UTF8Representation().cstr());
+			UE_LOG(LogTemp, Log, TEXT("//joinRoomEventAction Init // v2 Player Name :: %s , "), *str);
+		}
 	}
-	EGLOG(Common::DebugLevel::INFO, L"\n\n\n                         Press 'e' to toggle debug echo mode\n\n");
+
+	{
+		FString str2 = UTF8_TO_TCHAR(player.getUserID().UTF8Representation().cstr());
+		UE_LOG(LogTemp, Log, TEXT("//joinRoomEventAction End//UserID :: %s , Number :: %d"), *str2, playerNr);
+	}
+
+	mCharacterInfo.put(player.getUserID(), playerNr);
+
+	mCharacterInfo.getKeys();
 }
 
 void SH_PhotonVoiceListener::leaveRoomEventAction(int playerNr, bool isInactive)
@@ -306,8 +354,8 @@ void SH_PhotonVoiceListener::leaveRoomEventAction(int playerNr, bool isInactive)
 	LoadBalancingListener::leaveRoomEventAction(playerNr, isInactive);
 
 	EGLOG(Common::DebugLevel::INFO, L"");
-	Console::get().writeLine(L"");
-	Console::get().writeLine(Common::JString(L"player ") + playerNr + L" has left the game");
+	//Console::get().writeLine(L"");
+	//Console::get().writeLine(Common::JString(L"player ") + playerNr + L" has left the game");
 }
 
 void SH_PhotonVoiceListener::customEventAction(int playerNr, nByte eventCode, const Common::Object& eventContentObj)
@@ -330,7 +378,6 @@ void SH_PhotonVoiceListener::customEventAction(int playerNr, nByte eventCode, co
 	default:
 		break;
 	}
-
 }
 
 void SH_PhotonVoiceListener::connectReturn(int errorCode, const Common::JString& errorString, const Common::JString& region, const Common::JString& cluster)
@@ -344,7 +391,6 @@ void SH_PhotonVoiceListener::connectReturn(int errorCode, const Common::JString&
 	}
 	Console::get().writeLine(L"connected to cluster " + cluster);
 	mState = State::CONNECTED;
-
 }
 
 void SH_PhotonVoiceListener::disconnectReturn(void)
@@ -352,7 +398,7 @@ void SH_PhotonVoiceListener::disconnectReturn(void)
 	LoadBalancingListener::disconnectReturn();
 
 	EGLOG(Common::DebugLevel::INFO, L"");
-	Console::get().writeLine(L"disconnected");
+	//Console::get().writeLine(L"disconnected");
 	mState = State::DISCONNECTED;
 }
 
@@ -364,14 +410,14 @@ void SH_PhotonVoiceListener::createRoomReturn(int localPlayerNr, const Common::H
 	if (errorCode)
 	{
 		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		Console::get().writeLine(L"opCreateRoom() failed: " + errorString);
+		//Console::get().writeLine(L"opCreateRoom() failed: " + errorString);
 		mState = State::CONNECTED;
 		return;
 	}
 
 	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been created");
-	Console::get().writeLine(L"regularly sending dummy events now");
+	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been created");
+	//Console::get().writeLine(L"regularly sending dummy events now");
 	mState = State::JOINED;
 }
 
@@ -383,14 +429,17 @@ void SH_PhotonVoiceListener::joinOrCreateRoomReturn(int localPlayerNr, const Com
 	if (errorCode)
 	{
 		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		Console::get().writeLine(L"opJoinOrCreateRoom() failed: " + errorString);
+		//Console::get().writeLine(L"opJoinOrCreateRoom() failed: " + errorString);
 		mState = State::CONNECTED;
 		return;
 	}
 
 	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been entered");
-	Console::get().writeLine(L"regularly sending dummy events now");
+	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been entered");
+	//Console::get().writeLine(L"regularly sending dummy events now"); //Console::get().writeLine
+
+	UE_LOG(LogTemp, Log, TEXT("//joinOrCreateRoomReturn// voicde id :: %d"), localPlayerNr);
+
 	mState = State::JOINED;
 }
 
@@ -402,14 +451,14 @@ void SH_PhotonVoiceListener::joinRandomOrCreateRoomReturn(int localPlayerNr, con
 	if (errorCode)
 	{
 		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		Console::get().writeLine(L"opJoinRandomOrCreateRoom() failed: " + errorString);
+		//Console::get().writeLine(L"opJoinRandomOrCreateRoom() failed: " + errorString);
 		mState = State::CONNECTED;
 		return;
 	}
 
 	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been entered");
-	Console::get().writeLine(L"regularly sending dummy events now");
+	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been entered");
+	//Console::get().writeLine(L"regularly sending dummy events now");
 	mState = State::JOINED;
 }
 
@@ -422,13 +471,15 @@ void SH_PhotonVoiceListener::joinRoomReturn(int localPlayerNr, const Common::Has
 	if (errorCode)
 	{
 		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		Console::get().writeLine(L"opJoinRoom() failed: " + errorString);
+		//Console::get().writeLine(L"opJoinRoom() failed: " + errorString);
 		mState = State::CONNECTED;
 		return;
 	}
 	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been successfully joined");
-	Console::get().writeLine(L"regularly sending dummy events now");
+	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been successfully joined");
+	//Console::get().writeLine(L"regularly sending dummy events now");
+
+	UE_LOG(LogTemp, Log, TEXT("//joinRoomReturn// voicde id :: %d"), localPlayerNr);
 
 	mState = State::JOINED;
 }
@@ -441,14 +492,14 @@ void SH_PhotonVoiceListener::joinRandomRoomReturn(int localPlayerNr, const Commo
 	if (errorCode)
 	{
 		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		Console::get().writeLine(L"opJoinRandomRoom() failed: " + errorString);
+		//Console::get().writeLine(L"opJoinRandomRoom() failed: " + errorString);
 		mState = State::CONNECTED;
 		return;
 	}
 
 	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been successfully joined");
-	Console::get().writeLine(L"regularly sending dummy events now");
+	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been successfully joined");
+	//Console::get().writeLine(L"regularly sending dummy events now");
 	mState = State::JOINED;
 }
 
@@ -460,28 +511,28 @@ void SH_PhotonVoiceListener::leaveRoomReturn(int errorCode, const Common::JStrin
 	if (errorCode)
 	{
 		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		Console::get().writeLine(L"opLeaveRoom() failed: " + errorString);
+		//Console::get().writeLine(L"opLeaveRoom() failed: " + errorString);
 		mState = State::DISCONNECTING;
 		return;
 	}
 	mState = State::LEFT;
-	Console::get().writeLine(L"room has been successfully left");
+	//Console::get().writeLine(L"room has been successfully left");
 }
 
 void SH_PhotonVoiceListener::joinLobbyReturn(void)
 {
 	EGLOG(Common::DebugLevel::INFO, L"");
-	Console::get().writeLine(L"joined lobby");
+	//Console::get().writeLine(L"joined lobby");
 }
 
 void SH_PhotonVoiceListener::leaveLobbyReturn(void)
 {
 	EGLOG(Common::DebugLevel::INFO, L"");
-	Console::get().writeLine(L"left lobby");
+	//Console::get().writeLine(L"left lobby");
 }
 
 void SH_PhotonVoiceListener::onAvailableRegions(const Common::JVector<Common::JString>& /*availableRegions*/, const Common::JVector<Common::JString>& /*availableRegionServers*/)
 {
-	mLoadBalancingClient.selectRegion(L"eu");
+	mLoadBalancingClient.selectRegion(L"kr");
 }
 

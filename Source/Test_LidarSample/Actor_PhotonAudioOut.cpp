@@ -5,7 +5,10 @@
 #include "Components/AudioComponent.h"
 #include "PhotonVoice-cpp/inc/AudioOutDelayControl.h"
 
+//1 - 빨리 감기 요청 시 전체 SoundWaveProcedural 버퍼 폐기, 0 - 입력 스트림에서 필요한 샘플 수 건너뛰기
 #define FF_BY_BUFFER_RESET 0 // 1 - discard entire SoundWaveProcedural buffer when asked for fast forward, 0 - skip required number of samples in input stream
+
+//재생 위치 및 기타 동기화 매개변수 인쇄
 #define TRACE_SYNC 0 // print play position and other sync parameters
 
 class AudioOut : public ExitGames::Voice::AudioOutDelayControl<short>
@@ -26,7 +29,9 @@ AudioOut::AudioOut(UAudioComponent* audioComponent, const ExitGames::Voice::ILog
 	, mpAudioComponent(audioComponent)
 	, mpProcedural(NULL)
 {
+
 }
+
 
 void AudioOut::outCreate(int frequency, int channels, int bufSamples)
 {
@@ -47,13 +52,15 @@ void AudioOut::outStart(void)
 	mpAudioComponent->Play();
 }
 
+//여기서 사운드 문자 출력
 void AudioOut::outWrite(ExitGames::Voice::Buffer<short> buf, int offsetSamples)
 {
 	mpProcedural->write(buf, offsetSamples);
 	if (GEngine && buf.getSize() > 10)
 	{
 		short* b = buf.getArray();
-		GEngine->AddOnScreenDebugMessage(3, 15.0f, FColor::Cyan, *FString::Printf(TEXT("AAudioOut push: %d: %d %d %d %d %d %d %d %d %d %d"), buf.getSize(), b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]));
+		//
+		//GEngine->AddOnScreenDebugMessage(3, 15.0f, FColor::Cyan, *FString::Printf(TEXT("AAudioOut push: %d: %d %d %d %d %d %d %d %d %d %d"), buf.getSize(), b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]));
 	}
 }
 
@@ -61,6 +68,8 @@ int64 AudioOut::outGetPos(void) const
 {
 	return mpProcedural->getReadPos();
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // 사운드 웨이브
@@ -118,6 +127,7 @@ int32 UProcedural::OnGeneratePCMAudio(TArray < uint8 >& outAudio, int32 sizeSamp
 	return sizeSamples;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // AActor_PhotonAudioOut
 // Sets default values
@@ -155,3 +165,11 @@ ExitGames::Voice::IAudioOut<short>* AActor_PhotonAudioOut::getPlayer() const
 	return mpPlayer;
 }
 
+void AActor_PhotonAudioOut::SetMute(bool bInput)
+{
+	bMmute = bInput;
+	if (mpAudioComponent)
+	{
+		mpAudioComponent->SetActive(!bMmute);
+	}
+}

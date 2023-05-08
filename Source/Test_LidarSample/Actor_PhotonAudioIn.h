@@ -25,15 +25,20 @@ public:
 
 	//IAudioPusher
 	virtual void setCallback(void*, void(*)(void*, const ExitGames::Voice::Buffer<short>&));
+	//1초동안 샘플링 한 횟수를 얻는다
 	virtual int getSamplingRate(void) const;
+	//사운드 채널을 얻는다.
 	virtual int getChannels(void) const;
 	virtual ExitGames::Common::JString getError(void) const;
 	virtual ExitGames::Common::JString& toString(ExitGames::Common::JString& retStr, bool withTypes = false) const;
 
 public:
+	virtual void MuteInputSound(bool bMute);
 
 private:
+
 	class IAudioInFactory* mpAudioInFactory;
+
 	class AActor_PhotonAudioIn* mpActor;
 	ExitGames::Common::JString mError;
 };
@@ -54,11 +59,18 @@ protected:
 public:
 	// Called every frame
 	//	virtual void Tick(float DeltaTime) override;
+	
+	//캡처한 사운드
 	TSharedPtr<IVoiceCapture> mspCapture;
 	FTimerHandle mTimer;
 
+	//mute
+	bool mute = false;
+
+	//콜백함수
 	void setCallback(void* callbackOpaque, void(*callback)(void*, const ExitGames::Voice::Buffer<short>&));
 private:
+	//타이머 쓰레드 //여기서 계속 입력된 사운드를 캡처해서 갱신해준다.
 	void onTimer();
 
 	void* mpCallbackOpaque;

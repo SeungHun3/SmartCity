@@ -57,5 +57,7 @@ private:
 	UAudioComponent* mpAudioComponent;
 	// 포톤 보이스 플레이어 정보
 	ExitGames::Voice::IAudioOut<short>* mpPlayer;
-
+	bool bMmute = false;
+public:
+	void SetMute(bool bInput);
 };

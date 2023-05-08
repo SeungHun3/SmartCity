@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Photon/Console.h"
 #include "Actor_PhotonAudioIn.h"
+#include "Kismet/GameplayStatics.h"
 
 using namespace ExitGames::Voice;
 
@@ -28,6 +29,7 @@ void AActor_PhotonVoice::BeginPlay(void)
 	mpPhotonLib = new SH_PhotonVoiceListener(ExitGames::Common::JString(TCHAR_TO_UTF8(*AppID)), ExitGames::Common::JString(TCHAR_TO_UTF8(*appVersion)), this, this);
 }
 
+
 void AActor_PhotonVoice::EndPlay(const EEndPlayReason::Type endPlayReason)
 {
 	Super::EndPlay(endPlayReason);
@@ -48,7 +50,9 @@ void AActor_PhotonVoice::destroyAudioIn(AActor_PhotonAudioIn* a)
 AActor_PhotonAudioOut* AActor_PhotonVoice::createAudioOut()
 {
 	return GetWorld()->SpawnActor<AActor_PhotonAudioOut>();
+
 }
+
 void AActor_PhotonVoice::destroyAudioOut(AActor_PhotonAudioOut* a)
 {
 	GetWorld()->DestroyActor(a);
@@ -75,6 +79,7 @@ void AActor_PhotonVoice::Disconnect(void)
 	mpPhotonLib->disconnect();
 }
 
+//내 사운드를 들을건지 토글로 전환한다.
 void AActor_PhotonVoice::ToggleEcho(void)
 {
 	mpPhotonLib->toggleEcho();
@@ -90,6 +95,54 @@ void AActor_PhotonVoice::PostEditChangeProperty(struct FPropertyChangedEvent& e)
 	//	SetAutomove(automove);
 	//else if(PropertyName == GET_MEMBER_NAME_CHECKED(AActor_PhotonVoice, useGroups))
 	//	SetUseGroups(useGroups);
+}
+
+//사운드 입력부 음소거
+void AActor_PhotonVoice::SetMuteIn(bool bInput)
+{
+	TArray<AActor*> TActor;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor_PhotonAudioIn::StaticClass(), TActor);
+	AActor_PhotonAudioIn *AudioIn = Cast<AActor_PhotonAudioIn>(TActor[0]);
+
+	if (AudioIn)
+	{
+		UE_LOG(LogTemp, Log, TEXT("//Voice MuteIn On/Off"));
+		AudioIn->mute = bInput;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("//couldn't find the PhotonAudioIn."));
+	}
+}
+
+//사운드 출력부 음소거
+void AActor_PhotonVoice::SetMuteOut(bool bInput)
+{
+	TArray<AActor*> TActor;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor_PhotonAudioOut::StaticClass(), TActor);
+	if (TActor.Num() < 1)
+	{
+		UE_LOG(LogTemp, Log, TEXT("//SetMuteOut :: There are no other players. "));
+		return;
+	}
+	AActor_PhotonAudioOut* AudioOut = Cast<AActor_PhotonAudioOut>(TActor[0]);
+
+	if (AudioOut)
+	{
+		UE_LOG(LogTemp, Log, TEXT("//Voice MuteOut On/Off"));
+		AudioOut->SetMute(bInput);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("//couldn't find the PhotonAudioOut."));
+	}
+}
+
+//사운드 활성화/비활성화
+void AActor_PhotonVoice::SetMute(bool bInput)
+{
+	SetMuteIn(bInput);
+	SetMuteOut(bInput);
 }
 #endif
 

@@ -20,7 +20,7 @@ void AActor_PhotonAudioIn::BeginPlay()
 #if ENGINE_MAJOR_VERSION < 5 && ENGINE_MINOR_VERSION < 25
 	mspCapture = FVoiceModule::Get().CreateVoiceCapture();
 #else
-	mspCapture = FVoiceModule::Get().CreateVoiceCapture(TEXT("")); // an empty string results in the default voice capture device
+	mspCapture = FVoiceModule::Get().CreateVoiceCapture(TEXT("")); //빈 문자열은 기본 음성 캡처 장치가 됩니다.
 #endif
 	if (mspCapture)
 		mspCapture->Start();
@@ -31,32 +31,58 @@ void AActor_PhotonAudioIn::BeginPlay()
 	// voice.SilenceDetectionThreshold = 0.08
 	IConsoleManager::Get().FindConsoleVariable(TEXT("voice.SilenceDetectionThreshold"))->Set(0);
 	
+
 }
 
+//음성 캡처 값들을 추출한다.
 void AActor_PhotonAudioIn::onTimer()
 {
+	if (mute)
+	{
+		return;
+	}
+
 	if (!mpCallback)
 		return;
 	uint32 bytesAvailable = 0;
 	if (!mspCapture)
 		return;
+
 	EVoiceCaptureState::Type captureState = mspCapture->GetCaptureState(bytesAvailable);
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(11, 15.0f, FColor::Green, *FString::Printf(TEXT("Capture: %d %d"), captureState, bytesAvailable));
+	//if (GEngine)
+	//	GEngine->AddOnScreenDebugMessage(11, 15.0f, FColor::Green, *FString::Printf(TEXT("Capture: %d %d"), captureState, bytesAvailable));
+
 	if (captureState == EVoiceCaptureState::Ok && bytesAvailable > 0)
 	{
 		ExitGames::Voice::Buffer<short> b(bytesAvailable / sizeof(short));
 		uint32 readBytes = 0;
 		short* buf = b.getArray();
+
 		if (mspCapture)
 			mspCapture->GetVoiceData(reinterpret_cast<uint8*>(buf), bytesAvailable / sizeof(short) * sizeof(short), readBytes);
 		if (!readBytes)
 			return;
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(12, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d / %d"), readBytes, bytesAvailable));
+		
+		//테스트 빌드용 출력
+		//if (GEngine)
+		//	GEngine->AddOnScreenDebugMessage(12, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d / %d"), readBytes, bytesAvailable));
+
 		if (readBytes > 10)
-			GEngine->AddOnScreenDebugMessage(13, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d %d %d %d %d %d %d %d %d %d"), buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9]));
-		mpCallback(mpCallbackOpaque, b);
+		{
+			//테스트 빌드용 출력
+			//GEngine->AddOnScreenDebugMessage(13, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d %d %d %d %d %d %d %d %d %d"), buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9]));
+			
+			
+			//int sum = 0;
+			//for (int i = 0; i < 10; ++i)
+			//{
+			//	sum += buf[i];
+			//}
+			
+			//if(sum>0)
+			mpCallback(mpCallbackOpaque, b);
+
+		}
 	}
 }
 
@@ -84,6 +110,7 @@ AudioIn::~AudioIn()
 void AudioIn::setCallback(void* callbackOpaque, void(*callback)(void*, const ExitGames::Voice::Buffer<short>&))
 {
 	mpActor->setCallback(callbackOpaque, callback);
+
 }
 
 
@@ -111,3 +138,10 @@ ExitGames::Common::JString& AudioIn::toString(ExitGames::Common::JString& retStr
 	return retStr += L"{" + ExitGames::Common::Helpers::TypeName::get(this) + L"}";
 }
 
+
+
+void AudioIn::MuteInputSound(bool bMute)
+{
+	if (mpActor)
+		mpActor->mute = bMute;
+}

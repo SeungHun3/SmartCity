@@ -82,4 +82,12 @@ private:
 	ExitGames::Voice::IAudioPusher<short>* audioInFactory();
 	ExitGames::Voice::IAudioOut<short>* audioOutFactory();
 
+public:
+	//플레이어 출력
+	UFUNCTION(BlueprintCallable, Category = "PhotonAudio")
+		void SetMuteIn(bool bInput);
+	UFUNCTION(BlueprintCallable, Category = "PhotonAudio")
+		void SetMuteOut(bool bInput);
+	UFUNCTION(BlueprintCallable, Category = "PhotonAudio")
+		void SetMute(bool bInput);
 };
