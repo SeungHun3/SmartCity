@@ -8,9 +8,6 @@
 
 #include "PlayFabJsonObject.h"
 #include "PlayFabJsonValue.h"
-
-#include "Struct_Customizing.h"
-
 using namespace PlayFab;
 
 // Sets default values for this component's properties
@@ -29,7 +26,8 @@ void UActorComponent_PlayfabStore::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	UE_LOG(LogTemp, Log, TEXT("// Store BeginPlay"));
+
 }
 
 // Called every frame
@@ -44,7 +42,7 @@ void UActorComponent_PlayfabStore::TickComponent(float DeltaTime, ELevelTick Tic
 void UActorComponent_PlayfabStore::getStoreItemList(const FString& CatalogVersion, const FString& StoreID)
 {
 
-	if (CatalogVersion.IsEmpty() && StoreID.IsEmpty())
+	if (CatalogVersion.IsEmpty() || StoreID.IsEmpty())
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Empty CatalogVersion or StoreID"));
 		return;
@@ -77,22 +75,86 @@ void UActorComponent_PlayfabStore::getStoreItemList(const FString& CatalogVersio
 					infoTemp.ItemPrice = *it.VirtualCurrencyPrices.Find("GC");
 					infoTemp.StoreID = StoreId;
 					infoTemp.VirtualCurrency = "GC";
-					//정보 담자마자 업데이트 함수하거나
+					infoTemp.CatalogVersion = version;
 					ShopDatas.Push(infoTemp);
 
-					//getMyInventory(infoTemp);
 				}
 			}
 			// 전부 담고나서 배열을 넘겨주기
 			if (PlayerOwner)
 			{
-				UE_LOG(LogTemp , Log , TEXT("// Check Store Binding Event :: "));
-				// PlayerOwner->UpdateStore(ShopDatas);
+				PlayerOwner->UpdateStore(ShopDatas);
+			}}), 
+
+
+			// 에러로그
+			PlayFab::FPlayFabErrorDelegate::CreateLambda([&](const PlayFab::FPlayFabCppError errors)
+				{
+					FString error = errors.ErrorMessage;
+					UE_LOG(LogTemp, Log, TEXT("// GetStoreItem Error : %s"), *error);
+			
+				})
+	);
+
+
+}
+
+void UActorComponent_PlayfabStore::PurchaseItem(FITemInfo Item)
+{
+	
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	// 스토어에서 가져온 아이템 ID와 가격
+	PlayFab::ClientModels::FPurchaseItemRequest request;
+	request.CatalogVersion = Item.CatalogVersion;
+	request.ItemId = Item.ItemID;
+	request.VirtualCurrency = "GC";
+	request.Price = Item.ItemPrice;
+	request.StoreId = Item.StoreID;
+
+
+	ClientAPI->PurchaseItem(
+		request,
+		PlayFab::UPlayFabClientAPI::FPurchaseItemDelegate::CreateLambda([&](const PlayFab::ClientModels::FPurchaseItemResult& result) {
+
+				for (auto it : result.Items)
+				{
+					it.ItemId;
+					UE_LOG(LogTemp, Log, TEXT("// PurchaseItem id : %s"), *it.ItemId);
+				
+				}
+				//물건 다사고 코인정보 업데이트
+				UpdateCoin();
+
+
+				// 인벤토리도 업데이트해야할지도?
+		
+			}), PlayFab::FPlayFabErrorDelegate::CreateLambda([&](const PlayFab::FPlayFabCppError errors)
+				{
+
+					FString error = errors.ErrorMessage;
+					UE_LOG(LogTemp, Log, TEXT("// PurchaseItem Error : %s"), *error);
+				}));
+
+
+					
+}
+
+void UActorComponent_PlayfabStore::UpdateCoin()
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	PlayFab::ClientModels::FGetUserInventoryRequest request;
+	
+	ClientAPI->GetUserInventory(
+		request,
+		PlayFab::UPlayFabClientAPI::FGetUserInventoryDelegate::CreateLambda([&](const PlayFab::ClientModels::FGetUserInventoryResult& result) {
+			const int* money = result.VirtualCurrency.Find("GC");
+
+			if (PlayerOwner && money)
+			{
+				PlayerOwner->CoinUpdate(money[0]);
+				UE_LOG(LogTemp, Log, TEXT("// MyMoney : %d"), money[0]);
+
 			}
-			// PlayerOwner->Seunghun_ShopUpdate(ShopDatas);
 
-			}// 에러함수 (넣지않음)
-	));
-
-
+			}));
 }

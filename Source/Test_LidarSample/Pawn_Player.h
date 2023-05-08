@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Struct_Customizing.h"
 #include "GameFramework/Pawn.h"
 #include "Pawn_Player.generated.h"
 
@@ -74,8 +76,15 @@ public:
 	// 캐릭터 생성 완료 후 로직 처리
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_CreateCharacter();
-	
 
+	/////////////////////////////////////////////
+	///////상점, 아이템 정보 업데이트
+	UFUNCTION(BlueprintImplementableEvent)
+		void UpdateStore(const TArray<FITemInfo>& ShopDatas);
+	UFUNCTION(BlueprintImplementableEvent)
+		void CoinUpdate(int coin);
+
+	/////////////////////////////////////////////
 	// 참가중인 인원수 체크
 	void AddClentPlayerCount();
 	void RemoveClentPlayerCount();

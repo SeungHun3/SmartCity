@@ -25,9 +25,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FString VirtualCurrency;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString CatalogVersion;
 
 };
+
+
 class TEST_LIDARSAMPLE_API Struct_Customizing
 {
 public:

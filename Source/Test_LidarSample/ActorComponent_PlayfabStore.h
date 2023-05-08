@@ -3,6 +3,8 @@
 #pragma once
 
 #include "ActorComponent_Playfab.h"
+
+#include "Struct_Customizing.h"
 #include "ActorComponent_PlayfabStore.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -22,10 +24,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	/// 
+
 	///  상점 목록 업데이트
-	/// 
 	UFUNCTION(BlueprintCallable)
 		void getStoreItemList(const FString& CatalogVersion, const FString& StoreID);
+	///  상점 구매
+	UFUNCTION(BlueprintCallable)
+		void PurchaseItem(FITemInfo Item);
+	UFUNCTION(BlueprintCallable)
+		void UpdateCoin();
 		
 };
