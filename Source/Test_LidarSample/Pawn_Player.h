@@ -32,7 +32,8 @@ public:
 	// 가상 통화 
 	UPROPERTY(BlueprintReadWrite, Category = "Playfab")
 		FString VirtualCoin;
-
+	UPROPERTY(BlueprintReadWrite, Category = "Playfab")
+		class UActorComponent_PlayfabStore* BP_ActorComponent_Playfab;
 	//로컬 플레이어인지
 	bool bLocal = false;
 
@@ -83,6 +84,11 @@ public:
 		void UpdateStore(const TArray<FITemInfo>& ShopDatas);
 	UFUNCTION(BlueprintImplementableEvent)
 		void CoinUpdate(int coin);
+
+
+	//포톤에 플레이팹 데이터 동기화
+	UFUNCTION(BlueprintCallable)
+		TArray<FString> UploadPlayer();
 
 	/////////////////////////////////////////////
 	// 참가중인 인원수 체크
