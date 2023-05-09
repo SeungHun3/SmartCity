@@ -77,6 +77,13 @@ TArray<FString> APawn_Player::UploadPlayer()
 	return ItemIDs;
 }
 
+
+void APawn_Player::SetCostumeArray(const TArray<FString> &costumeArray)
+{
+
+}
+
+
 void APawn_Player::AddClentPlayerCount()
 {
 	++ParticipantClient;

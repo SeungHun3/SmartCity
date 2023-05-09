@@ -41,6 +41,7 @@ void AActor_SolaseadoPhoton::BeginPlay()
 	if (world)
 	{
 		LocalPlayer = Cast<APawn_Player>(world->GetFirstPlayerController()->GetPawn());
+		//LocalPlayer->
 	}
 }
 
@@ -160,6 +161,25 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 	//// 추가 커스텀 데이터 >> 애니메이션 추가
 	//int size = Custom.getSize();
 
+	//입력받은 코스튬 세팅
+	TArray<FString> ArrayPlayerCostume;
+	for (int i = 0; i < DataCount; ++i)
+	{
+		FString str = "c"; // Costume Data
+		str += FString::FromInt(i);
+		const char* Temp = TCHAR_TO_UTF8(*str);
+
+		if (Custom.contains(Temp))
+		{
+			JString Costume = ((ValueObject<JString>*)Custom.getValue(Temp))->getDataCopy();
+
+			ArrayPlayerCostume.Add(FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
+
+			UE_LOG(LogTemp, Log, TEXT("//AddPlayers Costunme %s :: %s"),*str ,*FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
+		}
+	}
+
+
 	if (local)
 	{
 		// UE_LOG(LogTemp, Log, TEXT("// Add Local Player :: %s"), *name);
@@ -173,6 +193,9 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 			//LocalPlayer->AddMainWidget();
 			LocalPlayer->PlayerName = name;
 			//LocalPlayer->setPlayerNameTag(name);
+
+			//포톤으로 받은 코스튬 데이터를 전달한다.
+			LocalPlayer->SetCostumeArray(ArrayPlayerCostume);
 		}
 	}
 	else
@@ -207,6 +230,9 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 
 			PlayerList.Add(target);
 			LocalPlayer->AddClentPlayerCount();
+
+			//포톤으로 받은 코스튬 데이터를 전달한다.
+			target->SetCostumeArray(ArrayPlayerCostume);
 		}
 	}
 }
@@ -273,28 +299,47 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 	{
 		if (it->PlayerNr == playerNr)
 		{
-			TArray<FCostume> CostumeList;
-			for (int i = 0; i < 5; i++)
+
+			TArray<FString> CostumeList;
+			for (int i = 0; i < DataCount; i++)
 			{
 				FString str = "c"; // Costume Data
 
 				str += FString::FromInt(i);
 				const char* Temp = TCHAR_TO_UTF8(*str);
-				int Costume = 0; // 변경 코스튬	
+				JString Costume = ""; // 변경 코스튬
 
 				if (changes.contains(Temp))
 				{
-					Costume = ((ValueObject<int>*)changes.getValue(Temp))->getDataCopy();
+					Costume = ((ValueObject<JString>*)changes.getValue(Temp))->getDataCopy();
 
-					FCostume info;
-					info.Type = enum_CostumeType(i);
-					info.PartNumber = Costume;
+					FString cc = FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr()));
 
-					CostumeList.Add(info);
+					UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties Costume:: %s"), *cc);
+					CostumeList.Add(cc);
 				}
 			}
+			//for (int i = 0; i < 5; i++)
+			//{
+			//	FString str = "c"; // Costume Data
+			//
+			//	str += FString::FromInt(i);
+			//	const char* Temp = TCHAR_TO_UTF8(*str);
+			//	int Costume = 0; // 변경 코스튬	
+			//
+			//	if (changes.contains(Temp))
+			//	{
+			//		Costume = ((ValueObject<int>*)changes.getValue(Temp))->getDataCopy();
+			//
+			//		FCostume info;
+			//		info.Type = enum_CostumeType(i);
+			//		info.PartNumber = Costume;
+			//
+			//		CostumeList.Add(info);
+			//	}
+			//}
 
-			SetCustomCostume(playerNr, CostumeList);
+			//SetCustomCostume(playerNr, CostumeList);
 			break;
 		}
 	}
@@ -337,10 +382,9 @@ void AActor_SolaseadoPhoton::GetMovePlayerRotation(int playerNr, float fX)
 
 void AActor_SolaseadoPhoton::ConnectComplete(void)
 {
-	// #include "Actor_RosActor.h"	
-	// 헤더 연결 오류 처리 // Blueprint Spawn 변경 
-	//ConnectRosActor();
-	ConnectPhotonCHat();
+	UE_LOG(LogTemp, Log, TEXT("// ConnectComplete "));
+
+	InitPlayerData_Implementation();
 }
 
 void AActor_SolaseadoPhoton::CreateChannelComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel)
@@ -358,6 +402,10 @@ void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& 
 void AActor_SolaseadoPhoton::JoinOrCreateComplete()
 {
 	UE_LOG(LogTemp, Log, TEXT("// JoinOrCreateComplete :: "));
+	// #include "Actor_RosActor.h"	
+	// 헤더 연결 오류 처리 // Blueprint Spawn 변경 
+	//ConnectRosActor();
+	ConnectPhotonCHat();
 }
 
 void AActor_SolaseadoPhoton::LeaveRoomComplete(void)
@@ -446,14 +494,16 @@ void AActor_SolaseadoPhoton::getEventPause(bool ev)
 
 
 // 캐릭터 데이터 저장
-void AActor_SolaseadoPhoton::InputCharacterInfo(FString _key, int _value)
+void AActor_SolaseadoPhoton::InputCharacterInfo(FString _key, FString _value)
 {
+	UE_LOG(LogTemp, Log, TEXT("// InputCharacterInfo "));
 	m_pListener->SetChracterInfo(_key, _value);
 }
 
 // 저장한 캐릭터 데이터 보내기
 void AActor_SolaseadoPhoton::SendPlayerInfo()
 {
+	UE_LOG(LogTemp, Log, TEXT("// SendPlayerInfo "));
 	m_pListener->SendCharacterInfo();
 }
 
@@ -467,6 +517,7 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 		movePlayer(LocalPlayer->GetActorLocation());
 		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
 	}
+
 }
 
 //받은 코스튬 데이터로 플레이어의 아바타를 세팅해주는 함수
@@ -484,4 +535,42 @@ void AActor_SolaseadoPhoton::SetCustomCostume_Implementation(int playerNr, const
 			}
 		}
 	}
+}
+
+void AActor_SolaseadoPhoton::testdata()
+{
+	FString str = "c"; // Costume Data
+	str += FString::FromInt(1);
+
+	InputCharacterInfo(str, "11111");
+
+	SendPlayerInfo();
+}
+
+
+//방에 들어가기 전에 playfab에서 받은 플레이어 데이터 채우고 연결하기
+void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
+{
+	///********** 여기에 데이터 채워넣기
+
+	//플레이앱 코스튬 데이터)
+	// LocalPlayer -> playfab 에서 값 받아오고
+	//InputCharacterInfo(key_값 , 플레이앱 코스튬 데이터);
+
+	const TArray<FString> &PlayFabData = LocalPlayer->UploadPlayer();
+
+	UE_LOG(LogTemp, Log, TEXT("// InitPlayerData_Implementation :: %d "), PlayFabData.Num());
+	
+	DataCount = 0;
+
+	for (auto it : PlayFabData)
+	{
+		FString str = "c"; // Costume Data
+		str += FString::FromInt(DataCount++);
+
+		InputCharacterInfo(str, it);
+	}
+
+	//쌓인 데이터 보내고 룸 입장하기
+	m_pListener->InitJoinOrCreateRoom();
 }
