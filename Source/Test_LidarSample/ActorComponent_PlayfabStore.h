@@ -3,7 +3,6 @@
 #pragma once
 
 #include "ActorComponent_Playfab.h"
-
 #include "Struct_Customizing.h"
 #include "ActorComponent_PlayfabStore.generated.h"
 
@@ -19,6 +18,11 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	void StoreErrorScript(const PlayFab::FPlayFabCppError& error);
+
+	// 신규 구매 아이템 정보 
+	FItemproperty PurchaseNewItem;
 
 public:	
 	// Called every frame

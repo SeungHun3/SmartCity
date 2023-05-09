@@ -274,6 +274,13 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 		// 서버에서 아이템을 주고 인벤토리에 넣는다 -> 타이틀 데이터 가져오고나서 레벨이동시작
 		getIngamePlayerData();
 	}
+	else if (Selection == "updateEquipmentItem")
+	{
+		// 아이템 장비 성공 이벤트.
+		UE_LOG(LogTemp, Log, TEXT("// Playfab _ updateEquipmentItem :: %s"), *getStringData);
+		if (PlayerOwner)
+			PlayerOwner->Blueprint_UpdateEquipmentItem(getStringData);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,17 +364,17 @@ void UActorComponent_Playfab::getUserTitleData(FString targetTitle)
 void UActorComponent_Playfab::getIngamePlayerData()
 {
 	// Check_getIngameLoadingCount :: 게임 정보 데이터를 불러오는 함수 수량 체크
-	// Test Count :: 2
+	// Test Count :: 1
 	if (PlayerOwner)
-		PlayerOwner->Test_LoadingCount = 2;
+		PlayerOwner->Test_LoadingCount = 1;
 
 	// Test_LoadingCount Check :: o
-	// 인벤토리 정보
-	getInventoryList();
 	// UserCharacterName // Playfab Display Name 체크
 	getUserTitleName();
 
 	// Test_LoadingCount Check :: x
+	// 인벤토리 정보
+	getInventoryList();
 	// 업적 데이터 체크
 	getStatisticsEvent();
 	// 공지 정보 체크
@@ -464,13 +471,13 @@ void UActorComponent_Playfab::getInventoryList()
 				if (PlayerOwner)
 				{
 					PlayerOwner->VirtualCoin = FString::FromInt(findVC[0]);
-					PlayerOwner->updateInventoryCoin();
+					PlayerOwner->updateInventory();
 				}
 			}
 
-			// 로딩 카운터 체크 후 다음 레벨 진행 여부 확인.
-			if (PlayerOwner)
-				PlayerOwner->Check_getIngameLoadingCount();
+			// 로딩 카운터 체크 후 다음 레벨 진행 여부 확인. // 로딩 카운터 제거 
+			/*if (PlayerOwner)
+				PlayerOwner->Check_getIngameLoadingCount();*/
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);

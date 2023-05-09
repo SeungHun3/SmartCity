@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "Struct_Customizing.h"
 #include "GameFramework/Pawn.h"
 #include "Pawn_Player.generated.h"
@@ -65,10 +64,11 @@ public:
 	// 캐릭터 생성 닉네임 화인 + 금칙어 
 	UFUNCTION(BlueprintImplementableEvent)
 		void updateDisplayNameEvent(bool bChecker);
-	// 인벤토리 코인 정보 
+	// 인벤토리 & 코인 정보 업데이트 
 	UFUNCTION(BlueprintImplementableEvent)
 		// void updateInventoryCoin(const FString& coin);
-		void updateInventoryCoin();
+		// void updateInventoryCoin();
+		void updateInventory();
 
 	// 인게임 접속 로딩 카운트 처리 _ Test
 	UFUNCTION(BlueprintImplementableEvent)
@@ -77,7 +77,7 @@ public:
 	// 캐릭터 생성 완료 후 로직 처리
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_CreateCharacter();
-
+	
 	/////////////////////////////////////////////
 	///////상점, 아이템 정보 업데이트
 	UFUNCTION(BlueprintImplementableEvent)
@@ -90,6 +90,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		TArray<FString> UploadPlayer();
 
+	// 인벤토리 아이템 장비하기
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_UpdateEquipmentItem(const FString& ItemID);
+	// 아이템 구매 후 인벤토리 업데이트.
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_AddInventoryItem(FItemproperty item);
+	
 	/////////////////////////////////////////////
 	// 참가중인 인원수 체크
 	void AddClentPlayerCount();
