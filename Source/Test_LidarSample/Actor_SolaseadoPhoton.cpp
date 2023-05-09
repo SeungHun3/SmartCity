@@ -81,13 +81,11 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 	if ((t - lastUpdateTime) > 100)
 	{
 		lastUpdateTime = t;
-		m_pListener->service();
-
-		if (LocalPlayer && LocalPlayer->isInRoom)
+		if (m_pListener)
 		{
-			// 로컬 플레이어 위치 정보 
-			movePlayer(LocalPlayer->GetActorLocation());
-			movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
+			
+			m_pListener->service();
+			updateLocalPlayerPosion();
 		}
 	}
 }
@@ -114,6 +112,8 @@ void AActor_SolaseadoPhoton::DummyConnectLogin(const FString& username, APawn_Pl
 	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
 
 }
+
+
 
 // 텍스트 메세지 출력 
 void AActor_SolaseadoPhoton::SendTextMessage(const FString& Message, const FString& type)
@@ -178,7 +178,10 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 	else
 	{
 		// Character Anim (true = walk , false = idle)
-		//JString chAnim = JString();
+		//
+		// 
+		// 
+		//  chAnim = JString();
 		//FString Anim = "An";
 		//const char* TempAnim = TCHAR_TO_UTF8(*Anim);
 		//if (Custom.contains(TempAnim))
@@ -264,33 +267,37 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 		}
 	}
 
+
 	//코스튬 구간
-	//for (auto it : PlayerList)
-	//{
-	//	if (it->PlayerNr == playerNr)
-	//	{
-	//		for (int i = 0; i < 5; i++)
-	//		{
-	//			FString str = "c"; // Costume Data
-	//
-	//			str += FString::FromInt(i);
-	//			const char* Temp = TCHAR_TO_UTF8(*str);
-	//			int Costume = 0; // 변경 코스튬
-	//
-	//			if (changes.contains(Temp))
-	//			{
-	//				Costume = ((ValueObject<int>*)changes.getValue(Temp))->getDataCopy();
-	//				//UE_LOG(LogTemp, Log, TEXT("// Costume :: %d "), Costume);
-	//
-	//				it->ChangeCostumeParts(Costume);
-	//			}
-	//		}
-	//
-	//		break;
-	//	}
-	//}
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			TArray<FCostume> CostumeList;
+			for (int i = 0; i < 5; i++)
+			{
+				FString str = "c"; // Costume Data
 
+				str += FString::FromInt(i);
+				const char* Temp = TCHAR_TO_UTF8(*str);
+				int Costume = 0; // 변경 코스튬	
 
+				if (changes.contains(Temp))
+				{
+					Costume = ((ValueObject<int>*)changes.getValue(Temp))->getDataCopy();
+
+					FCostume info;
+					info.Type = enum_CostumeType(i);
+					info.PartNumber = Costume;
+
+					CostumeList.Add(info);
+				}
+			}
+
+			SetCustomCostume(playerNr, CostumeList);
+			break;
+		}
+	}
 }
 
 
@@ -450,3 +457,31 @@ void AActor_SolaseadoPhoton::SendPlayerInfo()
 	m_pListener->SendCharacterInfo();
 }
 
+
+//로컬 플레이어 위치 갱신
+void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
+{
+	if (LocalPlayer && LocalPlayer->isInRoom)
+	{
+		// 로컬 플레이어 위치 정보 
+		movePlayer(LocalPlayer->GetActorLocation());
+		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
+	}
+}
+
+//받은 코스튬 데이터로 플레이어의 아바타를 세팅해주는 함수
+void AActor_SolaseadoPhoton::SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			//여기에 아바타 세팅관련 추가해주면 됩니다.
+
+			for (auto tCostume : arrayCostume)
+			{
+				//it->ChangeCostumeParts(tCostume.Type,tCostume.PartNumber);
+			}
+		}
+	}
+}

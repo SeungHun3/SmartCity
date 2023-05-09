@@ -17,6 +17,30 @@ enum class Enum_TextType3 : uint8
 	Custom,
 };
 
+//임시로 만들어진 거라 추후 변경예정
+//아바타 타입
+UENUM(BlueprintType)
+enum class enum_CostumeType : uint8
+{
+	Top=0,
+	Bottom,
+	Hair,
+	Face,
+	Skin,
+	Default,
+};
+
+//아바타 파츠 정보 구조체
+USTRUCT(BlueprintType)
+struct FCostume
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	enum_CostumeType Type= enum_CostumeType::Default;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int PartNumber=0;
+};
 
 
 UCLASS()
@@ -83,9 +107,6 @@ public:
 	// 포톤 서버 접속 
 	UFUNCTION(BlueprintCallable)
 		void ConnectLogin(const FString& username);
-	//테스트 더미용 포톤 서버 접속
-	UFUNCTION(BlueprintCallable)
-		void DummyConnectLogin(const FString& username, APawn_Player* dummy);
 	// 채팅 , 월드 메세지 출력
 	UFUNCTION(BlueprintCallable)
 		void SendTextMessage(const FString& Message, const FString& type);
@@ -139,18 +160,29 @@ public:
 
 
 public:
-	// 캐릭터 데이터 함수
+	// 캐릭터 정보 데이터(아바타...) 추가 함수
 	UFUNCTION(BlueprintCallable)
 		void InputCharacterInfo(FString _key, int _value);
 	UFUNCTION(BlueprintCallable)
 		void SendPlayerInfo();
 	UFUNCTION(BlueprintImplementableEvent)
 		void ConnectPhotonCHat();
+
+	//네이티브 이벤트로 c++와 블루프린트 사용 구분해서 구현
+	//포톤 서버에서 업데이트 받은 코스튬 정보를 처리해주는 함수
+	UFUNCTION(BlueprintNativeEvent)
+		void SetCustomCostume(int playerNr, const TArray<FCostume>& arrayCostume);
+	virtual void SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume);
+
 protected:
 	float PlayerHeight = 266.f;
 	// 방정보
-	//UFUNCTION(BlueprintCallable)
-	//	void SendPlayerInfo();
+	// UFUNCTION(BlueprintCallable)
+	// void SendPlayerInfo();
 
+	//테스트 더미용 포톤 서버 접속
+	UFUNCTION(BlueprintCallable)
+		void DummyConnectLogin(const FString& username, APawn_Player* dummy);
 
+	virtual void updateLocalPlayerPosion() override;
 };

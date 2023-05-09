@@ -46,4 +46,5 @@ public:
 
 	// Quiz Event
 	virtual void getEventPause(bool ev) {}
+	virtual void updateLocalPlayerPosion() {}
 };
