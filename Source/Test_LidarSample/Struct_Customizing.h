@@ -8,6 +8,30 @@
  * 
  */
 
+ // 아이템 정보
+USTRUCT(BlueprintType)
+struct FItemproperty
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemId;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemInstanceId;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int RemainingUses;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int UnitPrice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString colorData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bItemEquipment = false;
+};
+
 USTRUCT(Atomic, BlueprintType)
 struct FITemInfo
 {

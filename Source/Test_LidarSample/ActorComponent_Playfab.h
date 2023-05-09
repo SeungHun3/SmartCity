@@ -8,7 +8,7 @@
 #include "Core/PlayFabError.h"
 #include "Core/PlayFabClientDataModels.h"
 #include "Engine/DataTable.h"
-
+#include "Struct_Customizing.h"
 
 #include "Components/ActorComponent.h"
 #include "ActorComponent_Playfab.generated.h"
@@ -22,30 +22,6 @@ struct FBadNameTable : public FTableRowBase
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FString BadString;
-};
-
-// 아이템 정보
-USTRUCT(BlueprintType)
-struct FItemproperty
-{
-	GENERATED_BODY()
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString ItemId;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString ItemInstanceId;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString ItemClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int RemainingUses;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int UnitPrice;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString colorData;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bItemEquipment = false;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -142,7 +118,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UploadMyCustom(const FString& FunctionName, const FString& FieldName, const TArray<int> ItemIDs);
 
-
 	////////////////////////////////////////////////////////////
 	// Playfab 스크립트 호출 콜벡 이벤트 처리
 	void ScriptResponseEvent(FJsonValue* value);
@@ -161,6 +136,5 @@ public:
 	void getStatisticsEvent();
 	// 공지 내용
 	void getNoticeEvent(int NoticeCount);
-	
 
 };

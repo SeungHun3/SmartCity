@@ -16,17 +16,12 @@ UActorComponent_PlayfabStore::UActorComponent_PlayfabStore()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 // Called when the game starts
 void UActorComponent_PlayfabStore::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	UE_LOG(LogTemp, Log, TEXT("// Store BeginPlay"));
 
 }
 
@@ -35,9 +30,15 @@ void UActorComponent_PlayfabStore::TickComponent(float DeltaTime, ELevelTick Tic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
+// Playfab Store Error 
+void UActorComponent_PlayfabStore::StoreErrorScript(const PlayFab::FPlayFabCppError& error)
+{
+	FString str = error.GenerateErrorReport();
+	UE_LOG(LogTemp, Log, TEXT("// Playfab Store Error Script ( %s ):: %s"), *error.ErrorName, *str);
+	
+}
 
 void UActorComponent_PlayfabStore::getStoreItemList(const FString& CatalogVersion, const FString& StoreID)
 {
@@ -52,15 +53,13 @@ void UActorComponent_PlayfabStore::getStoreItemList(const FString& CatalogVersio
 	ClientModels::FGetStoreItemsRequest request;
 
 	// 상점 정보 셋팅
-	request.CatalogVersion = CatalogVersion; //"SolaseadoStore";
+	request.CatalogVersion = CatalogVersion;
 	FString version = request.CatalogVersion;
-	request.StoreId = StoreID; //"SeungHunTest";
+	request.StoreId = StoreID;
 	FString StoreId = request.StoreId;
 
-
 	ClientAPI->GetStoreItems(
-		request,// 요구사항 담아서 전송
-		// 회신
+		request,
 		UPlayFabClientAPI::FGetStoreItemsDelegate::CreateLambda([&, version, StoreId](const ClientModels::FGetStoreItemsResult& result) {
 
 			TArray<FITemInfo> ShopDatas;
@@ -84,19 +83,12 @@ void UActorComponent_PlayfabStore::getStoreItemList(const FString& CatalogVersio
 			if (PlayerOwner)
 			{
 				PlayerOwner->UpdateStore(ShopDatas);
-			}}), 
+			}
 
+			}), 
 
-			// 에러로그
-			PlayFab::FPlayFabErrorDelegate::CreateLambda([&](const PlayFab::FPlayFabCppError errors)
-				{
-					FString error = errors.ErrorMessage;
-					UE_LOG(LogTemp, Log, TEXT("// GetStoreItem Error : %s"), *error);
-			
-				})
-	);
-
-
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_PlayfabStore::StoreErrorScript)
+		);
 }
 
 void UActorComponent_PlayfabStore::PurchaseItem(FITemInfo Item)
@@ -111,32 +103,29 @@ void UActorComponent_PlayfabStore::PurchaseItem(FITemInfo Item)
 	request.Price = Item.ItemPrice;
 	request.StoreId = Item.StoreID;
 
-
 	ClientAPI->PurchaseItem(
 		request,
 		PlayFab::UPlayFabClientAPI::FPurchaseItemDelegate::CreateLambda([&](const PlayFab::ClientModels::FPurchaseItemResult& result) {
 
 				for (auto it : result.Items)
 				{
-					it.ItemId;
 					UE_LOG(LogTemp, Log, TEXT("// PurchaseItem id : %s"), *it.ItemId);
+
+					// 구매 아이템 정보. 단일 구매 기준으로 처리
+					PurchaseNewItem.ItemId = it.ItemId;
+					PurchaseNewItem.ItemClass = it.ItemClass;
+					PurchaseNewItem.ItemInstanceId = it.ItemInstanceId;
+					PurchaseNewItem.UnitPrice = it.UnitPrice;
+					PurchaseNewItem.RemainingUses = it.RemainingUses;
 				
 				}
 				//물건 다사고 코인정보 업데이트
 				UpdateCoin();
 
+			}), 
 
-				// 인벤토리도 업데이트해야할지도?
-		
-			}), PlayFab::FPlayFabErrorDelegate::CreateLambda([&](const PlayFab::FPlayFabCppError errors)
-				{
-
-					FString error = errors.ErrorMessage;
-					UE_LOG(LogTemp, Log, TEXT("// PurchaseItem Error : %s"), *error);
-				}));
-
-
-					
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_PlayfabStore::StoreErrorScript)
+		);
 }
 
 void UActorComponent_PlayfabStore::UpdateCoin()
@@ -147,8 +136,20 @@ void UActorComponent_PlayfabStore::UpdateCoin()
 	ClientAPI->GetUserInventory(
 		request,
 		PlayFab::UPlayFabClientAPI::FGetUserInventoryDelegate::CreateLambda([&](const PlayFab::ClientModels::FGetUserInventoryResult& result) {
-			const int* money = result.VirtualCurrency.Find("GC");
 
+			// 기존 아이템 정보와 새로 들어온 아이템 정보를 비교하여 > 슬롯 추가하기
+			// InventoryProperty; // result.Inventory
+			//for (auto it : result.Inventory)
+			//{
+			// 
+			//}
+
+			// 아이템 구매 정보가 1개일 경우 슬롯 처리 방법 .
+			if(PlayerOwner)
+				PlayerOwner->Blueprint_AddInventoryItem(PurchaseNewItem);
+			
+			// 아이템 구매 후 소유 코인 변동 처리
+			const int* money = result.VirtualCurrency.Find("GC");
 			if (PlayerOwner && money)
 			{
 				PlayerOwner->CoinUpdate(money[0]);
