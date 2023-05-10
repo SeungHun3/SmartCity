@@ -52,6 +52,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		FString getLoginDeviceID();
+	////////////////////////////////////////////////////////
+	//포톤
+
+	//포톤에서 받은 코스튬 데이터를 입력받는다.
+	UFUNCTION(BlueprintCallable)
+	void SetCostumeArray(const TArray<FString>& costumeArray);
+
 	/////////////////////////////////////////////////////////////////////////////////
 	// Player Playfab Data Binding 
 	
@@ -101,4 +108,7 @@ public:
 	// 참가중인 인원수 체크
 	void AddClentPlayerCount();
 	void RemoveClentPlayerCount();
+
+
+
 };

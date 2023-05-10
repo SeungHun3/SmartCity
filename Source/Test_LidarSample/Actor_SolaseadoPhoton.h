@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Pawn_Player.h"
 #include "PhotonListner_Solaseado.h"
+#include"ActorComponent_Playfab.h"
 #include "GameFramework/Actor.h"
 #include "Actor_SolaseadoPhoton.generated.h"
 
@@ -162,11 +163,16 @@ public:
 public:
 	// 캐릭터 정보 데이터(아바타...) 추가 함수
 	UFUNCTION(BlueprintCallable)
-		void InputCharacterInfo(FString _key, int _value);
+		void InputCharacterInfo(FString _key, FString _value);
 	UFUNCTION(BlueprintCallable)
 		void SendPlayerInfo();
 	UFUNCTION(BlueprintImplementableEvent)
 		void ConnectPhotonCHat();
+
+	//방에 들어가기 전에 playfab에서 받은 플레이어 데이터를 채워주기
+	UFUNCTION(BlueprintNativeEvent)
+		void InitPlayerData();
+	virtual void InitPlayerData_Implementation();
 
 	//네이티브 이벤트로 c++와 블루프린트 사용 구분해서 구현
 	//포톤 서버에서 업데이트 받은 코스튬 정보를 처리해주는 함수
@@ -174,8 +180,16 @@ public:
 		void SetCustomCostume(int playerNr, const TArray<FCostume>& arrayCostume);
 	virtual void SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume);
 
+
+	UFUNCTION(BlueprintCallable)
+		void testdata();
+
 protected:
 	float PlayerHeight = 266.f;
+
+	//플레이어 코스튬 개수
+	int DataCount = 0;
+
 	// 방정보
 	// UFUNCTION(BlueprintCallable)
 	// void SendPlayerInfo();
@@ -185,4 +199,6 @@ protected:
 		void DummyConnectLogin(const FString& username, APawn_Player* dummy);
 
 	virtual void updateLocalPlayerPosion() override;
+
+
 };

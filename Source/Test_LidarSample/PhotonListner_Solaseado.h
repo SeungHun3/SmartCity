@@ -95,9 +95,11 @@ protected:
 	ExitGames::Common::JString sRoomName="InitRoomName";
 public:
 	//플레이어 커스텀 데이터 정보 처리
-	void SetChracterInfo(FString _key, int _value);
+	void SetChracterInfo(FString _key, FString _value);
 	void SendCharacterInfo();
 	void RemoveCharacterInfo();
+
+	void InitJoinOrCreateRoom();
 };
 
 
