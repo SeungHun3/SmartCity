@@ -331,7 +331,7 @@ void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVe
 		mLocalVoices.push_back(v2);
 		
 		//Cast<AudioIn>(audioSource2)->MuteInputSound(true);
-		v2->setTransmitEnabled(false);
+		v2->setTransmitEnabled(true);//이걸로 오디오 활성화를 조절할 수 있음
 		mVoicesCreated = true;
 		{
 			FString str = UTF8_TO_TCHAR(v2->getName().UTF8Representation().cstr());
