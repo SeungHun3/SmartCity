@@ -42,6 +42,7 @@ void AActor_PhotonChat::Tick(float DeltaTime)
 
 	if (m_pChatClient)
 		m_pChatClient->service();
+	m_pChatClient->disconnect();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +129,6 @@ void AActor_PhotonChat::Chat_RemoveSubscribe(const FString& Channel)
 // 메세지 출력 
 void AActor_PhotonChat::Chat_getMessageEvent(const FString& ChannelName, const FString& sender, const FString& Message)
 {
-	// 메세지 위젯 출력 
+	// 메세지 위젯 출력
 	Blueprint_getMessageEvent(ChannelName, sender, Message);
 }

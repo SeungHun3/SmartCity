@@ -220,15 +220,6 @@ void UActorComponent_Playfab::ErrorScript(const PlayFab::FPlayFabCppError& error
 		if (PlayerOwner)
 			PlayerOwner->CustomizingWidgetNameChecker(bCheckerCreateChracter);
 	}
-	
-	//// 아이템 구매 실패
-	//// "WrongPrice" || "WrongVirtualCurrency") // ItemNotFound , StoreNotFound
-	//if (error.ErrorName == "InsufficientFunds")
-	//{
-	//	// 돈 부족
-	//	AddPopupWidget(nullptr, enum_PopupStyle::Popup1Key, enum_PopupRun::Purchage,
-	//		FText::FromString(" You cannot purchase the item because you don't have enough money."), FText::FromString("Purchase failed"));
-	//}
 	//// 아이디 밴
 	//if (error.ErrorName == "AccountBanned")
 	//{

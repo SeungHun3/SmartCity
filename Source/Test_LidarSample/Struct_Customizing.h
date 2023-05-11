@@ -35,6 +35,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bItemEquipment = false;
+
+public:
+		void Clear() {
+		ItemId.Empty();
+		ItemInstanceId.Empty();
+		ItemClass.Empty();
+		RemainingUses = -1;
+		UnitPrice = -1;
+	};
 };
 
 USTRUCT(Atomic, BlueprintType)

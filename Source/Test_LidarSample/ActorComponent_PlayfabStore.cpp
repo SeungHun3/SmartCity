@@ -37,7 +37,13 @@ void UActorComponent_PlayfabStore::StoreErrorScript(const PlayFab::FPlayFabCppEr
 {
 	FString str = error.GenerateErrorReport();
 	UE_LOG(LogTemp, Log, TEXT("// Playfab Store Error Script ( %s ):: %s"), *error.ErrorName, *str);
-	
+	// 아이템 구매 실패
+	// "WrongPrice" || "WrongVirtualCurrency") // ItemNotFound , StoreNotFound
+	if (error.ErrorName == "InsufficientFunds")
+	{
+		// 돈 부족 Error
+		UE_LOG(LogTemp, Log, TEXT("// Playfab Store Error _ InsufficientFunds "));
+	}
 }
 
 void UActorComponent_PlayfabStore::getStoreItemList(const FString& CatalogVersion, const FString& StoreID)
@@ -117,13 +123,10 @@ void UActorComponent_PlayfabStore::PurchaseItem(FITemInfo Item)
 					PurchaseNewItem.ItemInstanceId = it.ItemInstanceId;
 					PurchaseNewItem.UnitPrice = it.UnitPrice;
 					PurchaseNewItem.RemainingUses = it.RemainingUses;
-				
 				}
 				//물건 다사고 코인정보 업데이트
 				UpdateCoin();
-
 			}), 
-
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_PlayfabStore::StoreErrorScript)
 		);
 }
@@ -143,18 +146,22 @@ void UActorComponent_PlayfabStore::UpdateCoin()
 			//{
 			// 
 			//}
-
+			// 
 			// 아이템 구매 정보가 1개일 경우 슬롯 처리 방법 .
-			if(PlayerOwner)
-				PlayerOwner->Blueprint_AddInventoryItem(PurchaseNewItem);
-			
+			if (PlayerOwner) {
+				if (!PurchaseNewItem.ItemId.IsEmpty())
+				{
+					InventoryProperty.Add(PurchaseNewItem);
+					PlayerOwner->Blueprint_AddInventoryItem(PurchaseNewItem);
+					PurchaseNewItem.Clear();
+				}
+			}
 			// 아이템 구매 후 소유 코인 변동 처리
 			const int* money = result.VirtualCurrency.Find("GC");
 			if (PlayerOwner && money)
 			{
 				PlayerOwner->CoinUpdate(money[0]);
 				UE_LOG(LogTemp, Log, TEXT("// MyMoney : %d"), money[0]);
-
 			}
 
 			}));
