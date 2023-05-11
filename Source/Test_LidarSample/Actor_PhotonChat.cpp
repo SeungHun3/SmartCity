@@ -42,7 +42,6 @@ void AActor_PhotonChat::Tick(float DeltaTime)
 
 	if (m_pChatClient)
 		m_pChatClient->service();
-	m_pChatClient->disconnect();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
