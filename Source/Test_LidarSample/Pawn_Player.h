@@ -39,6 +39,21 @@ public:
 	//참가 인원수
 	uint8 ParticipantClient;
 
+	// 캐릭터 스켈레톤 설정
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UCapsuleComponent* Root;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* Body;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* Head;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* Hair;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* Face;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* Hand;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -56,8 +71,8 @@ public:
 	//포톤
 
 	//포톤에서 받은 코스튬 데이터를 입력받는다.
-	UFUNCTION(BlueprintCallable)
-	void SetCostumeArray(const TArray<FString>& costumeArray);
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetCostumeArray(const TArray<FString>& ITemIDs);
 
 	/////////////////////////////////////////////////////////////////////////////////
 	// Player Playfab Data Binding 
@@ -109,6 +124,8 @@ public:
 	void AddClentPlayerCount();
 	void RemoveClentPlayerCount();
 
-
+	////스켈레톤 메쉬 변경함수
+	UFUNCTION(BlueprintCallable)
+	void ChangeMesh(const FString& ClassName,class USkeletalMesh* Mesh);
 
 };

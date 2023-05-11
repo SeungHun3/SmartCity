@@ -3,9 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Engine/SkeletalMesh.h"
+#include "Engine/DataTable.h"
+#include "Engine/Texture2D.h"
+
 #include "Struct_Customizing.generated.h"
 /**
- * 
+ *
  */
 
  // 아이템 정보
@@ -54,6 +59,22 @@ public:
 
 };
 
+USTRUCT(Atomic, BlueprintType)
+struct FCustomizing_Struct : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		USkeletalMesh* Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString ClassName;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UTexture2D* Image;
+};
 
 class TEST_LIDARSAMPLE_API Struct_Customizing
 {

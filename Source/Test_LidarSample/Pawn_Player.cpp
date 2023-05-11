@@ -3,6 +3,9 @@
 
 #include "Pawn_Player.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
+#include "GameFramework/Actor.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "ActorComponent_PlayfabStore.h"
 
 // Sets default values
@@ -11,6 +14,27 @@ APawn_Player::APawn_Player()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
+	// ½ºÄÌ·¹Åæ ÄÄÆ÷³ÍÆ® ±¸Á¶¼³Á¤
+	Root = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root"));
+	RootComponent = Root;
+
+	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
+	Body->SetupAttachment(Root);
+
+	Head = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
+	Head->SetupAttachment(Body);
+
+	Hair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));
+	Hair->SetupAttachment(Head);
+
+	Face = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Face"));
+	Face->SetupAttachment(Head);
+
+	Hand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hand"));
+	Hand->SetupAttachment(Body);
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -78,10 +102,6 @@ TArray<FString> APawn_Player::UploadPlayer()
 }
 
 
-void APawn_Player::SetCostumeArray(const TArray<FString> &costumeArray)
-{
-
-}
 
 
 void APawn_Player::AddClentPlayerCount()
@@ -92,4 +112,22 @@ void APawn_Player::AddClentPlayerCount()
 void APawn_Player::RemoveClentPlayerCount()
 {
 	--ParticipantClient;
+}
+
+void APawn_Player::ChangeMesh(const FString& ClassName, USkeletalMesh* Mesh)
+{
+	TArray<USkeletalMeshComponent*> MeshComponents;
+	GetComponents<USkeletalMeshComponent>(MeshComponents);
+	for (auto Parts : MeshComponents)
+	{
+		FString str;
+		str = Parts->GetName();
+		UE_LOG(LogTemp, Log, TEXT("// Name :  %s "), *str);
+		if (str == ClassName)
+		{
+			Parts->SetSkeletalMesh(Mesh);
+		}
+
+	}
+
 }
