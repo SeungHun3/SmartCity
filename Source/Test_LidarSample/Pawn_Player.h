@@ -71,7 +71,7 @@ public:
 	//포톤
 
 	//포톤에서 받은 코스튬 데이터를 입력받는다.
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable)
 	void SetCostumeArray(const TArray<FString>& ITemIDs);
 
 	/////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ public:
 		void CoinUpdate(int coin);
 
 
-	//포톤에 플레이팹 데이터 동기화
+	//포톤에 플레이팹 데이터 동기화 = PlayFab에 있는 userdata받아와서 InstanceID매칭 시켜 ITemID받아오기
 	UFUNCTION(BlueprintCallable)
 		TArray<FString> UploadPlayer();
 
@@ -124,8 +124,15 @@ public:
 	void AddClentPlayerCount();
 	void RemoveClentPlayerCount();
 
+
+
+
+	////////// 메쉬관련 변경함수
 	////스켈레톤 메쉬 변경함수
 	UFUNCTION(BlueprintCallable)
 	void ChangeMesh(const FString& ClassName,class USkeletalMesh* Mesh);
 
+	// 커스텀시작시 디폴트 메쉬변경 함수 == 데이터 테이블 받아와서 파츠당 첫번째열의 메쉬를 사용함
+	UFUNCTION(BlueprintCallable)
+	void BeginDefalutMesh();
 };
