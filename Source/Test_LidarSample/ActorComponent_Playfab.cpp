@@ -263,7 +263,8 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Playfab _ GrantSuccess__call__getUserTitleData"));
 		// 서버에서 아이템을 주고 인벤토리에 넣는다 -> 타이틀 데이터 가져오고나서 레벨이동시작
-		getIngamePlayerData();
+		//getIngamePlayerData();
+		getUserTitleData();
 	}
 	else if (Selection == "updateEquipmentItem")
 	{
