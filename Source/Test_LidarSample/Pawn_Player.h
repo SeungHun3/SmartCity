@@ -114,7 +114,7 @@ public:
 
 	// 인벤토리 아이템 장비하기
 	UFUNCTION(BlueprintImplementableEvent)
-		void Blueprint_UpdateEquipmentItem(const FString& ItemID);
+		void Blueprint_UpdateEquipmentItem(const FString& InstanceID);
 	// 아이템 구매 후 인벤토리 업데이트.
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_AddInventoryItem(FItemproperty item);
