@@ -69,7 +69,7 @@ void PhotonListner_Solaseado::joinRoomEventAction(int playerNr, const Common::JV
 
 	// 외형 정보
 	Hashtable table = player.getCustomProperties();
-	UE_LOG(LogTemp, Log, TEXT("// joinRoomEventAction :: %d"), playerNr);
+	//UE_LOG(LogTemp, Log, TEXT("// joinRoomEventAction :: %d"), playerNr);
 	m_pView->AddPlayers(playerNr, player.getName().UTF8Representation().cstr(), local, table);
 	//접속한 인원에게 캐릭터 정보값 갱신
 	m_pView->updateLocalPlayerPosion();
@@ -134,7 +134,7 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 
 		
 		//FString str = UTF8_TO_TCHAR(p->getName().UTF8Representation().cstr());
-		UE_LOG(LogTemp, Log, TEXT("// AddPlayer count :: %d, Max Count : %d"), Count, Maxcount);
+		//UE_LOG(LogTemp, Log, TEXT("// AddPlayer count :: %d, Max Count : %d"), Count, Maxcount);
 
 
 		// FString str = "Ev";
@@ -158,7 +158,7 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 	else
 	{
 		FString str = UTF8_TO_TCHAR(errorString.UTF8Representation().cstr());
-		UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn Error :: %s , %d"), *str, localPlayerNr);
+		//UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn Error :: %s , %d"), *str, localPlayerNr);
 	}
 }
 
@@ -170,7 +170,7 @@ void PhotonListner_Solaseado::createRoomReturn(int localPlayerNr, const Common::
 	if (errorCode == ErrorCode::OK)
 	{
 		int playersize = playerProperties.getSize();
-		UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn :: playerProperties.getSize() :: %d"), playersize);
+		//UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn :: playerProperties.getSize() :: %d"), playersize);
 
 		// this->LocalPlayerNr = localPlayerNr;
 		MutableRoom& myRoom = m_pClient->getCurrentlyJoinedRoom();
@@ -203,7 +203,7 @@ void PhotonListner_Solaseado::createRoomReturn(int localPlayerNr, const Common::
 	else
 	{
 		FString str = UTF8_TO_TCHAR(errorString.UTF8Representation().cstr());
-		UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn Error :: %s , %d"), *str, errorCode);
+		//UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn Error :: %s , %d"), *str, errorCode);
 	}
 }
 
@@ -230,7 +230,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	}
 	else if (eventCode == 6) // vector3 위치 데이터
 	{
-		UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
+		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
 		if (obj && obj->getDimensions() == 1)
 		{
 			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
@@ -239,7 +239,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			int vY = data[1];
 			int vZ = data[2];
 
-			UE_LOG(LogTemp, Log, TEXT("// %d"), sizeof(*data));
+			//UE_LOG(LogTemp, Log, TEXT("// %d"), sizeof(*data));
 
 			m_pView->GetMovePlayer(playerNr, vX, vY, vZ);
 			return;
@@ -284,7 +284,7 @@ void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JStri
 	else
 	{
 		FString str = UTF8_TO_TCHAR(errorString.UTF8Representation().cstr());
-		UE_LOG(LogTemp, Warning, TEXT("// LeaveRoom Return Error :: %s , %d"), *str, errorCode);
+		//UE_LOG(LogTemp, Warning, TEXT("// LeaveRoom Return Error :: %s , %d"), *str, errorCode);
 	}
 }
 
@@ -413,7 +413,7 @@ void PhotonListner_Solaseado::serverErrorReturn(int errorCode)
 //입력받은 캐릭터 정보를 mCharacterInfo에 저장한다.
 void PhotonListner_Solaseado::SetChracterInfo(FString _key, FString _value)
 {
-	UE_LOG(LogTemp, Log, TEXT("//SetChracterInfo ( Key : %s, Value %s )"),*_key,*_value);
+	//UE_LOG(LogTemp, Log, TEXT("//SetChracterInfo ( Key : %s, Value %s )"),*_key,*_value);
 	mCharacterInfo.put(TCHAR_TO_UTF8(*_key), TCHAR_TO_UTF8(*_value));
 }
 
@@ -421,7 +421,7 @@ void PhotonListner_Solaseado::SetChracterInfo(FString _key, FString _value)
 //저장해둔 캐릭터 데이터를 플레이어들에게 뿌려준다.
 void PhotonListner_Solaseado::SendCharacterInfo()
 {
-	UE_LOG(LogTemp, Log, TEXT("//SendCharacterInfo()"));
+	//UE_LOG(LogTemp, Log, TEXT("//SendCharacterInfo()"));
 	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
 	//데이터를 보냈으니 새로 채워두기 위해서 비운다.
 	RemoveCharacterInfo();
@@ -431,7 +431,7 @@ void PhotonListner_Solaseado::SendCharacterInfo()
 //저장해둔 캐릭터 데이터를 비워준다.
 void PhotonListner_Solaseado::RemoveCharacterInfo()
 {
-	UE_LOG(LogTemp, Log, TEXT("//RemoveCharacterInfo()"));
+	//UE_LOG(LogTemp, Log, TEXT("//RemoveCharacterInfo()"));
 	mCharacterInfo.removeAllElements();
 }
 
@@ -439,7 +439,7 @@ void PhotonListner_Solaseado::RemoveCharacterInfo()
 //처음 접속하고 데이터를 보내고 방에 접속합니다.
 void PhotonListner_Solaseado::InitJoinOrCreateRoom()
 {
-	UE_LOG(LogTemp, Log, TEXT("//CustomJoinOrCreateRoom()"));
+	//UE_LOG(LogTemp, Log, TEXT("//CustomJoinOrCreateRoom()"));
 
 	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
 	RemoveCharacterInfo();

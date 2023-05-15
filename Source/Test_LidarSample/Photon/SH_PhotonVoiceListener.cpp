@@ -134,6 +134,7 @@ SH_PhotonVoiceListener::~SH_PhotonVoiceListener(void)
 	{
 		mLocalVoices[i]->removeSelf();
 	}
+
 	// sources and players are AActor's destroyed automatically
 	delete mpVoiceClient;
 	delete mpTransport;
@@ -164,8 +165,11 @@ void SH_PhotonVoiceListener::update(void)
 	}
 	break;
 	case State::JOINED:
+	{
 		//			sendData();
+		isconnected = true;
 		break;
+	}
 	case State::RECEIVED_DATA:
 		mLoadBalancingClient.opLeaveRoom();
 		mState = State::LEAVING;
@@ -173,6 +177,7 @@ void SH_PhotonVoiceListener::update(void)
 	case State::LEFT:
 		mLoadBalancingClient.disconnect();
 		mState = State::DISCONNECTING;
+		isconnected = false;
 		break;
 	case State::DISCONNECTED:
 		//			mState = State::INITIALIZED;
@@ -189,7 +194,6 @@ void SH_PhotonVoiceListener::update(void)
 	for (unsigned int i = 0; i < mAudioPlayers.size(); i++)
 	{
 		mAudioPlayers[i]->service();
-		//mAudioPlayers[i].
 		//UE_LOG(LogTemp, Error, TEXT("Update player %d"),i);
 	}
 }
@@ -199,6 +203,7 @@ void SH_PhotonVoiceListener::connect(const Common::JString& name)
 	// + GETTIMEMS()
 	mLoadBalancingClient.connect(ConnectOptions().setAuthenticationValues(AuthenticationValues().setUserID(name)));
 	mState = State::CONNECTING;
+	
 }
 
 void SH_PhotonVoiceListener::disconnect(void)
@@ -300,7 +305,7 @@ void SH_PhotonVoiceListener::serverErrorReturn(int errorCode)
 	//Console::get().writeLine(Common::JString(L"received error ") + errorCode + " from server");
 }
 
-//제대로 player 정보값을 읽지 못함. 혹은 제대로 못 보내는건지...
+//제대로 player 정보값을 읽지 못함. 룸옵션에서 setPublishUserID()로 공유가 가능하게 풀어줘야 한다.
 void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVector<int>& playernrs, const Player& player)
 {
 	LoadBalancingListener::joinRoomEventAction(playerNr, playernrs, player);
@@ -319,10 +324,12 @@ void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVe
 		//mAudioSources.push_back(audioSource0);
 		//mLocalVoices.push_back(v0);
 
+		//IAudioPusher-> AudioIn
 		IAudioPusher<short>* audioSource2 = new AudioIn(mpAudioInFactory);
 
 		
 		VoiceInfo i2 = VoiceInfo::createAudioOpus(16000, audioSource2->getChannels(), 20000, 30000);
+		//CreateLocalVoiceAudioFromSource : 발신 오디오 스트림을 생성하고 오디오 소스 데이터를 소비하기 위한 절차를 추가한다.처리 파이프라인과 반환되는 스트림 핸들러에 오디오 관련기능 추가한다.
 		// default or user's decoder
 		LocalVoiceAudio<short>* v2 = mpVoiceClient->createLocalVoiceAudioFromSource(i2, audioSource2, 0);
 		v2->setDebugEchoMode(DEBUG_ECHO_MODE_INIT);
@@ -345,8 +352,14 @@ void SH_PhotonVoiceListener::joinRoomEventAction(int playerNr, const Common::JVe
 	}
 
 	mCharacterInfo.put(player.getUserID(), playerNr);
+	
+	//찾는 플레이어 정보
+	if (mCharacterInfo.getValue((player.getUserID())))
+	{
+		int32 data =  ((Common::ValueObject<int32>*)mCharacterInfo.getValue(player.getUserID()))->getDataCopy();
 
-	mCharacterInfo.getKeys();
+		UE_LOG(LogTemp, Log, TEXT("//joinRoomEventAction End//UserID Number :: %d"), data);
+	}
 }
 
 void SH_PhotonVoiceListener::leaveRoomEventAction(int playerNr, bool isInactive)

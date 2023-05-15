@@ -159,7 +159,7 @@ void SH_PhotonListener::createRoomReturn(int localPlayerNr, const Common::Hashta
 	else
 	{
 		FString str = UTF8_TO_TCHAR(errorString.UTF8Representation().cstr());
-		// UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn Error :: %s , %d"), *str, errorCode);
+		//UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn Error :: %s , %d"), *str, errorCode);
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,14 +237,14 @@ void SH_PhotonListener::joinRoomEventAction(int playerNr, const JVector<int>& pl
 
 	// 외형 정보
 	Hashtable table = player.getCustomProperties();
-	// UE_LOG(LogTemp, Log, TEXT("// joinRoomEventAction :: %d"), playerNr);
+	//UE_LOG(LogTemp, Log, TEXT("// joinRoomEventAction :: %d"), playerNr);
 	m_pView->AddPlayers(playerNr, player.getName().UTF8Representation().cstr(), local, table);
 }
 
 // 방 떠나기 // 현재 접속중인 방 플레이어 에게 떠난다고 알리기
 void SH_PhotonListener::leaveRoomEventAction(int playerNr, bool isInactive)
 {
-	// UE_LOG(LogTemp, Log, TEXT("// Leave Player Nr :: %d"), playerNr);
+	//UE_LOG(LogTemp, Log, TEXT("// Leave Player Nr :: %d"), playerNr);
 	m_pView->RemovePlayer(playerNr);
 }
 

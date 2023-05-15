@@ -102,7 +102,9 @@ private:
 	IAudioInFactory* mpAudioInFactory;
 	IAudioOutFactory* mpAudioOutFactory;
 
+
 public:
 	//id와 플레이어 넘버를 저장한다.
 	ExitGames::Common::Hashtable mCharacterInfo;
+	bool isconnected = false;
 };

@@ -175,7 +175,7 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 
 			ArrayPlayerCostume.Add(FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
 
-			UE_LOG(LogTemp, Log, TEXT("//AddPlayers Costunme %s :: %s"),*str ,*FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
+			//UE_LOG(LogTemp, Log, TEXT("//AddPlayers Costunme %s :: %s"),*str ,*FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
 		}
 	}
 
@@ -287,7 +287,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 		{
 			if (it->PlayerNr == playerNr)
 			{
-				UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties :: %d"), (int)Tdate);
+				//UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties :: %d"), (int)Tdate);
 				return;
 			}
 		}
@@ -315,7 +315,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 
 					FString cc = FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr()));
 
-					UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties Costume:: %s"), *cc);
+					//UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties Costume:: %s"), *cc);
 					CostumeList.Add(cc);
 				}
 			}
@@ -382,7 +382,7 @@ void AActor_SolaseadoPhoton::GetMovePlayerRotation(int playerNr, float fX)
 
 void AActor_SolaseadoPhoton::ConnectComplete(void)
 {
-	UE_LOG(LogTemp, Log, TEXT("// ConnectComplete "));
+	//UE_LOG(LogTemp, Log, TEXT("// ConnectComplete "));
 
 	InitPlayerData_Implementation();
 }
@@ -401,7 +401,7 @@ void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& 
 
 void AActor_SolaseadoPhoton::JoinOrCreateComplete()
 {
-	UE_LOG(LogTemp, Log, TEXT("// JoinOrCreateComplete :: "));
+	//UE_LOG(LogTemp, Log, TEXT("// JoinOrCreateComplete :: "));
 	// #include "Actor_RosActor.h"	
 	// 헤더 연결 오류 처리 // Blueprint Spawn 변경 
 	//ConnectRosActor();
@@ -410,7 +410,7 @@ void AActor_SolaseadoPhoton::JoinOrCreateComplete()
 
 void AActor_SolaseadoPhoton::LeaveRoomComplete(void)
 {
-	// UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
+	//UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
 	if (LocalPlayer)
 	{
 		LocalPlayer->isInRoom = false;
@@ -496,14 +496,14 @@ void AActor_SolaseadoPhoton::getEventPause(bool ev)
 // 캐릭터 데이터 저장
 void AActor_SolaseadoPhoton::InputCharacterInfo(FString _key, FString _value)
 {
-	UE_LOG(LogTemp, Log, TEXT("// InputCharacterInfo "));
+	//UE_LOG(LogTemp, Log, TEXT("// InputCharacterInfo "));
 	m_pListener->SetChracterInfo(_key, _value);
 }
 
 // 저장한 캐릭터 데이터 보내기
 void AActor_SolaseadoPhoton::SendPlayerInfo()
 {
-	UE_LOG(LogTemp, Log, TEXT("// SendPlayerInfo "));
+	//UE_LOG(LogTemp, Log, TEXT("// SendPlayerInfo "));
 	m_pListener->SendCharacterInfo();
 }
 
@@ -559,7 +559,7 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 
 	const TArray<FString> &PlayFabData = LocalPlayer->UploadPlayer();
 
-	UE_LOG(LogTemp, Log, TEXT("// InitPlayerData_Implementation :: %d "), PlayFabData.Num());
+	//UE_LOG(LogTemp, Log, TEXT("// InitPlayerData_Implementation :: %d "), PlayFabData.Num());
 	
 	DataCount = 0;
 

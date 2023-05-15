@@ -59,7 +59,6 @@ void AudioOut::outWrite(ExitGames::Voice::Buffer<short> buf, int offsetSamples)
 	if (GEngine && buf.getSize() > 10)
 	{
 		short* b = buf.getArray();
-		//
 		//GEngine->AddOnScreenDebugMessage(3, 15.0f, FColor::Cyan, *FString::Printf(TEXT("AAudioOut push: %d: %d %d %d %d %d %d %d %d %d %d"), buf.getSize(), b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]));
 	}
 }

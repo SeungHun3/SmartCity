@@ -78,9 +78,13 @@ private:
 	void PostEditChangeProperty(struct FPropertyChangedEvent& e);
 
 	class SH_PhotonVoiceListener* mpPhotonLib;
+	class AActor_PhotonAudioIn* mPhotonAudioIn;
+	TArray<class AActor_PhotonAudioOut*> mPhotonAudioOut;
 
 	ExitGames::Voice::IAudioPusher<short>* audioInFactory();
 	ExitGames::Voice::IAudioOut<short>* audioOutFactory();
+
+
 
 public:
 	//플레이어 출력
