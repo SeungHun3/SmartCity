@@ -48,6 +48,7 @@ struct RemoveInfo
 
 void SH_PhotonVoiceListener::remoteVoiceRemoveCallback(void* opaque)
 {
+	static_cast<void>(opaque);
 	RemoveInfo* ri = static_cast<RemoveInfo*>(opaque);
 	ri->photonLib->remoteVoiceRemoveCallback(ri->out);
 	delete ri;
@@ -88,8 +89,9 @@ void SH_PhotonVoiceListener::remoteVoiceInfoCallback(int channelId, int playerId
 
 	options.setOutput(out->getPlayer(), frameDataCallback);
 }
+
 // Client(LoadBalancing::Listener& listener, const Common::JString& applicationID, const Common::JString& appVersion, const ClientConstructOptions& clientConstructOptions=ClientConstructOptions());
-SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Common::JString const& appVersion, IAudioInFactory* audioInFactory, IAudioOutFactory* audioOutFactory)
+SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Common::JString const& appVersion, IAudioInFactory* audioInFactory, IAudioOutFactory* audioOutFactory, SH_PhotonVoiceBasic* PhotonVoiceBasic)
 #ifdef _EG_MS_COMPILER
 #	pragma warning(push)
 #	pragma warning(disable:4355)
@@ -101,6 +103,7 @@ SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Com
 	, mVoicesCreated(false)
 	, mpAudioInFactory(audioInFactory)
 	, mpAudioOutFactory(audioOutFactory)
+	, mBasic(PhotonVoiceBasic)
 #ifdef _EG_MS_COMPILER
 #	pragma warning(pop)
 #endif
@@ -404,6 +407,8 @@ void SH_PhotonVoiceListener::connectReturn(int errorCode, const Common::JString&
 	}
 	Console::get().writeLine(L"connected to cluster " + cluster);
 	mState = State::CONNECTED;
+
+	mBasic->Voice_ConnectComplete();
 }
 
 void SH_PhotonVoiceListener::disconnectReturn(void)
@@ -454,6 +459,7 @@ void SH_PhotonVoiceListener::joinOrCreateRoomReturn(int localPlayerNr, const Com
 	UE_LOG(LogTemp, Log, TEXT("//joinOrCreateRoomReturn// voicde id :: %d"), localPlayerNr);
 
 	mState = State::JOINED;
+
 }
 
 void SH_PhotonVoiceListener::joinRandomOrCreateRoomReturn(int localPlayerNr, const Common::Hashtable& gameProperties, const Common::Hashtable& playerProperties, int errorCode, const Common::JString& errorString)

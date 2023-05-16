@@ -27,7 +27,7 @@ void AActor_PhotonVoice::BeginPlay(void)
 {
 	Super::BeginPlay();
 	srand(GETTIMEMS());
-	mpPhotonLib = new SH_PhotonVoiceListener(ExitGames::Common::JString(TCHAR_TO_UTF8(*AppID)), ExitGames::Common::JString(TCHAR_TO_UTF8(*appVersion)), this, this);
+	mpPhotonLib = new SH_PhotonVoiceListener(ExitGames::Common::JString(TCHAR_TO_UTF8(*AppID)), ExitGames::Common::JString(TCHAR_TO_UTF8(*appVersion)), this, this,this);
 }
 
 
@@ -87,6 +87,11 @@ void AActor_PhotonVoice::ToggleEcho(void)
 	mpPhotonLib->toggleEcho();
 }
 
+//포톤에 연결이 완료됐을때 호출해준다.
+void AActor_PhotonVoice::Voice_ConnectComplete(void)
+{
+	ConnectComplete();
+}
 
 //사운드 입력부 음소거
 void AActor_PhotonVoice::SetMuteIn(bool bInput)

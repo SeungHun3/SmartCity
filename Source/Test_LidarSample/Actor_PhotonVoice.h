@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Photon/SH_PhotonVoiceListener.h"
+#include "Photon/SH_PhotonVoiceBasic.h"
 #include "Actor_PhotonVoice.generated.h"
 
 UCLASS()
-class TEST_LIDARSAMPLE_API AActor_PhotonVoice : public AActor, public IAudioInFactory, public IAudioOutFactory
+class TEST_LIDARSAMPLE_API AActor_PhotonVoice : public AActor, public IAudioInFactory, public IAudioOutFactory, public SH_PhotonVoiceBasic
 {
 	GENERATED_BODY()
 
@@ -84,7 +85,7 @@ private:
 	ExitGames::Voice::IAudioPusher<short>* audioInFactory();
 	ExitGames::Voice::IAudioOut<short>* audioOutFactory();
 
-
+	virtual void Voice_ConnectComplete(void) override;
 
 public:
 	//플레이어 출력
@@ -94,4 +95,8 @@ public:
 		void SetMuteOut(bool bInput);
 	UFUNCTION(BlueprintCallable, Category = "PhotonAudio")
 		void SetMute(bool bInput);
+
+	//포톤 보이스에 연결됐을때
+	UFUNCTION(BlueprintImplementableEvent)
+	void ConnectComplete();
 };

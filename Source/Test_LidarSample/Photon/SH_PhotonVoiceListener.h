@@ -15,11 +15,12 @@
 
 #include "../Actor_PhotonAudioIn.h"
 #include "../Actor_PhotonAudioOut.h"
+#include "SH_PhotonVoiceBasic.h"
 
 class TEST_LIDARSAMPLE_API SH_PhotonVoiceListener : public ExitGames::Voice::LoadBalancingListener
 {
 public:
-	SH_PhotonVoiceListener(ExitGames::Common::JString const& appID, ExitGames::Common::JString const& appVersion, IAudioInFactory* audioInFactory, IAudioOutFactory* audioOutFactory);
+	SH_PhotonVoiceListener(ExitGames::Common::JString const& appID, ExitGames::Common::JString const& appVersion, IAudioInFactory* audioInFactory, IAudioOutFactory* audioOutFactory, SH_PhotonVoiceBasic* PhotonVoiceBasic);
 	~SH_PhotonVoiceListener(void);
 	void update(void);
 	ExitGames::Common::JString getStateString(void);
@@ -101,7 +102,7 @@ private:
 
 	IAudioInFactory* mpAudioInFactory;
 	IAudioOutFactory* mpAudioOutFactory;
-
+	SH_PhotonVoiceBasic* mBasic;
 
 public:
 	//id와 플레이어 넘버를 저장한다.
