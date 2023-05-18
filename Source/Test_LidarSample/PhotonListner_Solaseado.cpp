@@ -50,6 +50,7 @@ void PhotonListner_Solaseado::Connect(const JString& userName, const JString& se
 
 void PhotonListner_Solaseado::onAvailableRegions(const JVector<JString>& availableRegions, const JVector<JString>& availableRegionServers)
 {
+
 	int size = availableRegions.getSize();
 	for (int i = 0; i < size; i++)
 	{
@@ -447,4 +448,15 @@ void PhotonListner_Solaseado::InitJoinOrCreateRoom()
 	RoomOptions options;
 	options.setMaxPlayers(MaxPlayerRoom);
 	m_pClient->opJoinOrCreateRoom(sRoomName, options);
+}
+
+
+//애니메이션 상태 데이터를 보내주는 함수
+void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
+{
+	FString Estr = "An";
+	mCharacterInfo.put(TCHAR_TO_UTF8(*Estr), _State);
+	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
+	//데이터를 보냈으니 새로 채워두기 위해서 비운다.
+	RemoveCharacterInfo();
 }

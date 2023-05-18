@@ -100,6 +100,8 @@ public:
 	void RemoveCharacterInfo();
 
 	void InitJoinOrCreateRoom();
+
+	void SendPlayerAnimState(uint8 _State);
 };
 
 

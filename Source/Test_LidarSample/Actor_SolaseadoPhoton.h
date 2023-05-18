@@ -9,6 +9,22 @@
 #include "GameFramework/Actor.h"
 #include "Actor_SolaseadoPhoton.generated.h"
 
+
+//플레이어의 애니메이션 상태 enum
+/*
+Pawn_PLayer.h에 갱신예정
+*/
+UENUM(BlueprintType)
+enum class enum_PlayerAnimationState : uint8
+{
+	Error = 0,
+	Idle,
+	Walk,
+	Run,
+	Sleep,
+	Death,
+};
+
 UENUM(BlueprintType)
 enum class Enum_TextType3 : uint8
 {
@@ -181,18 +197,14 @@ public:
 	virtual void SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume);
 
 
+	//애니메이션 상태 데이터를 보내주는 함수
 	UFUNCTION(BlueprintCallable)
-		void testdata();
-
+		void InputAnimationState(enum_PlayerAnimationState _State);
 protected:
 	float PlayerHeight = 266.f;
 
 	//플레이어 코스튬 개수
 	int DataCount = 0;
-
-	// 방정보
-	// UFUNCTION(BlueprintCallable)
-	// void SendPlayerInfo();
 
 	//테스트 더미용 포톤 서버 접속
 	UFUNCTION(BlueprintCallable)

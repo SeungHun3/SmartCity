@@ -97,7 +97,8 @@ void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 {
 	srand(GETTIMEMS());
 	m_pListener = new PhotonListner_Solaseado(this);
-	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion)); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
+	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion),
+		Photon::ConnectionProtocol::DEFAULT, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT, false); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
 	m_pListener->SetClient(m_pClient);
 	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
 }
@@ -136,6 +137,7 @@ void AActor_SolaseadoPhoton::PhotonDisconnect()
 
 void AActor_SolaseadoPhoton::setRegion()
 {
+	//UE_LOG(LogTemp, Log, TEXT("//setRegion"));
 	m_pClient->selectRegion("kr");
 }
 
@@ -167,16 +169,22 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 	{
 		FString str = "c"; // Costume Data
 		str += FString::FromInt(i);
-		const char* Temp = TCHAR_TO_UTF8(*str);
+
+		//이전코드
+		//char* Temp = TCHAR_TO_UTF8(*str);
+
+		//수정된 코드
+		const TCHAR* TempTCHAR = *str;
+		const char* Temp = new char[FCString::Strlen(TempTCHAR) + 1];
+		FCStringAnsi::Strcpy(const_cast<char*>(Temp), FCString::Strlen(TempTCHAR) + 1, TCHAR_TO_UTF8(TempTCHAR));
 
 		if (Custom.contains(Temp))
 		{
 			JString Costume = ((ValueObject<JString>*)Custom.getValue(Temp))->getDataCopy();
-
 			ArrayPlayerCostume.Add(FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
-
-			//UE_LOG(LogTemp, Log, TEXT("//AddPlayers Costunme %s :: %s"),*str ,*FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr())));
 		}
+
+		FMemory::Free((void*)Temp);
 	}
 
 
@@ -257,44 +265,29 @@ void AActor_SolaseadoPhoton::RemovePlayer(int playerNr)
 }
 
 /****************************************
-	서버에서 받아온 캐릭터 정보 갱신 구간
+	서버에서 받아온 다른 플레이어들의 정보 갱신 구간
 	*****************************************/
 void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtable& changes)
 {
 
-
 	// 캐릭터 애니메이션 변경 적용 
 	if (changes.contains("An"))
 	{
-		nByte Anim = ((ValueObject<nByte>*)changes.getValue("An"))->getDataCopy();
-		// UE_LOG(LogTemp, Log, TEXT("// contains( An ) :: %d "), Anim);
+		uint8 Anim = ((ValueObject<uint8>*)changes.getValue("An"))->getDataCopy();
 		for (auto it : PlayerList)
 		{
 			if (it->PlayerNr == playerNr)
 			{
-				it->bWalk = (bool)Anim;
-				return;
+				//아래 예시처럼 Pawn_Player에 있는 변수에 적용시켜주면 됩니다.
+				//Pawn Player에 해당 변수가 없어서 적용되지 않아 에러가 발생할테니 주석처리 하시거나 해당 변수를 만들어주시고 커밋하면 적용할테니 
+				//참고 부탁드립니다.
+				//예시
+				it->eAnimationState = (enum_PlayerAnimationState)Anim;
 			}
 		}
 	}
 
-
-	if (changes.contains("TT"))
-	{
-		int Tdate = ((ValueObject<int>*)changes.getValue("TT"))->getDataCopy();
-		// UE_LOG(LogTemp, Log, TEXT("// contains( An ) :: %d "), Anim);
-		for (auto it : PlayerList)
-		{
-			if (it->PlayerNr == playerNr)
-			{
-				//UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties :: %d"), (int)Tdate);
-				return;
-			}
-		}
-	}
-
-
-	//코스튬 구간
+	//코스튬 구간(n=DataCount) ::  "C_0" ~ "C_n" 
 	for (auto it : PlayerList)
 	{
 		if (it->PlayerNr == playerNr)
@@ -304,42 +297,22 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 			for (int i = 0; i < DataCount; i++)
 			{
 				FString str = "c"; // Costume Data
-
 				str += FString::FromInt(i);
-				const char* Temp = TCHAR_TO_UTF8(*str);
+
+				const TCHAR* TempTCHAR = *str;
+				const char* Temp = new char[FCString::Strlen(TempTCHAR) + 1];
+				FCStringAnsi::Strcpy(const_cast<char*>(Temp), FCString::Strlen(TempTCHAR) + 1, TCHAR_TO_UTF8(TempTCHAR));
+
 				JString Costume = ""; // 변경 코스튬
 
 				if (changes.contains(Temp))
 				{
 					Costume = ((ValueObject<JString>*)changes.getValue(Temp))->getDataCopy();
-
 					FString cc = FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr()));
-
-					//UE_LOG(LogTemp, Log, TEXT("// Load updatePlayerProperties Costume:: %s"), *cc);
 					CostumeList.Add(cc);
 				}
 			}
-			//for (int i = 0; i < 5; i++)
-			//{
-			//	FString str = "c"; // Costume Data
-			//
-			//	str += FString::FromInt(i);
-			//	const char* Temp = TCHAR_TO_UTF8(*str);
-			//	int Costume = 0; // 변경 코스튬	
-			//
-			//	if (changes.contains(Temp))
-			//	{
-			//		Costume = ((ValueObject<int>*)changes.getValue(Temp))->getDataCopy();
-			//
-			//		FCostume info;
-			//		info.Type = enum_CostumeType(i);
-			//		info.PartNumber = Costume;
-			//
-			//		CostumeList.Add(info);
-			//	}
-			//}
-
-			//SetCustomCostume(playerNr, CostumeList);
+			it->SetCostumeArray(CostumeList);
 			break;
 		}
 	}
@@ -383,7 +356,6 @@ void AActor_SolaseadoPhoton::GetMovePlayerRotation(int playerNr, float fX)
 void AActor_SolaseadoPhoton::ConnectComplete(void)
 {
 	//UE_LOG(LogTemp, Log, TEXT("// ConnectComplete "));
-
 	InitPlayerData_Implementation();
 }
 
@@ -470,7 +442,7 @@ void AActor_SolaseadoPhoton::ChangeRoomEventProperty(uint8 Ev)
 // 룸 커스텀 데이터 변경 콜벡
 void AActor_SolaseadoPhoton::updateRoomProperties(const Hashtable& changes)
 {
-	// 캐릭터 애니메이션 변경 적용 
+	// 
 	if (changes.contains("Ev"))
 	{
 		nByte roomEvent = ((ValueObject<nByte>*)changes.getValue("Ev"))->getDataCopy();
@@ -494,6 +466,7 @@ void AActor_SolaseadoPhoton::getEventPause(bool ev)
 
 
 // 캐릭터 데이터 저장
+// 
 void AActor_SolaseadoPhoton::InputCharacterInfo(FString _key, FString _value)
 {
 	//UE_LOG(LogTemp, Log, TEXT("// InputCharacterInfo "));
@@ -501,6 +474,7 @@ void AActor_SolaseadoPhoton::InputCharacterInfo(FString _key, FString _value)
 }
 
 // 저장한 캐릭터 데이터 보내기
+// 설명 보충 추가
 void AActor_SolaseadoPhoton::SendPlayerInfo()
 {
 	//UE_LOG(LogTemp, Log, TEXT("// SendPlayerInfo "));
@@ -521,6 +495,7 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 }
 
 //받은 코스튬 데이터로 플레이어의 아바타를 세팅해주는 함수
+//사용중이지 않습니다.
 void AActor_SolaseadoPhoton::SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume)
 {
 	for (auto it : PlayerList)
@@ -537,14 +512,13 @@ void AActor_SolaseadoPhoton::SetCustomCostume_Implementation(int playerNr, const
 	}
 }
 
-void AActor_SolaseadoPhoton::testdata()
+//상태 애니메이션을 서버에 갱신하기
+/*
+Play_Pawn에서 관리중인 애니메이션 상태값이 바뀌었을때 여기에 넣어주면 다른 플레이어에게 상태값이 전달됩니다.
+*/
+void AActor_SolaseadoPhoton::InputAnimationState(enum_PlayerAnimationState _State)
 {
-	FString str = "c"; // Costume Data
-	str += FString::FromInt(1);
-
-	InputCharacterInfo(str, "11111");
-
-	SendPlayerInfo();
+	m_pListener->SendPlayerAnimState((uint8)_State);
 }
 
 
@@ -567,9 +541,13 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 	{
 		FString str = "c"; // Costume Data
 		str += FString::FromInt(DataCount++);
-
 		InputCharacterInfo(str, it);
 	}
+
+	//임시로 enum_PlayerAnimationState::Idle을 넣어뒀다.
+	//플레이어 폰에 애니메이션 상태 변수가 정착되면 거기에 있는 상태값을 여기에 넣어준다.
+	InputAnimationState(enum_PlayerAnimationState::Idle);
+
 
 	//쌓인 데이터 보내고 룸 입장하기
 	m_pListener->InitJoinOrCreateRoom();
