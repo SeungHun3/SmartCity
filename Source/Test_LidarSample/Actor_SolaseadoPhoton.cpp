@@ -311,6 +311,8 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 					FString cc = FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr()));
 					CostumeList.Add(cc);
 				}
+
+				FMemory::Free((void*)Temp);
 			}
 			it->SetCostumeArray(CostumeList);
 			break;
