@@ -39,7 +39,7 @@ FCustomizing_Struct UGameInstance_Solaseado::Find_ITem(const FString& ITemID)
 {
 
 	// 아이디 첫번째 String 담아놓기
-	TCHAR FirstString = ITemID.begin().operator*();
+	//TCHAR FirstString = ITemID.begin().operator*(); // 첫번째 문자열 뽑기 다른방법 있으면 찾아보자
 	//UE_LOG(LogTemp, Log, TEXT("// FString : %c "), FirstString);
 
 

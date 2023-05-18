@@ -7,6 +7,18 @@
 #include "GameFramework/Pawn.h"
 #include "Pawn_Player.generated.h"
 
+//플레이어의 애니메이션 상태 enum
+UENUM(BlueprintType)
+enum class enum_PlayerAnimationState : uint8
+{
+	Error = 0,
+	Idle,
+	Walk,
+	Run,
+	Sleep,
+	Death,
+};
+
 UCLASS()
 class TEST_LIDARSAMPLE_API APawn_Player : public APawn
 {
@@ -27,7 +39,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Playfab")
 		int Test_LoadingCount;
-
 	// 가상 통화 
 	UPROPERTY(BlueprintReadWrite, Category = "Playfab")
 		FString VirtualCoin;
@@ -53,7 +64,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* Hand;
 
-
+	// 애니매이션 상태설정
+	enum_PlayerAnimationState eAnimationState;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -135,4 +147,8 @@ public:
 	// 커스텀시작시 디폴트 메쉬변경 함수 == 데이터 테이블 받아와서 파츠당 첫번째열의 메쉬를 사용함
 	UFUNCTION(BlueprintCallable)
 	void BeginDefalutMesh();
+
+	// 메쉬 변경시 포톤 동기화
+	UFUNCTION(BlueprintCallable)
+	void ChangeProperty(const FString& ITemID);
 };

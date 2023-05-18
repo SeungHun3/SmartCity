@@ -68,6 +68,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "SH_")
 		FStreamLevelFinish StreamLevelFinish;
 
+
+	// 포톤변수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Photon")
+		class AActor_SolaseadoPhoton* PhotonCloud;
+
 private:
 	// 페이드 진행 시간
 	float FadeDuration = 3.5f;

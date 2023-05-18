@@ -2,12 +2,22 @@
 
 
 #include "Pawn_Player.h"
+#include "GameInstance_Solaseado.h"
+#include "GameModeBase_Solaseado.h"
+
+#include "Engine.h"
+
 #include "GenericPlatform/GenericPlatformMisc.h"
 #include "GameFramework/Actor.h"
+
+
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "GameInstance_Solaseado.h"
 #include "ActorComponent_PlayfabStore.h"
+#include "Actor_SolaseadoPhoton.h"
+
+
+
 
 // Sets default values
 APawn_Player::APawn_Player()
@@ -22,7 +32,7 @@ APawn_Player::APawn_Player()
 
 	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
 	Body->SetupAttachment(Root);
-
+	
 	Head = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
 	Head->SetupAttachment(Body);
 
@@ -34,6 +44,15 @@ APawn_Player::APawn_Player()
 
 	Hand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hand"));
 	Hand->SetupAttachment(Body);
+	
+	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
+	//애니매이션 설정
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimationBPClass(TEXT("/Game/Project/Skeleton/anim/anim_body/ABP_NPC.ABP_NPC_C"));
+	if (AnimationBPClass.Class != nullptr)
+	{
+		// Set the Animation Blueprint
+		Body->SetAnimInstanceClass(AnimationBPClass.Class);
+	}
 
 	//Body->SetVisibility(false, true);
 	// child설정 되기 전에 호출해버려서 개별적으로 visible세팅 해줘야 함
@@ -46,16 +65,15 @@ APawn_Player::APawn_Player()
 	{
 		Mesh->SetVisibility(false);
 	}
-	bUseControllerRotationYaw = true;
-	//test
-	//Body->SetVisibility(false);
+
+	//Pawn의 회전값 Yaw 를 controller의 값으로 세팅
+	bUseControllerRotationYaw = false;
 }
 
 // Called when the game starts or when spawned
 void APawn_Player::BeginPlay()
 {
 	Super::BeginPlay();
-	Body->SetVisibility(true, true);
 }
 
 // Called every frame
@@ -95,7 +113,7 @@ void APawn_Player::SetCostumeArray(const TArray<FString>& ITemIDs)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Log, TEXT("// SetCostumeArray : Error!!  Not Found Item!!!"));
+			//UE_LOG(LogTemp, Log, TEXT("// SetCostumeArray : Error!!  Not Found Item!!!"));
 		}
 	}
 	
@@ -129,7 +147,7 @@ TArray<FString> APawn_Player::UploadPlayer()
 				if (it == propertys.ItemInstanceId)
 				{
 					// 같은 instanceID인지 체크 후 배열로 저장
-					UE_LOG(LogTemp, Log, TEXT("// instanceID : %s , ItemID : %s "), *it, *propertys.ItemId);
+					//UE_LOG(LogTemp, Log, TEXT("// instanceID : %s , ItemID : %s "), *it, *propertys.ItemId);
 					ItemIDs.Push(propertys.ItemId);
 				}
 			}
@@ -181,7 +199,7 @@ void APawn_Player::BeginDefalutMesh()
 
 	if (!InstanceDataTables.IsValidIndex(0)) // 데이터 테이블이 없다면 탈출
 	{
-		UE_LOG(LogTemp, Log, TEXT("// Nodata !!!!"));
+		//UE_LOG(LogTemp, Log, TEXT("// Nodata !!!!"));
 		return;
 	}
 	// 데이터 테이블이 있다면
@@ -196,4 +214,13 @@ void APawn_Player::BeginDefalutMesh()
 			
 		}
 	}
+	// 데이터 전부 담고나서 비지블켜기
+	Body->SetVisibility(true, true);
+}
+
+void APawn_Player::ChangeProperty(const FString& ITemID)
+{
+	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode());
+	GM_Solaseado->PhotonCloud->InputCharacterInfo("Pawn", ITemID);
+	//Hashtable 
 }

@@ -14,16 +14,16 @@
 /*
 Pawn_PLayer.h에 갱신예정
 */
-UENUM(BlueprintType)
-enum class enum_PlayerAnimationState : uint8
-{
-	Error = 0,
-	Idle,
-	Walk,
-	Run,
-	Sleep,
-	Death,
-};
+//UENUM(BlueprintType)
+//enum class enum_PlayerAnimationState : uint8
+//{
+//	Error = 0,
+//	Idle,
+//	Walk,
+//	Run,
+//	Sleep,
+//	Death,
+//};
 
 UENUM(BlueprintType)
 enum class Enum_TextType3 : uint8
