@@ -132,6 +132,16 @@ void AActor_PhotonVoice::SetMute(bool bInput)
 	}
 }
 
+//사운드 활성화/비활성화
+uint8 AActor_PhotonVoice::GetInMikeVolume()
+{
+	if (mPhotonAudioIn)
+	{
+		return (uint8)mPhotonAudioIn->aveMike;
+	}
+	return 0;
+}
+
 
 
 

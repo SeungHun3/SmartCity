@@ -15,6 +15,7 @@
 #include "../Actor_PhotonAudioIn.h"
 #include "Console.h"
 
+
 using namespace ExitGames;
 //using namespace ExitGames::Common; // outcommented to avoid symbol clashes between UE_LOG and Common::JString
 using namespace ExitGames::Common::Helpers;
@@ -219,7 +220,7 @@ void SH_PhotonVoiceListener::toggleEcho(void)
 	for (unsigned int i = 0; i < mLocalVoices.size(); i++)
 	{
 		mLocalVoices[i]->setDebugEchoMode(!mLocalVoices[i]->getDebugEchoMode());
-		//Console::get().writeLine(mLocalVoices[i]->getName() + L" echo: " + (mLocalVoices[i]->getDebugEchoMode() ? L"ON" : L"OFF"));
+		Console::get().writeLine(mLocalVoices[i]->getName() + L" echo: " + (mLocalVoices[i]->getDebugEchoMode() ? L"ON" : L"OFF"));
 	}
 }
 

@@ -99,4 +99,7 @@ public:
 	//포톤 보이스에 연결됐을때
 	UFUNCTION(BlueprintImplementableEvent)
 	void ConnectComplete();
+
+	UFUNCTION(BlueprintCallable)
+	uint8 GetInMikeVolume();
 };

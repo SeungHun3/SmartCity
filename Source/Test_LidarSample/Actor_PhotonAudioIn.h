@@ -69,6 +69,10 @@ public:
 
 	//콜백함수
 	void setCallback(void* callbackOpaque, void(*callback)(void*, const ExitGames::Voice::Buffer<short>&));
+
+	////마이크 입력 평균값 
+	short aveMike = 0.0f;
+
 private:
 	//타이머 쓰레드 //여기서 계속 입력된 사운드를 캡처해서 갱신해준다.
 	void onTimer();
@@ -77,4 +81,5 @@ private:
 	void(*mpCallback)(void*, const ExitGames::Voice::Buffer<short>&);
 	ExitGames::Common::JString mError;
 
+	void AveageMike(const short* buf);
 };
