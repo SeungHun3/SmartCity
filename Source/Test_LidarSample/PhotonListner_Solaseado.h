@@ -101,7 +101,7 @@ public:
 
 	void InitJoinOrCreateRoom();
 
-	void SendPlayerAnimState(uint8 _State);
+	void SendPlayerAnimState(/*uint8 _State*/);
 };
 
 

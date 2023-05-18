@@ -18,7 +18,6 @@
 
 
 
-
 // Sets default values
 APawn_Player::APawn_Player()
 {
@@ -48,12 +47,12 @@ APawn_Player::APawn_Player()
 	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
 	//애니매이션 설정
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimationBPClass(TEXT("/Game/Project/Skeleton/anim/anim_body/ABP_NPC.ABP_NPC_C"));
-	if (AnimationBPClass.Class != nullptr)
+	if (AnimationBPClass.Class)
 	{
 		// Set the Animation Blueprint
 		Body->SetAnimInstanceClass(AnimationBPClass.Class);
+		
 	}
-
 	//Body->SetVisibility(false, true);
 	// child설정 되기 전에 호출해버려서 개별적으로 visible세팅 해줘야 함
 

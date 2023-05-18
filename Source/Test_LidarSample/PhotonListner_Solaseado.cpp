@@ -452,11 +452,11 @@ void PhotonListner_Solaseado::InitJoinOrCreateRoom()
 
 
 //애니메이션 상태 데이터를 보내주는 함수
-void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
+void PhotonListner_Solaseado::SendPlayerAnimState(/*uint8 _State*/)
 {
-	FString Estr = "An";
-	mCharacterInfo.put(TCHAR_TO_UTF8(*Estr), _State);
-	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
-	//데이터를 보냈으니 새로 채워두기 위해서 비운다.
-	RemoveCharacterInfo();
+	//FString Estr = "An";
+	//mCharacterInfo.put(TCHAR_TO_UTF8(*Estr), _State);
+	//m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
+	////데이터를 보냈으니 새로 채워두기 위해서 비운다.
+	//RemoveCharacterInfo();
 }

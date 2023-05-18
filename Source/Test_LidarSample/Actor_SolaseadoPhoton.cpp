@@ -520,7 +520,7 @@ Play_Pawn에서 관리중인 애니메이션 상태값이 바뀌었을때 여기에 넣어주면 다른 플레�
 */
 void AActor_SolaseadoPhoton::InputAnimationState(enum_PlayerAnimationState _State)
 {
-	m_pListener->SendPlayerAnimState((uint8)_State);
+	m_pListener->SendPlayerAnimState(/*(uint8)_State*/);
 }
 
 
