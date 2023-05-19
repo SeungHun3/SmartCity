@@ -283,21 +283,47 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 				//참고 부탁드립니다.
 				//예시
 				it->eAnimationState = (enum_PlayerAnimationState)Anim;
+				break;
 			}
 		}
 	}
 
-	//코스튬 구간(n=DataCount) ::  "C_0" ~ "C_n" 
+	
 	for (auto it : PlayerList)
 	{
 		if (it->PlayerNr == playerNr)
 		{
-
-			TArray<FString> CostumeList;
-			for (int i = 0; i < DataCount; i++)
+			//코스튬 구간(n=DataCount) ::  "C_0" ~ "C_n" 
 			{
-				FString str = "c"; // Costume Data
-				str += FString::FromInt(i);
+				TArray<FString> CostumeList;
+				for (int i = 0; i < DataCount; i++)
+				{
+					FString str = "c"; // Costume Data
+					str += FString::FromInt(i);
+
+					const TCHAR* TempTCHAR = *str;
+					const char* Temp = new char[FCString::Strlen(TempTCHAR) + 1];
+					FCStringAnsi::Strcpy(const_cast<char*>(Temp), FCString::Strlen(TempTCHAR) + 1, TCHAR_TO_UTF8(TempTCHAR));
+
+					JString Costume = ""; // 변경 코스튬
+
+					if (changes.contains(Temp))
+					{
+						Costume = ((ValueObject<JString>*)changes.getValue(Temp))->getDataCopy();
+						FString cc = FString(UTF8_TO_TCHAR(Costume.UTF8Representation().cstr()));
+						CostumeList.Add(cc);
+					}
+
+					FMemory::Free((void*)Temp);
+				}
+				it->SetCostumeArray(CostumeList);
+			}
+
+			//개별 코스튬 파츠 업데이트 구간
+			{
+				TArray<FString> CostumeList;
+
+				FString str = "costume"; // Costume Data
 
 				const TCHAR* TempTCHAR = *str;
 				const char* Temp = new char[FCString::Strlen(TempTCHAR) + 1];
@@ -313,11 +339,13 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 				}
 
 				FMemory::Free((void*)Temp);
+				it->SetCostumeArray(CostumeList);
 			}
-			it->SetCostumeArray(CostumeList);
 			break;
 		}
 	}
+
+
 }
 
 
@@ -496,23 +524,7 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 
 }
 
-//받은 코스튬 데이터로 플레이어의 아바타를 세팅해주는 함수
-//사용중이지 않습니다.
-void AActor_SolaseadoPhoton::SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume)
-{
-	for (auto it : PlayerList)
-	{
-		if (it->PlayerNr == playerNr)
-		{
-			//여기에 아바타 세팅관련 추가해주면 됩니다.
 
-			for (auto tCostume : arrayCostume)
-			{
-				//it->ChangeCostumeParts(tCostume.Type,tCostume.PartNumber);
-			}
-		}
-	}
-}
 
 //상태 애니메이션을 서버에 갱신하기
 /*
@@ -535,8 +547,6 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 
 	const TArray<FString> &PlayFabData = LocalPlayer->UploadPlayer();
 
-	//UE_LOG(LogTemp, Log, TEXT("// InitPlayerData_Implementation :: %d "), PlayFabData.Num());
-	
 	DataCount = 0;
 
 	for (auto it : PlayFabData)
@@ -544,6 +554,7 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 		FString str = "c"; // Costume Data
 		str += FString::FromInt(DataCount++);
 		InputCharacterInfo(str, it);
+		SendPlayerInfo();
 	}
 
 	//임시로 enum_PlayerAnimationState::Idle을 넣어뒀다.
@@ -553,4 +564,14 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 
 	//쌓인 데이터 보내고 룸 입장하기
 	m_pListener->InitJoinOrCreateRoom();
+}
+
+
+//애니메이션 파츠 데이터를 포톤 서버에 전송
+//파츠 이름을 여기에 FString 인자로 넣어주면 됩니다.
+void AActor_SolaseadoPhoton::SendCostumeParts(FString Parts)
+{
+	FString str = "costume";
+	InputCharacterInfo(str, Parts);
+	SendPlayerInfo();
 }

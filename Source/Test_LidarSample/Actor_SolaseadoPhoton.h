@@ -190,16 +190,15 @@ public:
 		void InitPlayerData();
 	virtual void InitPlayerData_Implementation();
 
-	//네이티브 이벤트로 c++와 블루프린트 사용 구분해서 구현
-	//포톤 서버에서 업데이트 받은 코스튬 정보를 처리해주는 함수
-	UFUNCTION(BlueprintNativeEvent)
-		void SetCustomCostume(int playerNr, const TArray<FCostume>& arrayCostume);
-	virtual void SetCustomCostume_Implementation(int playerNr, const TArray<FCostume>& arrayCostume);
-
+	//애니메이션 상태 데이터를 보내주는 함수
+	UFUNCTION(BlueprintCallable)
+		void SendCostumeParts(FString Parts);
 
 	//애니메이션 상태 데이터를 보내주는 함수
 	UFUNCTION(BlueprintCallable)
 		void InputAnimationState(enum_PlayerAnimationState _State);
+
+
 protected:
 	float PlayerHeight = 266.f;
 
