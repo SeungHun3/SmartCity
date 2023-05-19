@@ -268,10 +268,42 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 	}
 	else if (Selection == "updateEquipmentItem")
 	{
-		// 아이템 장비 성공 이벤트.
-		UE_LOG(LogTemp, Log, TEXT("// Playfab _ updateEquipmentItem :: %s"), *getStringData);
-		if (PlayerOwner)
-			PlayerOwner->Blueprint_UpdateEquipmentItem(getStringData);
+		PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+		PlayFab::ClientModels::FGetUserDataRequest request;
+
+		// 찾고자 하는 타이틀 // 빈데이터 = 전체 타이틀 데이터
+		TArray<FString> targetKey; //(Selection == "updateEquipmentItem") 에서 ItemClass가지고 왔을때 같이 넣을 수 있음
+
+		request.Keys = targetKey;
+		request.PlayFabId = PlayFabID;
+		// 유저 데이터 찾기
+		ClientAPI->GetUserData(
+			request,
+			PlayFab::UPlayFabClientAPI::FGetUserDataDelegate::CreateLambda([&,getStringData](const PlayFab::ClientModels::FGetUserDataResult& result) {
+
+				TArray<FString> getKeys;
+				result.Data.GetKeys(getKeys);
+				for (auto it : getKeys)
+				{
+					const PlayFab::ClientModels::FUserDataRecord* record = result.Data.Find(it);
+					if (record)
+					{
+						UserTitleData.Add(it, record->Value);
+					}
+				}
+
+				// 아이템 장비 성공 이벤트.
+				UE_LOG(LogTemp, Log, TEXT("// Playfab _ updateEquipmentItem :: %s"), *getStringData);
+				if (PlayerOwner)
+					PlayerOwner->Blueprint_UpdateEquipmentItem(getStringData);
+
+
+				}));
+
+		 //아이템 장비 성공 이벤트.
+		//UE_LOG(LogTemp, Log, TEXT("// Playfab _ updateEquipmentItem :: %s"), *getStringData);
+		//if (PlayerOwner)
+			//PlayerOwner->Blueprint_UpdateEquipmentItem(getStringData);
 	}
 }
 
