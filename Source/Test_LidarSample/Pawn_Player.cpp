@@ -220,6 +220,7 @@ void APawn_Player::BeginDefalutMesh()
 void APawn_Player::ChangeProperty(const FString& ITemID)
 {
 	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode());
-	GM_Solaseado->PhotonCloud->InputCharacterInfo("Pawn", ITemID);
-	//Hashtable 
+	//GM_Solaseado->PhotonCloud->InputCharacterInfo("Pawn", ITemID); 
+	GM_Solaseado->PhotonCloud->SendCostumeParts(ITemID);
+	 
 }
