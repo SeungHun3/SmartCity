@@ -43,7 +43,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString UserCharacterName;
 	// 유저 플레이 정보 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TMap<FString, FString > UserTitleData;
 
 	// 캐릭터 생성 여부
