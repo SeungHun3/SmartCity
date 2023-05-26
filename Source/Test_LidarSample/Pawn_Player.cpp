@@ -28,7 +28,7 @@ APawn_Player::APawn_Player()
 	// 스켈레톤 컴포넌트 구조설정
 	Root = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root"));
 	RootComponent = Root;
-
+	Root->SetRelativeTransform(FTransform(FQuat(0.0f, 0.0f, 0.0f, 0.0f), FVector(0.0f, 0.0f, 0.0f), FVector(1.0f, 1.0f, 1.0f)));
 	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
 	Body->SetupAttachment(Root);
 	
@@ -65,8 +65,12 @@ APawn_Player::APawn_Player()
 		Mesh->SetVisibility(false);
 	}
 
-	//Pawn의 회전값 Yaw 를 controller의 값으로 세팅
+	//Pawn의 회전값 Yaw 를 controller의 값으로 세팅 = false
 	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationPitch = false;
+
+
 }
 
 // Called when the game starts or when spawned
