@@ -91,3 +91,41 @@ public:
 	Struct_Customizing();
 	~Struct_Customizing();
 };
+
+///팝업////
+
+UENUM(BlueprintType)
+enum class enum_PopupRun : uint8
+{
+	Exit,
+	Login,
+	CreateRoom,
+	// 로비 , 채널 
+	JoinRoom,
+	// 로비 , 채널 
+	LeaveRoom, // inLobby
+	Channel,
+	// 캐릭터 생성
+	CreateCharacter,
+	// 아이템 구매
+	Purchage,
+	// 아이템 판매
+	Sell,
+	// 공지
+	Notice,
+	// 친구 추가 메세지 보내기
+	AddFriendMessage,
+	// 친구 추가
+	AddFriend,
+	MoveChannel,
+	Cancel,
+	// 키 차단 팝업
+	Tutorial,
+};
+
+UENUM(BlueprintType)
+enum class enum_PopupStyle : uint8
+{
+	Popup1Key,
+	Popup2Key,
+};
