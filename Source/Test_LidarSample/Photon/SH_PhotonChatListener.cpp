@@ -55,6 +55,7 @@ void SH_PhotonChatListener::serverErrorReturn(int errorCode)
 // callbacks for operations on server
 void SH_PhotonChatListener::connectReturn(int errorCode, const Common::JString& errorString)
 {
+	//UE_LOG(LogTemp, Log, TEXT("//Chat connectReturn::"));
 	Console::get().writeLine(Common::JString("// PhotonChat errorCode ConnectReturn :: ") + errorCode);
 	if (errorCode == ErrorCode::OK)
 	{
@@ -64,19 +65,25 @@ void SH_PhotonChatListener::connectReturn(int errorCode, const Common::JString& 
 		// m_pChatClient->opSubscribe(channels);
 		
 		// AActor_PhotonChat function 
+
+		//채팅 채널에 성공적으로 접속했다.
 		m_pView->Chat_ConnectComplete();
 	}
 	else
 	{
 		Console::get().writeLine(Common::JString("// // errorCode Message :: ") + errorString);
 	}
+
 }
 
+//접속이 끊김
 void SH_PhotonChatListener::disconnectReturn(void)
 {
 	Console::get().writeLine(Common::JString("// PhotonChat :: disconnectReturn "));
 }
 
+
+//구독 리턴
 void SH_PhotonChatListener::subscribeReturn(const Common::JVector<Common::JString>& channels, const Common::JVector<bool>& results)
 {
 	// 채팅 시스템은 정해진 구독 채널 안에서 활용됨.
@@ -109,10 +116,12 @@ void SH_PhotonChatListener::onStatusUpdate(const Common::JString& user, int stat
 	Console::get().writeLine(Common::JString("// PhotonChat :: onStatusUpdate ") + user);
 }
 
+//일반 메시지 수신부
 void SH_PhotonChatListener::onGetMessages(const Common::JString& channelName, const Common::JVector<Common::JString>& senders, const Common::JVector<Common::Object>& messages)
 {
 	Console::get().writeLine(Common::JString("// PhotonChat :: onGetMessages ChannelName " )+ channelName);
 	int size = senders.getSize();
+
 	for (int i = 0; i < size; i++)
 	{
 		if (messages[i].getType() == ExitGames::Common::TypeCode::STRING)
@@ -129,11 +138,14 @@ void SH_PhotonChatListener::onGetMessages(const Common::JString& channelName, co
 	}
 }
 
+//귓속말 수신부
 void SH_PhotonChatListener::onPrivateMessage(const Common::JString& sender, const Common::Object& message, const Common::JString& channelName)
 {
 	Console::get().writeLine(Common::JString("// onPrivateMessage sender :: ") + sender);
 	Console::get().writeLine(Common::JString("// // message		:: ") );
 	Console::get().writeLine(Common::JString("// // channelName :: ") + channelName);
+
+
 }
 
 void SH_PhotonChatListener::onReceiveBroadcastMessage(const Common::JString& channelName, nByte* inBuff, int inBuffBodyLength)

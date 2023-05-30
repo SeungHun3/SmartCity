@@ -129,11 +129,11 @@ void AActor_SolaseadoPhoton::movePlayerXY(float fX, float fY)
 	//애니메이션 변경
 	if (fX || fY)
 	{
-		InputAnimationState(LocalPlayer->eAnimationState = enum_PlayerAnimationState::Walk);
+		LocalPlayer->eAnimationState = enum_PlayerAnimationState::Walk;
 	}
 	else
 	{
-		InputAnimationState(LocalPlayer->eAnimationState = enum_PlayerAnimationState::Idle);
+		LocalPlayer->eAnimationState = enum_PlayerAnimationState::Idle;
 	}
 }
 
@@ -400,6 +400,17 @@ void AActor_SolaseadoPhoton::GetMovePlayerXYandLeryXY(int playerNr, float fX, fl
 			it->fLerpMoveX = (lerpX - it->GetActorLocation().X)/ lerpTimer;
 			it->fLerpMoveY= (lerpY - it->GetActorLocation().Y) / lerpTimer;
 			it->lerpMoveTimer = lerpTimer;
+
+			if (fX==fY==0 && it->eAnimationState == enum_PlayerAnimationState::Walk)
+			{
+				it->eAnimationState = enum_PlayerAnimationState::Idle;
+				return;
+			}
+			else if ((fX || fY) && it->eAnimationState == enum_PlayerAnimationState::Idle)
+			{
+				it->eAnimationState = enum_PlayerAnimationState::Walk;
+				return;
+			}
 			return;
 		}
 	}
@@ -562,7 +573,7 @@ Play_Pawn에서 관리중인 애니메이션 상태값이 바뀌었을때 여기에 넣어주면 다른 플레�
 */
 void AActor_SolaseadoPhoton::InputAnimationState(enum_PlayerAnimationState _State)
 {
-	m_pListener->SendPlayerAnimState((uint8)_State);
+	m_pListener->setPlayerAnimationData((uint8)_State);
 }
 
 
