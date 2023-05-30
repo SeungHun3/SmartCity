@@ -296,6 +296,23 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			}
 		}
 	}
+	else if (eventCode == 16)
+	{
+		//입력받은 커맨드와 보간을 위환 좌표값
+		if (obj && obj->getDimensions() == 1)
+		{
+			if (obj->getType() == TypeCode::EG_FLOAT)
+			{
+				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
+
+				float vX = data[0];
+				float lerpX = data[1];
+
+				m_pView->GetRotationPlayerXandLeryX(playerNr, vX, lerpX);
+				return;
+			}
+		}
+	}
 }
 
 // 방 떠나기 성공
@@ -341,6 +358,14 @@ void PhotonListner_Solaseado::SetPlayerMoveCommand(float vX, float vY, float ler
 	float coords[] = { static_cast<float>(vX) , static_cast<float>(vY),static_cast<float>(lerpX) , static_cast<float>(lerpY) };
 	data.put((nByte)1, coords, 4);
 	m_pClient->opRaiseEvent(false, data, 15);
+}
+
+void PhotonListner_Solaseado::SetPlayerRotationCommand(float vX, float lerpX)
+{
+	Hashtable data;
+	float coords[] = { static_cast<float>(vX) ,static_cast<float>(lerpX) };
+	data.put((nByte)1, coords, 2);
+	m_pClient->opRaiseEvent(false, data, 16);
 }
 
 // 특정 유저에게 보내는 메세지 

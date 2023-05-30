@@ -76,6 +76,8 @@ public:
 
 	//입력 받은 이동값과 러프를 위한 현재 좌표값
 	void SetPlayerMoveCommand(float vX, float vY, float lerpX, float lerpY);	// 15
+	//입력 받은 회전값
+	void SetPlayerRotationCommand(float vX, float lerpX);	// 16
 
 	// 텍스트 정보
 	void PlayerTargetMessage(const int* target, int size, nByte text);	// 2
@@ -91,12 +93,12 @@ public:
 
 protected:
 	//서버 수용 최대 인원수
-	int MaxPlayerRoom = 2;
+	int MaxPlayerRoom = 15;
 	//서버에 뿌릴 데이터를 저장해 둘 헤시 테이블
 	//여기에 저장된 값들은 데이터가 뿌려지고 엑터 포톤의 updatePlayerProperties()에서 처리할 수 있게 한다.
 	ExitGames::Common::Hashtable mCharacterInfo;
-	ExitGames::Common::JString sRoomName="TestRoomName";
-	//ExitGames::Common::JString sRoomName="InitRoomName";
+	//ExitGames::Common::JString sRoomName="TestRoomName";
+	ExitGames::Common::JString sRoomName="InitRoomName";
 public:
 	//플레이어 커스텀 데이터 정보 처리
 	void SetChracterInfo(FString _key, FString _value);
