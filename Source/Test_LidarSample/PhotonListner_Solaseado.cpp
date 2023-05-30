@@ -46,6 +46,7 @@ void PhotonListner_Solaseado::Connect(const JString& userName, const JString& se
 {
 	m_pClient->setAutoJoinLobby(true);
 	m_pClient->connect(ConnectOptions(AuthenticationValues().setUserID(JString() + GETTIMEMS()), userName, serverAddress));
+	
 }
 
 void PhotonListner_Solaseado::onAvailableRegions(const JVector<JString>& availableRegions, const JVector<JString>& availableRegionServers)
@@ -60,7 +61,7 @@ void PhotonListner_Solaseado::onAvailableRegions(const JVector<JString>& availab
 }
 
 
-// 현재 접속 중인 인원에게 
+// 현재 접속 중인 인원에게 접속 이벤트가 발생한다고 알린다
 void PhotonListner_Solaseado::joinRoomEventAction(int playerNr, const Common::JVector<int>& playernrs, const LoadBalancing::Player& player)
 {
 	// 방 접속시 멀티유저 브로드케스팅 함수
@@ -242,6 +243,8 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 
 			//UE_LOG(LogTemp, Log, TEXT("// %d"), sizeof(*data));
 
+			UE_LOG(LogTemp, Log, TEXT("// eventCode == 6 :: x: %d,y: %d,z: %d"), vX, vY, vZ);
+
 			m_pView->GetMovePlayer(playerNr, vX, vY, vZ);
 			return;
 		}
@@ -272,6 +275,27 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			}
 		}
 	}
+	else if (eventCode == 15)
+	{
+		//입력받은 커맨드와 보간을 위환 좌표값
+		if (obj && obj->getDimensions() == 1) 
+		{
+			if (obj->getType() == TypeCode::EG_FLOAT)
+			{
+				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
+
+				float vX = data[0];
+				float vY = data[1];
+				float lerpX = data[2];
+				float lerpY = data[3];
+
+				m_pView->GetMovePlayerXYandLeryXY(playerNr,vX,vY, lerpX, lerpY);
+				UE_LOG(LogTemp, Log, TEXT("// eventCode == 15 (%f, %f) lerp: (%f,%f)"), vX, vY, lerpX, lerpY);
+				//임시로 vX,vY로 표기한다.
+				return;
+			}
+		}
+	}
 }
 
 // 방 떠나기 성공
@@ -293,6 +317,8 @@ void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JStri
 // 위치 전송 // Location & Rotation 
 void PhotonListner_Solaseado::SetMovePlayer(int vX, int vY, int vz)
 {
+	UE_LOG(LogTemp, Log, TEXT("// SetMovePlayer :: x: %d,y: %d,z: %d"), vX, vY, vz);
+
 	Hashtable HashData;
 	int coords[] = { static_cast<int>(vX) , static_cast<int>(vY) ,static_cast<int>(vz) };
 	HashData.put((nByte)1, coords, 3);
@@ -306,6 +332,15 @@ void PhotonListner_Solaseado::SetMovePlayerRotation(float fZ)
 	float coords[] = { static_cast<float>(fZ) };
 	data.put((nByte)1, coords, 1);
 	m_pClient->opRaiseEvent(false, data, 7);
+}
+
+//이동 동기화를 위한 방향 커맨드 입력과 보간을 위한 현재 위치값을 입력합니다.
+void PhotonListner_Solaseado::SetPlayerMoveCommand(float vX, float vY, float lerpX, float lerpY)
+{
+	Hashtable data;
+	float coords[] = { static_cast<float>(vX) , static_cast<float>(vY),static_cast<float>(lerpX) , static_cast<float>(lerpY) };
+	data.put((nByte)1, coords, 4);
+	m_pClient->opRaiseEvent(false, data, 15);
 }
 
 // 특정 유저에게 보내는 메세지 
@@ -441,22 +476,24 @@ void PhotonListner_Solaseado::RemoveCharacterInfo()
 void PhotonListner_Solaseado::InitJoinOrCreateRoom()
 {
 	//UE_LOG(LogTemp, Log, TEXT("//CustomJoinOrCreateRoom()"));
-
 	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
 	RemoveCharacterInfo();
 
 	RoomOptions options;
 	options.setMaxPlayers(MaxPlayerRoom);
+	options.setPublishUserID(true);
 	m_pClient->opJoinOrCreateRoom(sRoomName, options);
 }
 
 
 //애니메이션 상태 데이터를 보내주는 함수
-void PhotonListner_Solaseado::SendPlayerAnimState(/*uint8 _State*/)
+void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
 {
-	//FString Estr = "An";
-	//mCharacterInfo.put(TCHAR_TO_UTF8(*Estr), _State);
-	//m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
+	FString Estr = "An";
+	mCharacterInfo.put(TCHAR_TO_UTF8(*Estr), _State);
+	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
 	////데이터를 보냈으니 새로 채워두기 위해서 비운다.
-	//RemoveCharacterInfo();
+	RemoveCharacterInfo();
 }
+
+

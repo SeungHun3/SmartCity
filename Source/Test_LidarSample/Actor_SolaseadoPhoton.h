@@ -79,11 +79,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SH_Photon")
 		FString appVersion = FString("1.2.0");
 
+	//플레이어 리스트
 	UPROPERTY()
 		TArray<class APawn_Player*> PlayerList;
 	// 스폰 플레이어 캐릭터
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class APawn_Player> targetCharacter;
+
+	// 룸 리스트
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TArray<FString> RoomList;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -97,13 +103,25 @@ protected:
 	PhotonListner_Solaseado* m_pListener;
 
 	// 캐릭터 위치 포톤 업데이트
+	UFUNCTION(BlueprintCallable)
 	void movePlayer(FVector Loc);
 	void movePlayer(int vx, int vy, int vz);
 	void movePlayerRotation(float fZ);
+	
+
+	// 현재 입장 방 정보
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString CurrentRoomName;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		uint8 CurrentPeople;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		uint8 MaxPeople;
 
 	// 이전 위치
 	FVector CurrentLocation = FVector::ZeroVector;
 	float CurrentRotation = 0.f;
+
+	FVector ForwardVector = FVector::ZeroVector;
 
 	// 플레이어 유저
 	class APawn_Player* LocalPlayer;
@@ -118,9 +136,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ChangeEventPause(bool ev);
 
-	// 캐릭터 애니메이션 
+	// 캐릭터 애니메이션 세팅
 	UFUNCTION(BlueprintCallable)
-		void setPlayerAnimationData(uint8 anim);
+		void setPlayerAnimationData(enum_PlayerAnimationState anim);
 	// 포톤 서버 접속 
 	UFUNCTION(BlueprintCallable)
 		void ConnectLogin(const FString& username);
@@ -131,6 +149,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ConnectRosActor();
 
+	// 캐릭터 Forward
+	UFUNCTION(BlueprintCallable)
+	void movePlayerXY(float fX, float fY);
 
 	// 포톤 재접속, 접속 해제
 	void ReconnectMessage();
@@ -156,6 +177,7 @@ public:
 	// 포톤 사용자 위지 정보 업데이트
 	virtual void GetMovePlayer(int playerNr, int vX, int vY, int vZ) override;
 	virtual void GetMovePlayerRotation(int playerNr, float fX) override;
+	virtual void GetMovePlayerXYandLeryXY(int playerNr, float fX, float fY, float lerpX, float lerpY) override;
 
 	// Connect
 	virtual void ConnectComplete(void) override;
@@ -205,11 +227,14 @@ protected:
 	//플레이어 코스튬 개수
 	int DataCount = 0;
 
+	//이동 동기화에 쓰일 변수
+	//0.1초 동안 이동 오차 값을 보간하여 이동해준다.
+	float lerpTimer = 0.1f;
+
 	//테스트 더미용 포톤 서버 접속
 	UFUNCTION(BlueprintCallable)
 		void DummyConnectLogin(const FString& username, APawn_Player* dummy);
 
 	virtual void updateLocalPlayerPosion() override;
-
 
 };

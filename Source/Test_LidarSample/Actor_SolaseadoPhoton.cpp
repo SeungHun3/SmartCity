@@ -41,7 +41,6 @@ void AActor_SolaseadoPhoton::BeginPlay()
 	if (world)
 	{
 		LocalPlayer = Cast<APawn_Player>(world->GetFirstPlayerController()->GetPawn());
-		//LocalPlayer->
 	}
 }
 
@@ -73,6 +72,7 @@ void AActor_SolaseadoPhoton::movePlayerRotation(float fZ)
 	}
 }
 
+
 // Called every frame
 void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 {
@@ -84,8 +84,8 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 		lastUpdateTime = t;
 		if (m_pListener)
 		{
-			
 			m_pListener->service();
+			//회전값만 지속해서 갱신한다.
 			updateLocalPlayerPosion();
 		}
 	}
@@ -115,13 +115,26 @@ void AActor_SolaseadoPhoton::DummyConnectLogin(const FString& username, APawn_Pl
 
 }
 
-
-
 // 텍스트 메세지 출력 
 void AActor_SolaseadoPhoton::SendTextMessage(const FString& Message, const FString& type)
 {
 	if (m_pListener)
 		m_pListener->TextMessage(TCHAR_TO_UTF8(*Message), TCHAR_TO_UTF8(*type));
+}
+
+void AActor_SolaseadoPhoton::movePlayerXY(float fX, float fY)
+{
+	m_pListener->SetPlayerMoveCommand(fX, fY, LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y);
+
+	//애니메이션 변경
+	if (fX || fY)
+	{
+		InputAnimationState(LocalPlayer->eAnimationState = enum_PlayerAnimationState::Walk);
+	}
+	else
+	{
+		InputAnimationState(LocalPlayer->eAnimationState = enum_PlayerAnimationState::Idle);
+	}
 }
 
 void AActor_SolaseadoPhoton::ReconnectMessage()
@@ -143,7 +156,8 @@ void AActor_SolaseadoPhoton::setRegion()
 
 void AActor_SolaseadoPhoton::ErrorCheckMessage(const FString& message, int error)
 {
-
+	UE_LOG(LogTemp, Log, TEXT("// ErrorCheckMessage :: %s"), *message);
+	UE_LOG(LogTemp, Log, TEXT("// ErrorCode :: %d"), error);
 }
 
 //필드 초기화
@@ -196,10 +210,11 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 		if (LocalPlayer)
 		{
 			LocalPlayer->isInRoom = true;
+			LocalPlayer->isInLoby = false;
 			LocalPlayer->PlayerNr = playerNr;
 			LocalPlayer->bLocal = true;
-			//LocalPlayer->AddMainWidget();
 			LocalPlayer->PlayerName = name;
+			//LocalPlayer->AddMainWidget();
 			//LocalPlayer->setPlayerNameTag(name);
 
 			//포톤으로 받은 코스튬 데이터를 전달한다.
@@ -208,23 +223,11 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 	}
 	else
 	{
-		// Character Anim (true = walk , false = idle)
-		//
-		// 
-		// 
-		//  chAnim = JString();
-		//FString Anim = "An";
-		//const char* TempAnim = TCHAR_TO_UTF8(*Anim);
-		//if (Custom.contains(TempAnim))
-		//{
-		//	chAnim = ((ValueObject<JString>*)Custom.getValue(TempAnim))->getDataCopy();
-		//}
-
 		FActorSpawnParameters actorSpawnParam;
 		actorSpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-
 		APawn_Player* target = GetWorld()->SpawnActor<APawn_Player>(targetCharacter, FTransform(), actorSpawnParam);
+		//target->SpawnDefaultController();//이게 없어서 무브먼트가 안먹혔음, 블루프린트에서 auto possess ai로 설정 가능
 		if (target)
 		{
 			// 타겟 플레이어 이름
@@ -238,6 +241,7 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 
 			PlayerList.Add(target);
 			LocalPlayer->AddClentPlayerCount();
+			movePlayer(LocalPlayer->GetActorLocation());
 
 			//포톤으로 받은 코스튬 데이터를 전달한다.
 			target->SetCostumeArray(ArrayPlayerCostume);
@@ -283,6 +287,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 				//참고 부탁드립니다.
 				//예시
 				it->eAnimationState = (enum_PlayerAnimationState)Anim;
+				UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
 				break;
 			}
 		}
@@ -349,10 +354,10 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 }
 
 
-void AActor_SolaseadoPhoton::setPlayerAnimationData(uint8 anim)
+void AActor_SolaseadoPhoton::setPlayerAnimationData(enum_PlayerAnimationState anim)
 {
 	if (m_pListener)
-		m_pListener->setPlayerAnimationData(anim);
+		m_pListener->setPlayerAnimationData((uint8)anim);
 }
 
 
@@ -383,6 +388,23 @@ void AActor_SolaseadoPhoton::GetMovePlayerRotation(int playerNr, float fX)
 	}
 }
 
+//이동 동기화 작업
+void AActor_SolaseadoPhoton::GetMovePlayerXYandLeryXY(int playerNr, float fX, float fY, float lerpX, float lerpY)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			it->fForward = fX;
+			it->fRight = fY;
+			it->fLerpMoveX = (lerpX - it->GetActorLocation().X)/ lerpTimer;
+			it->fLerpMoveY= (lerpY - it->GetActorLocation().Y) / lerpTimer;
+			it->lerpMoveTimer = lerpTimer;
+			return;
+		}
+	}
+}
+
 void AActor_SolaseadoPhoton::ConnectComplete(void)
 {
 	//UE_LOG(LogTemp, Log, TEXT("// ConnectComplete "));
@@ -391,14 +413,17 @@ void AActor_SolaseadoPhoton::ConnectComplete(void)
 
 void AActor_SolaseadoPhoton::CreateChannelComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel)
 {
+
 }
 
 void AActor_SolaseadoPhoton::CreateRoomComplete(const ExitGames::Common::JString& map)
 {
+	ConnectPhotonCHat();
 }
 
 void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel)
 {
+	ConnectPhotonCHat();
 }
 
 void AActor_SolaseadoPhoton::JoinOrCreateComplete()
@@ -412,15 +437,22 @@ void AActor_SolaseadoPhoton::JoinOrCreateComplete()
 
 void AActor_SolaseadoPhoton::LeaveRoomComplete(void)
 {
-	//UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
+	UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
 	if (LocalPlayer)
 	{
 		LocalPlayer->isInRoom = false;
+		LocalPlayer->isInLoby = true;
 	}
 }
 
 void AActor_SolaseadoPhoton::CurrentRoomInfo(const ExitGames::Common::JString& name, nByte Count, nByte MaxCount)
 {
+	CurrentRoomName = UTF8_TO_TCHAR(name.UTF8Representation().cstr());
+	CurrentPeople = Count - 1;
+	MaxPeople = MaxCount - 1;
+
+	UE_LOG(LogTemp, Log, TEXT("// RoomName :: %s"), *CurrentRoomName);
+	UE_LOG(LogTemp, Log, TEXT("// MaxPeople :: %d , CurrentPeople:: %d "), MaxCount, Count);
 }
 
 void AActor_SolaseadoPhoton::getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type)
@@ -517,8 +549,6 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 {
 	if (LocalPlayer && LocalPlayer->isInRoom)
 	{
-		// 로컬 플레이어 위치 정보 
-		movePlayer(LocalPlayer->GetActorLocation());
 		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
 	}
 
@@ -532,7 +562,7 @@ Play_Pawn에서 관리중인 애니메이션 상태값이 바뀌었을때 여기에 넣어주면 다른 플레�
 */
 void AActor_SolaseadoPhoton::InputAnimationState(enum_PlayerAnimationState _State)
 {
-	m_pListener->SendPlayerAnimState(/*(uint8)_State*/);
+	m_pListener->SendPlayerAnimState((uint8)_State);
 }
 
 
@@ -567,7 +597,7 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 }
 
 
-//애니메이션 파츠 데이터를 포톤 서버에 전송
+//코스튬 파츠 데이터를 포톤 서버에 전송
 //파츠 이름을 여기에 FString 인자로 넣어주면 됩니다.
 void AActor_SolaseadoPhoton::SendCostumeParts(FString Parts)
 {
@@ -575,3 +605,5 @@ void AActor_SolaseadoPhoton::SendCostumeParts(FString Parts)
 	InputCharacterInfo(str, Parts);
 	SendPlayerInfo();
 }
+
+

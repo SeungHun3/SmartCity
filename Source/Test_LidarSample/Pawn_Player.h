@@ -36,6 +36,8 @@ public:
 		FString PlayerName;
 	UPROPERTY(BlueprintReadWrite)
 		bool isInRoom = false;
+	UPROPERTY(BlueprintReadWrite)
+		bool isInLoby = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Playfab")
 		int Test_LoadingCount;
@@ -65,7 +67,37 @@ public:
 		class USkeletalMeshComponent* Hand;
 
 	// 애니매이션 상태설정
-	enum_PlayerAnimationState eAnimationState;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	enum_PlayerAnimationState eAnimationState= enum_PlayerAnimationState::Idle;
+
+	// 이전 위치값
+	UPROPERTY(BlueprintReadWrite)
+		FVector vPrePos;
+	// 받은 가속도값
+	UPROPERTY(BlueprintReadWrite)
+		FVector vVelocity;
+
+
+	//입력 이벤트 Forward, Right
+	UPROPERTY(BlueprintReadWrite)
+	float fForward = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+	float fRight = 0.0f;
+
+	// 보간 이동 타이머
+	UPROPERTY(BlueprintReadWrite)
+	float lerpMoveTimer = 0.0f;
+
+	//보간 이동 좌표
+	UPROPERTY(BlueprintReadWrite)
+		float fLerpMoveX = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+		float fLerpMoveY = 0.0f;
+
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bRotation = false;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
