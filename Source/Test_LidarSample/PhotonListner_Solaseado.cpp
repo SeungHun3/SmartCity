@@ -242,8 +242,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			int vZ = data[2];
 
 			//UE_LOG(LogTemp, Log, TEXT("// %d"), sizeof(*data));
-
-			UE_LOG(LogTemp, Log, TEXT("// eventCode == 6 :: x: %d,y: %d,z: %d"), vX, vY, vZ);
+			//UE_LOG(LogTemp, Log, TEXT("// eventCode == 6 :: x: %d,y: %d,z: %d"), vX, vY, vZ);
 
 			m_pView->GetMovePlayer(playerNr, vX, vY, vZ);
 			return;
@@ -289,8 +288,9 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 				float lerpX = data[2];
 				float lerpY = data[3];
 
-				m_pView->GetMovePlayerXYandLeryXY(playerNr,vX,vY, lerpX, lerpY);
-				UE_LOG(LogTemp, Log, TEXT("// eventCode == 15 (%f, %f) lerp: (%f,%f)"), vX, vY, lerpX, lerpY);
+				
+				//m_pView->GetMovePlayerXYandLeryXY(playerNr,vX,vY, lerpX, lerpY);
+				//UE_LOG(LogTemp, Log, TEXT("// eventCode == 15 (%f, %f) lerp: (%f,%f)"), vX, vY, lerpX, lerpY);
 				//임시로 vX,vY로 표기한다.
 				return;
 			}
@@ -334,7 +334,7 @@ void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JStri
 // 위치 전송 // Location & Rotation 
 void PhotonListner_Solaseado::SetMovePlayer(int vX, int vY, int vz)
 {
-	UE_LOG(LogTemp, Log, TEXT("// SetMovePlayer :: x: %d,y: %d,z: %d"), vX, vY, vz);
+
 
 	Hashtable HashData;
 	int coords[] = { static_cast<int>(vX) , static_cast<int>(vY) ,static_cast<int>(vz) };
