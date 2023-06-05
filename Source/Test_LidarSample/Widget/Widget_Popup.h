@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Struct_Customizing.h"
+#include "../Struct_Customizing.h"
 #include "Blueprint/UserWidget.h"
 #include "Widget_Popup.generated.h"
 
