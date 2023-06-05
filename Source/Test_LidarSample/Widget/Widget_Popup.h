@@ -23,6 +23,8 @@ public:
 	void CheckPopup_SubPanel(enum_PopupStyle style, const FText& message, const FText& title, const FText& subMessage, enum_PopupRun run, int number);
 	void setRedText(const FText& red);
 
+	UPROPERTY(EditAnywhere)
+		bool bIsClikedNo;
 
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* HorizontalBox_Coin;

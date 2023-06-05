@@ -121,6 +121,7 @@ enum class enum_PopupRun : uint8
 	Cancel,
 	// Å° Â÷´Ü ÆË¾÷
 	Tutorial,
+	StartStoryTutorial,
 };
 
 UENUM(BlueprintType)
