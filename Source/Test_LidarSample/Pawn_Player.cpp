@@ -70,7 +70,7 @@ APawn_Player::APawn_Player()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 
-
+	
 }
 
 // Called when the game starts or when spawned
@@ -84,6 +84,16 @@ void APawn_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	//tick FPS 측정
+	FPStimer += DeltaTime;
+	++tickFPS;
+	if (FPStimer >= 1.0)
+	{
+		FPStimer = 0.0f;
+		CountFPS = tickFPS;
+		tickFPS = 0;
+	}
 
 }
 
@@ -227,4 +237,50 @@ void APawn_Player::ChangeProperty(const FString& ITemID)
 	//GM_Solaseado->PhotonCloud->InputCharacterInfo("Pawn", ITemID); 
 	GM_Solaseado->PhotonCloud->SendCostumeParts(ITemID);
 	 
+}
+
+//서버에서 수신받은 입력에 대한 상태를 이 함수에서 처리해준다.\
+//애니메이션 상태값의 변화가 있을 경우 true를 반환하고 아닐경우 false를 반환합니다.
+bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
+{
+	switch ((enum_InputPlayer)_Command)
+	{
+	case enum_InputPlayer::Error:
+		return false;
+	case enum_InputPlayer::RightStop:
+		fRight = 0.0f;
+		break;
+	case enum_InputPlayer::Right:
+		fRight = 1.0f;
+		break;
+	case enum_InputPlayer::Left:
+		fRight = -1.0f;
+		break;
+	case enum_InputPlayer::ForwardStop:
+		fForward = 0.0f;
+		break;
+	case enum_InputPlayer::Forward:
+		fForward = 1.0f;
+		break;
+	case enum_InputPlayer::Back:
+		fForward = -1.0f;
+		break;
+	default:
+		break;
+	}
+
+	//UE_LOG(LogTemp, Log, TEXT("// InputMoveCommand PlayerNr: %d, Command ::%d"), PlayerNr, _Command);
+	//애니메이션 상태
+	if ((fForward ==0 && fRight == 0) && eAnimationState == enum_PlayerAnimationState::Walk)
+	{
+		eAnimationState = enum_PlayerAnimationState::Idle;
+		return true;
+	}
+	else if ((fForward || fRight) && eAnimationState == enum_PlayerAnimationState::Idle)
+	{
+		eAnimationState = enum_PlayerAnimationState::Walk;
+		return true;
+	}
+
+	return false;
 }

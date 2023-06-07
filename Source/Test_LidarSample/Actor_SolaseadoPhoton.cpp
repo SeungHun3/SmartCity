@@ -10,6 +10,9 @@
 #define Photon_AppID "6b83afef-1da9-4b42-9281-da551443a54b"
 #define Photon_ServerAddress "ns.exitgames.com"
 
+//1000ms=1second 움직일 때 마다 업데이트(임시 1초)
+#define Update_Move_Time 1000
+
 // Sets default values
 AActor_SolaseadoPhoton::AActor_SolaseadoPhoton() : serverAddress(TEXT(Photon_ServerAddress)), AppID(TEXT(Photon_AppID))
 {
@@ -20,6 +23,11 @@ AActor_SolaseadoPhoton::AActor_SolaseadoPhoton() : serverAddress(TEXT(Photon_Ser
 	//FindtargetCharacter(TEXT("/Game/Project/BP_targetPlayer")); 
 	if (FindtargetCharacter.Succeeded())
 		targetCharacter = FindtargetCharacter.Class;
+
+	//플레이어 스피드 임시 처리
+	moveSpeed = 500.0f;
+	//이 거리 이상 멀어지면 강제 위치 보정을 해준다.
+	lerpDistance = 200.0f;
 }
 
 AActor_SolaseadoPhoton::~AActor_SolaseadoPhoton()
@@ -78,6 +86,7 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 	unsigned long t = GETTIMEMS();
 	if ((t - lastUpdateTime) > 100)
 	{
@@ -85,9 +94,24 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 		if (m_pListener)
 		{
 			m_pListener->service();
-			//회전값만 지속해서 갱신한다.
-			updateLocalPlayerPosion();
 		}
+	}
+
+	//아직 테스트 중인 이동 동기화 부분을 bOnTimeMove로 On/Off한다
+	//총 움직인 시간이 Update_Move_Time(1초)을 넘을 때 마다 위치 업데이트
+	if (bOnTimeMove && bIsMoving && lastMoveTime+t-startMoveTime> Update_Move_Time)
+	{
+		lastMoveTime = 0;
+		startMoveTime = t;
+		//UE_LOG(LogTemp, Log, TEXT("//Update Moving Time"));
+		
+		//회전
+		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
+		//위치
+		MovePlayerAndTime(LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y, t % 10000);
+
+		//MovePlayerRotationAndTime()
+		//movePlayer(LocalPlayer->GetActorLocation());
 	}
 }
 
@@ -122,18 +146,35 @@ void AActor_SolaseadoPhoton::SendTextMessage(const FString& Message, const FStri
 		m_pListener->TextMessage(TCHAR_TO_UTF8(*Message), TCHAR_TO_UTF8(*type));
 }
 
-void AActor_SolaseadoPhoton::movePlayerXY(float fX, float fY)
-{
-	m_pListener->SetPlayerMoveCommand(fX, fY, LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y);
 
-	//애니메이션 변경
-	if (fX || fY)
+//커맨드를 입력했을때 이 함수를 써서 포톤 서버에 뿌려준다.
+//이동은 서버에서 받았을때 처리한다.
+//이전에 입력이 됐는지에 대한 검사는 다른 함수로 처리하고 입력받는다.
+void AActor_SolaseadoPhoton::movePlayerCommand(enum_InputPlayer _Commnad)
+{
+	if (m_pListener)
 	{
-		LocalPlayer->eAnimationState = enum_PlayerAnimationState::Walk;
+		m_pListener->SetPlayerCommand((int)_Commnad);
 	}
-	else
+}
+
+//
+void AActor_SolaseadoPhoton::RotationPlayerX(float fX)
+{
+	m_pListener->SetPlayerRotationCommand(fX);
+}
+
+//현재 사용하지 않음
+void AActor_SolaseadoPhoton::MovePlayerRotationAndTime(float fX, int time)
+{
+
+}
+
+void AActor_SolaseadoPhoton::MovePlayerAndTime(int vX, int vY, int time)
+{
+	if (m_pListener)
 	{
-		LocalPlayer->eAnimationState = enum_PlayerAnimationState::Idle;
+		m_pListener->SetPlayerMoveAndTime(vX,vY,time);
 	}
 }
 
@@ -156,8 +197,8 @@ void AActor_SolaseadoPhoton::setRegion()
 
 void AActor_SolaseadoPhoton::ErrorCheckMessage(const FString& message, int error)
 {
-	UE_LOG(LogTemp, Log, TEXT("// ErrorCheckMessage :: %s"), *message);
-	UE_LOG(LogTemp, Log, TEXT("// ErrorCode :: %d"), error);
+	//UE_LOG(LogTemp, Log, TEXT("// ErrorCheckMessage :: %s"), *message);
+	//UE_LOG(LogTemp, Log, TEXT("// ErrorCode :: %d"), error);
 }
 
 //필드 초기화
@@ -282,12 +323,8 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 		{
 			if (it->PlayerNr == playerNr)
 			{
-				//아래 예시처럼 Pawn_Player에 있는 변수에 적용시켜주면 됩니다.
-				//Pawn Player에 해당 변수가 없어서 적용되지 않아 에러가 발생할테니 주석처리 하시거나 해당 변수를 만들어주시고 커밋하면 적용할테니 
-				//참고 부탁드립니다.
-				//예시
 				it->eAnimationState = (enum_PlayerAnimationState)Anim;
-				UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
+				//UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
 				break;
 			}
 		}
@@ -388,30 +425,97 @@ void AActor_SolaseadoPhoton::GetMovePlayerRotation(int playerNr, float fX)
 	}
 }
 
-//이동 동기화 작업
-void AActor_SolaseadoPhoton::GetMovePlayerXYandLeryXY(int playerNr, float fX, float fY, float lerpX, float lerpY)
+
+void AActor_SolaseadoPhoton::GetPlayerRotationYaw(int playerNr, float fYaw)
 {
 	for (auto it : PlayerList)
 	{
 		if (it->PlayerNr == playerNr)
 		{
-			it->fForward = fX;
-			it->fRight = fY;
-			it->fLerpMoveX = (lerpX - it->GetActorLocation().X)/ lerpTimer;
-			it->fLerpMoveY= (lerpY - it->GetActorLocation().Y) / lerpTimer;
-			it->lerpMoveTimer = lerpTimer;
+			it->fRotationX = fYaw;
 
-			if (fX==fY==0 && it->eAnimationState == enum_PlayerAnimationState::Walk)
+			return;
+		}
+	}
+}
+
+//서버에서 플레어어들의 입력 데이터를 입력받는다.
+//처리는 기존과 같이 일단 Tick에서 처리한다.
+void AActor_SolaseadoPhoton::GetMovePlayerCommand(int playerNr, int iCommand)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			it->PhotonTimer = GETTIMEMS() % 10000;
+			//딜레이 테스트용(테스트 끝나면 필요없음)
+			m_pListener->SendTestDelay(it->PhotonTimer);
+
+			//아직 테스트 중인 이동 동기화 부분을 bOnTimeMove로 On/Off한다
+			if (it->InputMoveCommand((enum_InputPlayer)iCommand) && playerNr == LocalPlayer->PlayerNr && bOnTimeMove)
 			{
-				it->eAnimationState = enum_PlayerAnimationState::Idle;
-				return;
-			}
-			else if ((fX || fY) && it->eAnimationState == enum_PlayerAnimationState::Idle)
-			{
-				it->eAnimationState = enum_PlayerAnimationState::Walk;
-				return;
+				//움직임 업데이트 체크
+				//
+				if (LocalPlayer->eAnimationState == enum_PlayerAnimationState::Walk && !bIsMoving)
+				{
+					// 움직임 업데이트 시작
+					// 이제 막 움직였을 경우 움직인 시간을 측정하기 위해 현재 시간을 저장한다.
+					bIsMoving = true;
+					startMoveTime = GETTIMEMS();
+
+					UE_LOG(LogTemp, Log, TEXT("//Start Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
+					UE_LOG(LogTemp, Log, TEXT("//Check Moving Time"));
+				}
+				else if (LocalPlayer->eAnimationState == enum_PlayerAnimationState::Idle && bIsMoving)
+				{
+					// 움직임 업데이트 종료
+					// 움직인 시간을 다음에 처리하기 위해 lastMoveTime에 저장한다.
+					bIsMoving = false;
+					lastMoveTime = GETTIMEMS() - startMoveTime;
+
+					UE_LOG(LogTemp, Log, TEXT("//End Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
+				}
 			}
 			return;
+		}
+	}
+}
+
+//현재 사용중이지 않음
+void AActor_SolaseadoPhoton::GetMovePlayerRotationAndTime(int playerNr, float fX, int time)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			
+		}
+	}
+}
+
+void AActor_SolaseadoPhoton::GetMovePlayerAndTime(int playerNr, int vX, int vY, int time)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			float tTime = (float)time * 0.001f * moveSpeed;
+
+			//현재 위치 + 왕복시간으로 예측한 이동 위치
+			FVector lerpVector = FVector(vX, vY, PlayerHeight)+ (it->GetActorForwardVector() * it->fForward + it->GetActorRightVector() * it->fRight).GetSafeNormal() * tTime;
+			
+			//UE_LOG(LogTemp, Log, TEXT("//lerp x== %f, y== %f, tTime==%f"), lerpVector.X, lerpVector.Y, tTime);
+			//UE_LOG(LogTemp, Log, TEXT("//fForward== %f, fRight== %f"), it->fForward, it->fRight);
+			
+			//플레이어 간의 거리가 2m(lerpDistance) 이상 차이가 나면 위치값을 보정해준다.
+			UE_LOG(LogTemp, Log, TEXT("//Player NR %d Recv %d Distance== %f"), playerNr,LocalPlayer->PlayerNr,FVector::Distance(it->GetActorLocation(),  lerpVector));
+			if (FVector::Distance(it->GetActorLocation(), lerpVector) > lerpDistance)
+			{
+				it->fLerpMoveX = (lerpVector.X - it->GetActorLocation().X) / lerpTimer;
+				it->fLerpMoveY = (lerpVector.Y - it->GetActorLocation().Y) / lerpTimer;
+				it->fLerpMoveZ = (lerpVector.Z - it->GetActorLocation().Z) / lerpTimer;
+				it->lerpMoveTimer = lerpTimer;
+			}
 		}
 	}
 }
@@ -448,7 +552,7 @@ void AActor_SolaseadoPhoton::JoinOrCreateComplete()
 
 void AActor_SolaseadoPhoton::LeaveRoomComplete(void)
 {
-	UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
+	//UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
 	if (LocalPlayer)
 	{
 		LocalPlayer->isInRoom = false;
@@ -462,8 +566,8 @@ void AActor_SolaseadoPhoton::CurrentRoomInfo(const ExitGames::Common::JString& n
 	CurrentPeople = Count - 1;
 	MaxPeople = MaxCount - 1;
 
-	UE_LOG(LogTemp, Log, TEXT("// RoomName :: %s"), *CurrentRoomName);
-	UE_LOG(LogTemp, Log, TEXT("// MaxPeople :: %d , CurrentPeople:: %d "), MaxCount, Count);
+	//UE_LOG(LogTemp, Log, TEXT("// RoomName :: %s"), *CurrentRoomName);
+	//UE_LOG(LogTemp, Log, TEXT("// MaxPeople :: %d , CurrentPeople:: %d "), MaxCount, Count);
 }
 
 void AActor_SolaseadoPhoton::getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type)
@@ -537,7 +641,6 @@ void AActor_SolaseadoPhoton::getEventPause(bool ev)
 	//	LocalPlayer->ChangeEventPause(ev);
 }
 
-
 // 캐릭터 데이터 저장
 // 
 void AActor_SolaseadoPhoton::InputCharacterInfo(FString _key, FString _value)
@@ -561,10 +664,9 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 	if (LocalPlayer && LocalPlayer->isInRoom)
 	{
 		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
+		movePlayer(LocalPlayer->GetActorLocation());
 	}
-
 }
-
 
 
 //상태 애니메이션을 서버에 갱신하기

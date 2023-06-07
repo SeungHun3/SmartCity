@@ -19,6 +19,22 @@ enum class enum_PlayerAnimationState : uint8
 	Death,
 };
 
+ 
+//입력받은 이동 커맨드에 대한 상태 열거형
+UENUM(BlueprintType)
+enum class enum_InputPlayer : uint8
+{
+	Error = 0,
+	RightStop,
+	Right,
+	Left,
+	ForwardStop,
+	Forward,
+	Back,
+};
+
+
+
 UCLASS()
 class TEST_LIDARSAMPLE_API APawn_Player : public APawn
 {
@@ -77,22 +93,48 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		FVector vVelocity;
 
+	//FPS 측정
+	float FPStimer = 0.0;
+	UPROPERTY(BlueprintReadWrite)
+	int CountFPS = 0;//FPS 결과값
+	int tickFPS = 0;
+
+	//지연테스트용 변수
+	UPROPERTY(BlueprintReadWrite)
+	int32 PhotonTimer=0;
+
 
 	//입력 이벤트 Forward, Right
 	UPROPERTY(BlueprintReadWrite)
 	float fForward = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
 	float fRight = 0.0f;
+	//입력 이벤트 Forward, Right
+	UPROPERTY(BlueprintReadWrite)
+	enum_InputPlayer PrevForward= enum_InputPlayer::ForwardStop;
+	UPROPERTY(BlueprintReadWrite)
+	enum_InputPlayer PrevRight = enum_InputPlayer::RightStop;
+
+
+	//입력 회전
+	UPROPERTY(BlueprintReadWrite)
+	float fRotationX = 0.0f;
 
 	// 보간 이동 타이머
 	UPROPERTY(BlueprintReadWrite)
 	float lerpMoveTimer = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+		float lerpRotationTimer = 0.0f;
 
 	//보간 이동 좌표
 	UPROPERTY(BlueprintReadWrite)
 		float fLerpMoveX = 0.0f;
 	UPROPERTY(BlueprintReadWrite)
 		float fLerpMoveY = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+		float fLerpMoveZ = 0.0f;
+	UPROPERTY(BlueprintReadWrite)
+		float fLerpRotationX = 0.0f;
 
 
 	UPROPERTY(BlueprintReadWrite)
@@ -183,4 +225,9 @@ public:
 	// 메쉬 변경시 포톤 동기화
 	UFUNCTION(BlueprintCallable)
 	void ChangeProperty(const FString& ITemID);
+
+
+	// 메쉬 변경시 포톤 동기화
+	UFUNCTION(BlueprintCallable)
+	bool InputMoveCommand(const enum_InputPlayer& _Command);
 };

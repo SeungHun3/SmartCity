@@ -10,21 +10,6 @@
 #include "Actor_SolaseadoPhoton.generated.h"
 
 
-//플레이어의 애니메이션 상태 enum
-/*
-Pawn_PLayer.h에 갱신예정
-*/
-//UENUM(BlueprintType)
-//enum class enum_PlayerAnimationState : uint8
-//{
-//	Error = 0,
-//	Idle,
-//	Walk,
-//	Run,
-//	Sleep,
-//	Death,
-//};
-
 UENUM(BlueprintType)
 enum class Enum_TextType3 : uint8
 {
@@ -80,7 +65,7 @@ public:
 		FString appVersion = FString("1.2.0");
 
 	//플레이어 리스트
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TArray<class APawn_Player*> PlayerList;
 	// 스폰 플레이어 캐릭터
 	UPROPERTY(EditAnywhere)
@@ -106,6 +91,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void movePlayer(FVector Loc);
 	void movePlayer(int vx, int vy, int vz);
+	UFUNCTION(BlueprintCallable)
 	void movePlayerRotation(float fZ);
 	
 
@@ -149,9 +135,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ConnectRosActor();
 
-	// 캐릭터 Forward
+
+	// 커맨드 입력이 되었을때 서버에 송신
 	UFUNCTION(BlueprintCallable)
-	void movePlayerXY(float fX, float fY);
+	void movePlayerCommand(enum_InputPlayer _Commnad);
+	// 캐릭터 회전 Yaw
+	UFUNCTION(BlueprintCallable)
+	void RotationPlayerX(float fX);
+	//회전 보정용 함수(미구현, 필요시 구현)
+	void MovePlayerRotationAndTime(float fX, int time);
+	//위치 보정용 함수
+	void MovePlayerAndTime(int vX, int vY, int time);
+
 
 	// 포톤 재접속, 접속 해제
 	void ReconnectMessage();
@@ -177,8 +172,10 @@ public:
 	// 포톤 사용자 위지 정보 업데이트
 	virtual void GetMovePlayer(int playerNr, int vX, int vY, int vZ) override;
 	virtual void GetMovePlayerRotation(int playerNr, float fX) override;
-	virtual void GetMovePlayerXYandLeryXY(int playerNr, float fX, float fY, float lerpX, float lerpY) override;
-
+	virtual void GetPlayerRotationYaw(int playerNr, float fYaw) override;
+	virtual void GetMovePlayerCommand(int playerNr, int iCommand) override;
+	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX, int time) override;
+	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) override;
 	// Connect
 	virtual void ConnectComplete(void) override;
 
@@ -195,8 +192,6 @@ public:
 
 	// Quiz Event 
 	virtual void getEventPause(bool ev) override;
-
-
 
 public:
 	// 캐릭터 정보 데이터(아바타...) 추가 함수
@@ -224,12 +219,31 @@ public:
 protected:
 	float PlayerHeight = 266.f;
 
+	//임시 플레이어 스피드
+	float moveSpeed;
+	//보정 거리 한계치
+	//이 거리 이상 멀어지면 강제 위치 보정을 해준다.
+	float lerpDistance;
+
 	//플레이어 코스튬 개수
 	int DataCount = 0;
 
 	//이동 동기화에 쓰일 변수
 	//0.1초 동안 이동 오차 값을 보간하여 이동해준다.
 	float lerpTimer = 0.1f;
+	
+	//아직 테스트 중인 움직임 동기화 부분 OnOff
+	//false : 이동 보정 없음
+	//true : 일정 거리 멀어지면 이동값 보정해줌
+	bool bOnTimeMove = true;
+
+	// 이전에 움직인 시간
+	unsigned long lastMoveTime = 0;
+	// 움직이기 시작한 시간
+	unsigned long startMoveTime = 0;
+
+	//로컬 플레이어의 움직임이 있는지
+	bool bIsMoving = false;
 
 	//테스트 더미용 포톤 서버 접속
 	UFUNCTION(BlueprintCallable)

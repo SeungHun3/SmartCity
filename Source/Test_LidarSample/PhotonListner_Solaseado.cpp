@@ -212,6 +212,11 @@ void PhotonListner_Solaseado::createRoomReturn(int localPlayerNr, const Common::
 void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, const Common::Object& eventContentObj)
 {
 	ExitGames::Common::Hashtable eventContent = ExitGames::Common::ValueObject<ExitGames::Common::Hashtable>(eventContentObj).getDataCopy();
+	
+	
+	//지연테스트를 할 때 쓴다.
+	//UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,TimeDelay : %d ,eventCode : %d"), playerNr, m_pClient->getLocalPlayer().getNumber(), GETTIMEMS() %10000, eventCode);
+	
 
 	Object const* obj = eventContent.getValue("1");
 	if (!obj)	obj = eventContent.getValue((nByte)1);
@@ -274,28 +279,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			}
 		}
 	}
-	else if (eventCode == 15)
-	{
-		//입력받은 커맨드와 보간을 위환 좌표값
-		if (obj && obj->getDimensions() == 1) 
-		{
-			if (obj->getType() == TypeCode::EG_FLOAT)
-			{
-				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
-
-				float vX = data[0];
-				float vY = data[1];
-				float lerpX = data[2];
-				float lerpY = data[3];
-
-				
-				//m_pView->GetMovePlayerXYandLeryXY(playerNr,vX,vY, lerpX, lerpY);
-				//UE_LOG(LogTemp, Log, TEXT("// eventCode == 15 (%f, %f) lerp: (%f,%f)"), vX, vY, lerpX, lerpY);
-				//임시로 vX,vY로 표기한다.
-				return;
-			}
-		}
-	}
+	//플레이어 회전
 	else if (eventCode == 16)
 	{
 		//입력받은 커맨드와 보간을 위환 좌표값
@@ -306,11 +290,68 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
 
 				float vX = data[0];
-				float lerpX = data[1];
 
-				m_pView->GetRotationPlayerXandLeryX(playerNr, vX, lerpX);
+				m_pView->GetPlayerRotationYaw(playerNr, vX);
 				return;
 			}
+		}
+	}
+	//플레이어 이동
+	else if (eventCode == 17)
+	{
+		if (obj && obj->getDimensions() == 1)
+		{
+			if (obj->getType() == TypeCode::INTEGER)
+			{
+				int* data = ((ValueObject<int*>*)obj)->getDataCopy();
+
+				int vX = data[0];
+
+				m_pView->GetMovePlayerCommand(playerNr, vX);
+				return;
+			}
+		}
+	}
+
+	//테스트 지연 샘플링(테스트 로그 출력용)
+	else if (eventCode == 18)
+	{
+		if (obj && obj->getDimensions() == 1)
+		{
+			if (obj->getType() == TypeCode::INTEGER)
+			{
+				int* data = ((ValueObject<int*>*)obj)->getDataCopy();
+
+				int vX = data[0];
+
+				UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,RecvTimeDelay : %d ,Now Timdelay-RecvTimeDelay RTT : %d, eventCode : 18"), playerNr, m_pClient->getLocalPlayer().getNumber(), vX,GETTIMEMS() % 10000- vX);
+				return;
+			}
+		}
+	}
+	//회전과 딜레이 보정
+	//현재 사용안함
+	else if (eventCode == 19)
+	{
+		
+	}
+
+	//이동 딜레이 보정
+	else if (eventCode == 20)
+	{
+		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
+		if (obj && obj->getDimensions() == 1)
+		{
+			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
+
+			int vX = data[0];
+			int vY = data[1];
+			int Delay = data[2];
+			int nowTime = GETTIMEMS() % 10000;
+
+			UE_LOG(LogTemp, Log, TEXT("// GetMovePlayerAndTime RTT :: %d, eventCode == 20 "), (nowTime > Delay) ? nowTime - Delay : (10000 - Delay) + nowTime);
+			m_pView->GetMovePlayerAndTime(playerNr, vX, vY, (nowTime> Delay)? nowTime - Delay : (10000-Delay)+ nowTime);
+			return;
 		}
 	}
 }
@@ -334,8 +375,6 @@ void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JStri
 // 위치 전송 // Location & Rotation 
 void PhotonListner_Solaseado::SetMovePlayer(int vX, int vY, int vz)
 {
-
-
 	Hashtable HashData;
 	int coords[] = { static_cast<int>(vX) , static_cast<int>(vY) ,static_cast<int>(vz) };
 	HashData.put((nByte)1, coords, 3);
@@ -351,21 +390,61 @@ void PhotonListner_Solaseado::SetMovePlayerRotation(float fZ)
 	m_pClient->opRaiseEvent(false, data, 7);
 }
 
-//이동 동기화를 위한 방향 커맨드 입력과 보간을 위한 현재 위치값을 입력합니다.
-void PhotonListner_Solaseado::SetPlayerMoveCommand(float vX, float vY, float lerpX, float lerpY)
+void PhotonListner_Solaseado::SetPlayerRotationCommand(float vYaw)
 {
 	Hashtable data;
-	float coords[] = { static_cast<float>(vX) , static_cast<float>(vY),static_cast<float>(lerpX) , static_cast<float>(lerpY) };
-	data.put((nByte)1, coords, 4);
-	m_pClient->opRaiseEvent(false, data, 15);
+	float coords[] = { static_cast<float>(vYaw) };
+	data.put((nByte)1, coords, 1);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	m_pClient->opRaiseEvent(false, data, 16, option);
 }
 
-void PhotonListner_Solaseado::SetPlayerRotationCommand(float vX, float lerpX)
+void PhotonListner_Solaseado::SetPlayerCommand(int ICommand)
 {
 	Hashtable data;
-	float coords[] = { static_cast<float>(vX) ,static_cast<float>(lerpX) };
+	int coords[] = { static_cast<int>(ICommand) };
+	data.put((nByte)1, coords, 1);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	//option.
+	m_pClient->opRaiseEvent(false, data, 17, option);
+}
+
+//송수신 간의 지연 시간을 체크하기 송신 컴퓨터의 현재 시간을 보낸다.
+void PhotonListner_Solaseado::SendTestDelay(int lDelay) //18
+{
+	Hashtable data;
+	int coords[] = { static_cast<int>(lDelay) };
+	data.put((nByte)1, coords, 1);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	//option.
+	m_pClient->opRaiseEvent(false, data, 18, option);
+}
+
+//현재 미사용
+void PhotonListner_Solaseado::SetPlayerRotationAndTime(float fX, int time) //19
+{
+	Hashtable data;
+	int coords[] = { static_cast<int>(fX),static_cast<int>(time) };
 	data.put((nByte)1, coords, 2);
-	m_pClient->opRaiseEvent(false, data, 16);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	//option.
+	m_pClient->opRaiseEvent(false, data, 19, option);
+}
+
+//RTT(왕복타임)과 현재위치를 보내서 보정해줄 위치값을 알아낸다.
+void PhotonListner_Solaseado::SetPlayerMoveAndTime(int vX, int vY, int time)
+{
+	Hashtable data;
+	int coords[] = { static_cast<int>(vX),static_cast<int>(vY),static_cast<int>(time) };
+	data.put((nByte)1, coords, 3);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	//option.
+	m_pClient->opRaiseEvent(false, data, 20, option);
 }
 
 // 특정 유저에게 보내는 메세지 
