@@ -18,8 +18,10 @@ class TEST_LIDARSAMPLE_API UWidget_Popup : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void CheckPopup(enum_PopupStyle style, const FText& message, const FText& title, enum_PopupRun run);
-	void CheckPopup_Caution(const FText& message, enum_PopupRun run);
+	UFUNCTION(BlueprintCallable)
+		void CheckPopup(enum_PopupStyle style, FText message, FText title, enum_PopupRun run);
+	UFUNCTION(BlueprintCallable)
+		void CheckPopup_Caution(FText message, enum_PopupRun run);
 	void CheckPopup_SubPanel(enum_PopupStyle style, const FText& message, const FText& title, const FText& subMessage, enum_PopupRun run, int number);
 	void setRedText(const FText& red);
 
@@ -65,6 +67,8 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
+		class UCanvasPanel* CanvasPanel_Checkpopup;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		class UCanvasPanel* CanvasPanel_1Key;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		class UCanvasPanel* CanvasPanel_2Key;
@@ -94,6 +98,8 @@ protected:
 public:
 	UFUNCTION()
 		void ClickedNo();
+	UFUNCTION()
+		void MenuOff();
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_CheckPrice(int number);
 };
