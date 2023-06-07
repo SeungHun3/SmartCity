@@ -66,6 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* Hand;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USpringArmComponent* BP_SpringArm;
+
 	// 애니매이션 상태설정
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	enum_PlayerAnimationState eAnimationState= enum_PlayerAnimationState::Idle;
@@ -183,4 +186,31 @@ public:
 	// 메쉬 변경시 포톤 동기화
 	UFUNCTION(BlueprintCallable)
 	void ChangeProperty(const FString& ITemID);
+
+
+	// Zoom_In_out
+	UFUNCTION(BlueprintCallable)
+		float ZoomFunction(bool isZoomIn, float zoomAxis = 10.0f);
+
+
+
+	//////////////////////////////////////////////////////////////
+
+	/////////////////////////
+	//Costume Pawn Function
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+		bool Bind_Init(class UWidget_CustomizingTab* WB_Customizing_Tab);
+	virtual bool Bind_Init_Implementation(class UWidget_CustomizingTab* WB_Customizing_Tab);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+		bool Select_Position(int ClassName);
+	virtual bool Select_Position_Implementation(int ClassName);
+
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Change_Scene(int TabNumber);
+	virtual void Change_Scene_Implementation(int TabNumber);
+
+
+
 };

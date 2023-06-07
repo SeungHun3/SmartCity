@@ -4,6 +4,7 @@
 #include "GameModeBase_Solaseado.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "PlayerState_Solaseado.h"
 
 void AGameModeBase_Solaseado::BeginPlay()
 {
@@ -286,4 +287,9 @@ void AGameModeBase_Solaseado::SeamlessLevelLoad(const FString& openLevel)
 	// 현재 레벨 (CurrentLevel) 해당하는 이웃 레벨 처리.
 	UE_LOG(LogTemp, Log, TEXT("// SeamlessLevelLoad CurrentLevel( %s ) "), *CurrentLevel);
 	Seamless_UnloadOutsideLevel(Check_OutsideLevel(CurrentLevel));
+}
+
+APlayerState_Solaseado* AGameModeBase_Solaseado::get_PlayerState_Solaseado()
+{
+	return 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPlayerState<APlayerState_Solaseado>();
 }

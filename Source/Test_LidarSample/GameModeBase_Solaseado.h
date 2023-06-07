@@ -136,4 +136,16 @@ public:
 	// 
 	UFUNCTION(BlueprintCallable, Category = "SH_")
 		void SeamlessLevelLoad(const FString& openLevel);
+
+
+
+
+	///////////////////////////////////////
+	// State °ü¸®
+
+	// return = state
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	class APlayerState_Solaseado* get_PlayerState_Solaseado();
+
 };

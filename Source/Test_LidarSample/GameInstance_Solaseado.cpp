@@ -3,6 +3,12 @@
 
 #include "GameInstance_Solaseado.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
+
+
+
+
 UGameInstance_Solaseado::UGameInstance_Solaseado()
 {
 	// 데이터 테이블 세팅하기
@@ -80,3 +86,4 @@ FCustomizing_Struct UGameInstance_Solaseado::Find_ITem(const FString& ITemID)
 
 	return FCustomizing_Struct();
 }
+

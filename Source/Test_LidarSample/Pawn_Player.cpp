@@ -5,16 +5,16 @@
 #include "GameInstance_Solaseado.h"
 #include "GameModeBase_Solaseado.h"
 
-#include "Engine.h"
 
 #include "GenericPlatform/GenericPlatformMisc.h"
 #include "GameFramework/Actor.h"
 
-
+#include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "ActorComponent_PlayfabStore.h"
 #include "Actor_SolaseadoPhoton.h"
+//#include "Kismet/KismetSystemLibrary.h"
 
 
 
@@ -70,13 +70,17 @@ APawn_Player::APawn_Player()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 
-
+	
 }
 
 // Called when the game starts or when spawned
 void APawn_Player::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 로그 출력 테스트
+	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT(" // PawnBeginPlay")), true, true, FColor::Green, 10.0f);
+	//UKismetSystemLibrary::PrintString(GetWorld());
 }
 
 // Called every frame
@@ -202,7 +206,7 @@ void APawn_Player::BeginDefalutMesh()
 
 	if (!InstanceDataTables.IsValidIndex(0)) // 데이터 테이블이 없다면 탈출
 	{
-		//UE_LOG(LogTemp, Log, TEXT("// Nodata !!!!"));
+		UE_LOG(LogTemp, Warning, TEXT("// Nodata !!!!"));
 		return;
 	}
 	// 데이터 테이블이 있다면
@@ -228,3 +232,51 @@ void APawn_Player::ChangeProperty(const FString& ITemID)
 	GM_Solaseado->PhotonCloud->SendCostumeParts(ITemID);
 	 
 }
+
+float APawn_Player::ZoomFunction(bool isZoomIn, float zoomAxis)
+{
+	if (!BP_SpringArm)
+	{
+		return BP_SpringArm->TargetArmLength;
+	}
+
+
+	float zoomValue = BP_SpringArm->TargetArmLength;
+	// 줌인 : -Axis , 줌아웃  + Axis; 
+	isZoomIn ? zoomValue -= zoomAxis : zoomValue += zoomAxis;
+	
+
+	// 적용된 값을 SpringArm에 적용
+	BP_SpringArm->TargetArmLength = FMath::Clamp(zoomValue, 50.0f, 500.0f);
+
+
+	return BP_SpringArm->TargetArmLength;
+}
+
+
+
+
+
+
+
+///  CostumePawn    //////////////////////////
+///////////////////////////////////////////
+bool APawn_Player::Bind_Init_Implementation(UWidget_CustomizingTab* WB_Customizing_Tab)
+{
+	return false;
+}
+
+bool APawn_Player::Select_Position_Implementation(int ClassName)
+{
+	return false;
+}
+
+void APawn_Player::Change_Scene_Implementation(int TabNumber)
+{
+	
+}
+
+
+
+///////////////////////////////////////////
+///////////////////////////////////////////

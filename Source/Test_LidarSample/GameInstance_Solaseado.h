@@ -29,4 +29,9 @@ public:
 	// ITemID로 Mesh, Image,,을 담는 FCustomizing_Struct 구조체 반환처리하는 함수
 	UFUNCTION(BlueprintCallable)
 		FCustomizing_Struct Find_ITem(const FString& ITemID);
+
+
+
+
+
 };
