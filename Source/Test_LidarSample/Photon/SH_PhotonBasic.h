@@ -43,7 +43,10 @@ public:
 	virtual void getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type) {}
 	virtual void GetMovePlayerRotation(int playerNr, float fX) {}
 	virtual void GetMovePlayer(int playerNr, int vX, int vY, int vZ) {}
-	virtual void GetMovePlayerXYandLeryXY(int playerNr, float fX, float fY, float lerpX, float lerpY) {}
+	virtual void GetMovePlayerCommand(int playerNr, int iCommand) {}
+	virtual void GetPlayerRotationYaw(int playerNr, float fYaw) {}
+	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX,int time) {}
+	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) {}
 
 	// Quiz Event
 	virtual void getEventPause(bool ev) {}

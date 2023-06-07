@@ -74,10 +74,14 @@ public:
 	void SetMovePlayer(int vX, int vY, int vz);	// 6
 	void SetMovePlayerRotation(float fZ);		// 7
 
-	//입력 받은 이동값과 러프를 위한 현재 좌표값
-	void SetPlayerMoveCommand(float vX, float vY, float lerpX, float lerpY);	// 15
 	//입력 받은 회전값
-	void SetPlayerRotationCommand(float vX, float lerpX);	// 16
+	void SetPlayerRotationCommand(float vYaw);	// 16
+	void SetPlayerCommand(int ICommand); //17
+	void SendTestDelay(int lDelay); //18
+	void SetPlayerRotationAndTime(float fX, int time); //19
+	void SetPlayerMoveAndTime(int vX, int vY, int time); //20
+
+
 
 	// 텍스트 정보
 	void PlayerTargetMessage(const int* target, int size, nByte text);	// 2
