@@ -230,7 +230,6 @@ public:
 	void ChangeProperty(const FString& ITemID);
 
 
-<<<<<<< HEAD
 	// Zoom_In_out
 	UFUNCTION(BlueprintCallable)
 		float ZoomFunction(bool isZoomIn, float zoomAxis = 10.0f);
@@ -256,9 +255,7 @@ public:
 
 
 
-=======
 	// 메쉬 변경시 포톤 동기화
 	UFUNCTION(BlueprintCallable)
 	bool InputMoveCommand(const enum_InputPlayer& _Command);
->>>>>>> origin/main
 };

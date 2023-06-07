@@ -243,7 +243,6 @@ void APawn_Player::ChangeProperty(const FString& ITemID)
 	 
 }
 
-<<<<<<< HEAD
 float APawn_Player::ZoomFunction(bool isZoomIn, float zoomAxis)
 {
 	if (!BP_SpringArm)
@@ -291,7 +290,6 @@ void APawn_Player::Change_Scene_Implementation(int TabNumber)
 
 ///////////////////////////////////////////
 ///////////////////////////////////////////
-=======
 //서버에서 수신받은 입력에 대한 상태를 이 함수에서 처리해준다.\
 //애니메이션 상태값의 변화가 있을 경우 true를 반환하고 아닐경우 false를 반환합니다.
 bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
@@ -337,4 +335,3 @@ bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
 
 	return false;
 }
->>>>>>> origin/main
