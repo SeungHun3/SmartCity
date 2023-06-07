@@ -39,13 +39,23 @@ void UWidget_Popup::ClickedYes()
 	PopupRunEvent.Broadcast(PopupRun);
 	PopupClear.Broadcast();
 }
+void UWidget_Popup::MenuOff()
+{
+	bIsClikedNo = false;
+	PopupClear.Broadcast();
+	PopupCancelEvent.Broadcast(PopupRun);
+}
 //팝업창 style 결정
-void UWidget_Popup::CheckPopup(enum_PopupStyle style, const FText& message, const FText& title, enum_PopupRun run)
+void UWidget_Popup::CheckPopup(enum_PopupStyle style, FText message, FText title, enum_PopupRun run)
 {
 	//경고
-	//Overlay_Caption->SetVisibility(ESlateVisibility::Collapsed);
+	Overlay_Caption->SetVisibility(ESlateVisibility::Collapsed);
+	// 서브 텍스트, 가격 표기 추가
+	Overlay_Sub->SetVisibility(ESlateVisibility::Collapsed);
+	// 경고문
+	Overlay_RedText->SetVisibility(ESlateVisibility::Collapsed);
 
-	//CanvasPanel_Checkpopup->SetVisibility(ESlateVisibility::Collapsed);
+	CanvasPanel_Checkpopup->SetVisibility(ESlateVisibility::Visible);
 	switch (style)
 	{
 		case enum_PopupStyle::Popup1Key:
