@@ -76,7 +76,7 @@ void UWidget_Popup::CheckPopup(enum_PopupStyle style, FText message, FText title
 	TextBlock_Title->SetText(title);
 }
 // °æ°í ÆË¾÷
-void UWidget_Popup::CheckPopup_Caution(const FText& message, enum_PopupRun run)
+void UWidget_Popup::CheckPopup_Caution(FText message, enum_PopupRun run)
 {
 	CheckPopup(enum_PopupStyle::Popup1Key, message, FText::FromString(FString("Caution")), run);
 	Overlay_Caption->SetVisibility(ESlateVisibility::HitTestInvisible);
