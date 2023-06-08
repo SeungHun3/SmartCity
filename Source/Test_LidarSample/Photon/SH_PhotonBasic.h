@@ -47,6 +47,7 @@ public:
 	virtual void GetPlayerRotationYaw(int playerNr, float fYaw) {}
 	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX,int time) {}
 	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) {}
+	virtual void GetMoveAndRotation(int playerNr, int vX, int vY, int vZ,int vYaw) {}
 
 	// Quiz Event
 	virtual void getEventPause(bool ev) {}
