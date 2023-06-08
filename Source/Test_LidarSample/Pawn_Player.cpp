@@ -31,18 +31,18 @@ APawn_Player::APawn_Player()
 	Root->SetRelativeTransform(FTransform(FQuat(0.0f, 0.0f, 0.0f, 0.0f), FVector(0.0f, 0.0f, 0.0f), FVector(1.0f, 1.0f, 1.0f)));
 	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
 	Body->SetupAttachment(Root);
-	
-	Head = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
-	Head->SetupAttachment(Body);
 
 	Hair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));
-	Hair->SetupAttachment(Head);
+	Hair->SetupAttachment(Body);
 
-	Face = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Face"));
-	Face->SetupAttachment(Head);
+	Top = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Top"));
+	Top->SetupAttachment(Body);
 
-	Hand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hand"));
-	Hand->SetupAttachment(Body);
+	Bottoms = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Bottoms"));
+	Bottoms->SetupAttachment(Body);
+
+	Shoes = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Shoes"));
+	Shoes->SetupAttachment(Body);
 	
 	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
 	//애니매이션 설정
@@ -197,7 +197,7 @@ void APawn_Player::ChangeMesh(const FString& ClassName, USkeletalMesh* Mesh)
 	{
 		FString PartsName;
 		PartsName = Parts->GetName();
-		//UE_LOG(LogTemp, Log, TEXT("// Name :  %s "), *str);
+		//UE_LOG(LogTemp, Log, TEXT("// Name :  %s "), *PartsName);
 		if (PartsName == ClassName)
 		{
 			Parts->SetSkeletalMesh(Mesh);
@@ -228,11 +228,11 @@ void APawn_Player::BeginDefalutMesh()
 		{
 			//데이터가 제대로 담겼는지 확인 후 changeMesh 함수 실행
 			ChangeMesh(CustomStruct.ClassName, CustomStruct.Mesh);
-			
 		}
 	}
 	// 데이터 전부 담고나서 비지블켜기
 	Body->SetVisibility(true, true);
+	
 }
 
 void APawn_Player::ChangeProperty(const FString& ITemID)

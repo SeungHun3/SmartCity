@@ -18,20 +18,20 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 		CustomDataArray.Add(FindTableData_Hair.Object);
 	}
 	//CustomDataArray[0] = FindTableData.Object;
-	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Hand(TEXT("/Game/Project/DataTable/Data_Folder/Data_Hand"));
-	if (FindTableData_Hand.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Top(TEXT("/Game/Project/DataTable/Data_Folder/Data_Top"));
+	if (FindTableData_Top.Succeeded())
 	{
-		CustomDataArray.Add(FindTableData_Hand.Object);
+		CustomDataArray.Add(FindTableData_Top.Object);
 	}
-	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Face(TEXT("/Game/Project/DataTable/Data_Folder/Data_Face"));
-	if (FindTableData_Face.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Bottoms(TEXT("/Game/Project/DataTable/Data_Folder/Data_Bottoms"));
+	if (FindTableData_Bottoms.Succeeded())
 	{
-		CustomDataArray.Add(FindTableData_Face.Object);
+		CustomDataArray.Add(FindTableData_Bottoms.Object);
 	}
-		static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Body(TEXT("/Game/Project/DataTable/Data_Folder/Data_Body"));
-	if (FindTableData_Body.Succeeded())
+		static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Shoes(TEXT("/Game/Project/DataTable/Data_Folder/Data_Shoes"));
+	if (FindTableData_Shoes.Succeeded())
 	{
-		CustomDataArray.Add(FindTableData_Body.Object);
+		CustomDataArray.Add(FindTableData_Shoes.Object);
 	}
 	// ¼¼ÆÃ ³¡
 

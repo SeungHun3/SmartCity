@@ -74,13 +74,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* Body;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Head;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* Hair;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Face;
+		class USkeletalMeshComponent* Top;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Hand;
+		class USkeletalMeshComponent* Bottoms;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* Shoes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class USpringArmComponent* BP_SpringArm;
