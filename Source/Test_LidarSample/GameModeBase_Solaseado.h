@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Widget/Widget_Popup.h"
+#include "Struct_Customizing.h"
 #include "GameModeBase_Solaseado.generated.h"
 
 UENUM(BlueprintType)
@@ -73,6 +75,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Photon")
 		class AActor_SolaseadoPhoton* PhotonCloud;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widgets")
+		UWidget_Popup* MyWidget;
+
+	class UWidget_Popup* WidgetPopup;
 private:
 	// 페이드 진행 시간
 	float FadeDuration = 3.5f;
@@ -136,9 +142,15 @@ public:
 	// 
 	UFUNCTION(BlueprintCallable, Category = "SH_")
 		void SeamlessLevelLoad(const FString& openLevel);
-
-
-
+	
+	// 팝업 추가 함수
+	UFUNCTION(BlueprintImplementableEvent)
+		void WidgetCreate_Popup();
+	UFUNCTION(BlueprintCallable)
+		void AddPopup();
+	UFUNCTION(BlueprintImplementableEvent)
+		void InsufficientFunds_Popup();
+	
 
 	///////////////////////////////////////
 	// State 관리
