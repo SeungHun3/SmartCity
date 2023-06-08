@@ -73,6 +73,7 @@ public:
 	// 위치 정보 
 	void SetMovePlayer(int vX, int vY, int vz);	// 6
 	void SetMovePlayerRotation(float fZ);		// 7
+	void SetMoveAndRotation(int vX, int vY, int vZ, int yaw);		// 7
 
 	//입력 받은 회전값
 	void SetPlayerRotationCommand(float vYaw);	// 16

@@ -146,7 +146,8 @@ public:
 	void MovePlayerRotationAndTime(float fX, int time);
 	//위치 보정용 함수
 	void MovePlayerAndTime(int vX, int vY, int time);
-
+	UFUNCTION(BlueprintCallable)
+	void MoveAndRotation(FVector Loc, int vYaw);
 
 	// 포톤 재접속, 접속 해제
 	void ReconnectMessage();
@@ -176,6 +177,8 @@ public:
 	virtual void GetMovePlayerCommand(int playerNr, int iCommand) override;
 	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX, int time) override;
 	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) override;
+	virtual void GetMoveAndRotation(int playerNr, int vX, int vY, int vZ, int vYaw) override;
+
 	// Connect
 	virtual void ConnectComplete(void) override;
 

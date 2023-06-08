@@ -71,10 +71,9 @@ void PhotonListner_Solaseado::joinRoomEventAction(int playerNr, const Common::JV
 
 	// 외형 정보
 	Hashtable table = player.getCustomProperties();
-	//UE_LOG(LogTemp, Log, TEXT("// joinRoomEventAction :: %d"), playerNr);
 	m_pView->AddPlayers(playerNr, player.getName().UTF8Representation().cstr(), local, table);
 	//접속한 인원에게 캐릭터 정보값 갱신
-	m_pView->updateLocalPlayerPosion();
+	//m_pView->updateLocalPlayerPosion();
 }
 
 
@@ -247,7 +246,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			int vZ = data[2];
 
 			//UE_LOG(LogTemp, Log, TEXT("// %d"), sizeof(*data));
-			//UE_LOG(LogTemp, Log, TEXT("// eventCode == 6 :: x: %d,y: %d,z: %d"), vX, vY, vZ);
+			//UE_LOG(LogTemp, Log, TEXT("//Player %d eventCode == 6 :: x: %d,y: %d,z: %d"), playerNr,vX, vY, vZ);
 
 			m_pView->GetMovePlayer(playerNr, vX, vY, vZ);
 			return;
@@ -261,9 +260,27 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			{
 				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
 				float fX = data[0];
+
+				//UE_LOG(LogTemp, Log, TEXT("//Player %d eventCode == 7 :: yaw: %f"), playerNr, fX);
 				m_pView->GetMovePlayerRotation(playerNr, fX);
 				return;
 			}
+		}
+	}
+	else if (eventCode == 8)
+	{
+		if (obj && obj->getDimensions() == 1)
+		{
+			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
+
+			int vX = data[0];
+			int vY = data[1];
+			int vZ = data[2];
+			int yaw = data[3];
+
+			m_pView->GetMoveAndRotation(playerNr,vX,vY,vZ,yaw);
+
+			return;
 		}
 	}
 	else if (eventCode == 11)
@@ -324,7 +341,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 
 				int vX = data[0];
 
-				UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,RecvTimeDelay : %d ,Now Timdelay-RecvTimeDelay RTT : %d, eventCode : 18"), playerNr, m_pClient->getLocalPlayer().getNumber(), vX,GETTIMEMS() % 10000- vX);
+				//UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,RecvTimeDelay : %d ,Now Timdelay-RecvTimeDelay RTT : %d, eventCode : 18"), playerNr, m_pClient->getLocalPlayer().getNumber(), vX,GETTIMEMS() % 10000- vX);
 				return;
 			}
 		}
@@ -349,7 +366,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			int Delay = data[2];
 			int nowTime = GETTIMEMS() % 10000;
 
-			UE_LOG(LogTemp, Log, TEXT("// GetMovePlayerAndTime RTT :: %d, eventCode == 20 "), (nowTime > Delay) ? nowTime - Delay : (10000 - Delay) + nowTime);
+			//UE_LOG(LogTemp, Log, TEXT("// GetMovePlayerAndTime RTT :: %d, eventCode == 20 "), (nowTime > Delay) ? nowTime - Delay : (10000 - Delay) + nowTime);
 			m_pView->GetMovePlayerAndTime(playerNr, vX, vY, (nowTime> Delay)? nowTime - Delay : (10000-Delay)+ nowTime);
 			return;
 		}
@@ -377,6 +394,7 @@ void PhotonListner_Solaseado::SetMovePlayer(int vX, int vY, int vz)
 {
 	Hashtable HashData;
 	int coords[] = { static_cast<int>(vX) , static_cast<int>(vY) ,static_cast<int>(vz) };
+	//UE_LOG(LogTemp, Log, TEXT("// updateLocalPlayerPosion x=%d ,y=%d ,z=%d "), coords[0], coords[1], coords[2]);
 	HashData.put((nByte)1, coords, 3);
 	m_pClient->opRaiseEvent(false, HashData, 6);
 }
@@ -386,8 +404,18 @@ void PhotonListner_Solaseado::SetMovePlayerRotation(float fZ)
 {
 	Hashtable data;
 	float coords[] = { static_cast<float>(fZ) };
+	//UE_LOG(LogTemp, Log, TEXT("// updateLocalPlayerPosion yaw=%f "), coords[0]);
 	data.put((nByte)1, coords, 1);
 	m_pClient->opRaiseEvent(false, data, 7);
+}
+
+void PhotonListner_Solaseado::SetMoveAndRotation(int vX, int vY, int vZ, int yaw)
+{
+	Hashtable data;
+	int coords[] = { static_cast<int>(vX) ,static_cast<int>(vY) ,static_cast<int>(vZ) ,static_cast<int>(yaw) };
+	data.put((nByte)1, coords, 4);
+
+	m_pClient->opRaiseEvent(false, data, 8);
 }
 
 void PhotonListner_Solaseado::SetPlayerRotationCommand(float vYaw)

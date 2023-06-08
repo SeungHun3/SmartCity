@@ -54,28 +54,24 @@ void AActor_SolaseadoPhoton::BeginPlay()
 
 void AActor_SolaseadoPhoton::movePlayer(FVector Loc)
 {
-	if (CurrentLocation != Loc)
+	if (m_pListener)
 	{
-		CurrentLocation = Loc;
 		m_pListener->SetMovePlayer(CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z);
 	}
 }
 
 void AActor_SolaseadoPhoton::movePlayer(int vx, int vy, int vz)
 {
-	FVector Checker = FVector(vx, vy, vz);
-	if (CurrentLocation != Checker)
+	if (m_pListener)
 	{
-		CurrentLocation = Checker;
 		m_pListener->SetMovePlayer(vx, vy, vz);
 	}
 }
 
 void AActor_SolaseadoPhoton::movePlayerRotation(float fZ)
 {
-	if (CurrentRotation != fZ)
+	if (m_pListener)
 	{
-		CurrentRotation = fZ;
 		m_pListener->SetMovePlayerRotation(fZ);
 	}
 }
@@ -109,9 +105,6 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
 		//위치
 		MovePlayerAndTime(LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y, t % 10000);
-
-		//MovePlayerRotationAndTime()
-		//movePlayer(LocalPlayer->GetActorLocation());
 	}
 }
 
@@ -161,7 +154,10 @@ void AActor_SolaseadoPhoton::movePlayerCommand(enum_InputPlayer _Commnad)
 //
 void AActor_SolaseadoPhoton::RotationPlayerX(float fX)
 {
-	m_pListener->SetPlayerRotationCommand(fX);
+	if (m_pListener)
+	{
+		m_pListener->SetPlayerRotationCommand(fX);
+	}
 }
 
 //현재 사용하지 않음
@@ -175,6 +171,14 @@ void AActor_SolaseadoPhoton::MovePlayerAndTime(int vX, int vY, int time)
 	if (m_pListener)
 	{
 		m_pListener->SetPlayerMoveAndTime(vX,vY,time);
+	}
+}
+
+void AActor_SolaseadoPhoton::MoveAndRotation(FVector Loc, int vYaw)
+{
+	if (m_pListener)
+	{
+		m_pListener->SetMoveAndRotation(Loc.X, Loc.Y, Loc.Z, vYaw);
 	}
 }
 
@@ -282,7 +286,9 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 
 			PlayerList.Add(target);
 			LocalPlayer->AddClentPlayerCount();
-			movePlayer(LocalPlayer->GetActorLocation());
+
+			//UE_LOG(LogTemp, Log, TEXT("// addplayer yaw :: %d , local : %d"), playerNr, LocalPlayer->PlayerNr);
+			MoveAndRotation(LocalPlayer->GetActorLocation(), LocalPlayer->GetActorRotation().Yaw);
 
 			//포톤으로 받은 코스튬 데이터를 전달한다.
 			target->SetCostumeArray(ArrayPlayerCostume);
@@ -439,6 +445,21 @@ void AActor_SolaseadoPhoton::GetPlayerRotationYaw(int playerNr, float fYaw)
 	}
 }
 
+
+void AActor_SolaseadoPhoton::GetMoveAndRotation(int playerNr, int vX, int vY, int vZ, int vYaw)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			it->SetActorLocation(FVector(vX, vY, vZ));
+			it->SetActorRotation(FRotator(0, vYaw, 0));
+			return;
+		}
+	}
+}
+
+
 //서버에서 플레어어들의 입력 데이터를 입력받는다.
 //처리는 기존과 같이 일단 Tick에서 처리한다.
 void AActor_SolaseadoPhoton::GetMovePlayerCommand(int playerNr, int iCommand)
@@ -449,7 +470,7 @@ void AActor_SolaseadoPhoton::GetMovePlayerCommand(int playerNr, int iCommand)
 		{
 			it->PhotonTimer = GETTIMEMS() % 10000;
 			//딜레이 테스트용(테스트 끝나면 필요없음)
-			m_pListener->SendTestDelay(it->PhotonTimer);
+			//m_pListener->SendTestDelay(it->PhotonTimer);
 
 			//아직 테스트 중인 이동 동기화 부분을 bOnTimeMove로 On/Off한다
 			if (it->InputMoveCommand((enum_InputPlayer)iCommand) && playerNr == LocalPlayer->PlayerNr && bOnTimeMove)
@@ -463,8 +484,8 @@ void AActor_SolaseadoPhoton::GetMovePlayerCommand(int playerNr, int iCommand)
 					bIsMoving = true;
 					startMoveTime = GETTIMEMS();
 
-					UE_LOG(LogTemp, Log, TEXT("//Start Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
-					UE_LOG(LogTemp, Log, TEXT("//Check Moving Time"));
+					//UE_LOG(LogTemp, Log, TEXT("//Start Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
+					//UE_LOG(LogTemp, Log, TEXT("//Check Moving Time"));
 				}
 				else if (LocalPlayer->eAnimationState == enum_PlayerAnimationState::Idle && bIsMoving)
 				{
@@ -473,7 +494,7 @@ void AActor_SolaseadoPhoton::GetMovePlayerCommand(int playerNr, int iCommand)
 					bIsMoving = false;
 					lastMoveTime = GETTIMEMS() - startMoveTime;
 
-					UE_LOG(LogTemp, Log, TEXT("//End Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
+					//UE_LOG(LogTemp, Log, TEXT("//End Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
 				}
 			}
 			return;
@@ -508,7 +529,7 @@ void AActor_SolaseadoPhoton::GetMovePlayerAndTime(int playerNr, int vX, int vY, 
 			//UE_LOG(LogTemp, Log, TEXT("//fForward== %f, fRight== %f"), it->fForward, it->fRight);
 			
 			//플레이어 간의 거리가 2m(lerpDistance) 이상 차이가 나면 위치값을 보정해준다.
-			UE_LOG(LogTemp, Log, TEXT("//Player NR %d Recv %d Distance== %f"), playerNr,LocalPlayer->PlayerNr,FVector::Distance(it->GetActorLocation(),  lerpVector));
+			//UE_LOG(LogTemp, Log, TEXT("//Player NR %d Recv %d Distance== %f"), playerNr,LocalPlayer->PlayerNr,FVector::Distance(it->GetActorLocation(),  lerpVector));
 			if (FVector::Distance(it->GetActorLocation(), lerpVector) > lerpDistance)
 			{
 				it->fLerpMoveX = (lerpVector.X - it->GetActorLocation().X) / lerpTimer;
@@ -663,8 +684,8 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 {
 	if (LocalPlayer && LocalPlayer->isInRoom)
 	{
-		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
-		movePlayer(LocalPlayer->GetActorLocation());
+		//UE_LOG(LogTemp, Log, TEXT("// updateLocalPlayerPosion yaw: %f , x=%f ,y=%f ,z=%f "), LocalPlayer->GetActorRotation().Yaw, LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y, LocalPlayer->GetActorLocation().Z);
+		MoveAndRotation(LocalPlayer->GetActorLocation(), LocalPlayer->GetActorRotation().Yaw);
 	}
 }
 
