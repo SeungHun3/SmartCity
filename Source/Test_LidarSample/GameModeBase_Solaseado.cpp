@@ -74,7 +74,11 @@ void AGameModeBase_Solaseado::FadeOut()
 	if (FadeOn)
 		StartFadeOut(1.f, 0.f, FadeDuration);
 }
-
+void AGameModeBase_Solaseado::AddPopup()
+{
+	WidgetCreate_Popup();
+	InsufficientFunds_Popup();
+}
 //////////////////////////////////////////////////////////////////////////////////////////
 // 레벨 이동 함수
 // BlueprintCallable Func

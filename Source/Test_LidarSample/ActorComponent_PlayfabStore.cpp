@@ -5,7 +5,8 @@
 #include "Pawn_Player.h"
 
 #include "Core/PlayFabClientAPI.h"
-
+#include "GameModeBase_Solaseado.h"
+#include "Widget/Widget_Popup.h"
 #include "PlayFabJsonObject.h"
 #include "PlayFabJsonValue.h"
 using namespace PlayFab;
@@ -43,6 +44,11 @@ void UActorComponent_PlayfabStore::StoreErrorScript(const PlayFab::FPlayFabCppEr
 	{
 		// µ· ºÎÁ· Error
 		UE_LOG(LogTemp, Log, TEXT("// Playfab Store Error _ InsufficientFunds "));
+		// ÆË¾÷
+		
+		AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode());
+		GM_Solaseado->AddPopup();
+		//WidgetPopup->CheckPopup(enum_PopupStyle::Popup1Key, FText::FromString("fefefefef"), FText::FromString("fefefef"), enum_PopupRun::Cancel);
 	}
 }
 
