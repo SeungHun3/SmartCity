@@ -320,15 +320,20 @@ bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
 	}
 
 	//UE_LOG(LogTemp, Log, TEXT("// InputMoveCommand PlayerNr: %d, Command ::%d"), PlayerNr, _Command);
+	
+
 	//애니메이션 상태
+	// 하나의 스테이트에서 적용되는 라인, 스테이트 추가시 추가예정
 	if ((fForward ==0 && fRight == 0) && eAnimationState == enum_PlayerAnimationState::Walk)
 	{
-		//eAnimationState = enum_PlayerAnimationState::Idle;
+		eAnimationState = enum_PlayerAnimationState::Idle;
+		Change_Anim(enum_PlayerAnimationState::Idle); 
 		return true;
 	}
 	else if ((fForward || fRight) && eAnimationState == enum_PlayerAnimationState::Idle)
 	{
-		//eAnimationState = enum_PlayerAnimationState::Walk;
+		eAnimationState = enum_PlayerAnimationState::Walk;
+		Change_Anim(enum_PlayerAnimationState::Walk);
 		return true;
 	}
 

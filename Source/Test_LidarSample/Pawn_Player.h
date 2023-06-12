@@ -86,9 +86,10 @@ public:
 		class USpringArmComponent* BP_SpringArm;
 
 	// 애니매이션 상태설정
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	enum_PlayerAnimationState eAnimationState= enum_PlayerAnimationState::Idle;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		enum_PlayerAnimationState eAnimationState = enum_PlayerAnimationState::Idle;
+	
+	
 	// 이전 위치값
 	UPROPERTY(BlueprintReadWrite)
 		FVector vPrePos;
@@ -237,6 +238,11 @@ public:
 
 
 	//////////////////////////////////////////////////////////////
+	// 애니매이션 변경
+	UFUNCTION(BlueprintImplementableEvent)
+		void Change_Anim(enum_PlayerAnimationState animstate);
+
+
 
 	/////////////////////////
 	//Costume Pawn Function
