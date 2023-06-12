@@ -75,6 +75,8 @@ public:
 	void SetMovePlayerRotation(float fZ);		// 7
 	void SetMoveAndRotation(int vX, int vY, int vZ, int yaw);		// 7
 
+	void SetPlayerAnim(int Anim); //15
+
 	//입력 받은 회전값
 	void SetPlayerRotationCommand(float vYaw);	// 16
 	void SetPlayerCommand(int ICommand); //17

@@ -330,7 +330,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 			if (it->PlayerNr == playerNr)
 			{
 				it->eAnimationState = (enum_PlayerAnimationState)Anim;
-				//UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
+				UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
 				break;
 			}
 		}
@@ -400,7 +400,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 void AActor_SolaseadoPhoton::setPlayerAnimationData(enum_PlayerAnimationState anim)
 {
 	if (m_pListener)
-		m_pListener->setPlayerAnimationData((uint8)anim);
+		m_pListener->SendPlayerAnimState((uint8)anim);
 }
 
 
@@ -477,22 +477,25 @@ void AActor_SolaseadoPhoton::GetMovePlayerCommand(int playerNr, int iCommand)
 			{
 				//움직임 업데이트 체크
 				//
-				if (LocalPlayer->eAnimationState == enum_PlayerAnimationState::Walk && !bIsMoving)
+				if ((it->fForward || it->fRight) && !bIsMoving)
 				{
 					// 움직임 업데이트 시작
 					// 이제 막 움직였을 경우 움직인 시간을 측정하기 위해 현재 시간을 저장한다.
 					bIsMoving = true;
 					startMoveTime = GETTIMEMS();
+					InputAnimationState(enum_PlayerAnimationState::Walk);
+					
 
 					//UE_LOG(LogTemp, Log, TEXT("//Start Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
 					//UE_LOG(LogTemp, Log, TEXT("//Check Moving Time"));
 				}
-				else if (LocalPlayer->eAnimationState == enum_PlayerAnimationState::Idle && bIsMoving)
+				else if ((it->fForward == 0 && it->fRight == 0) && bIsMoving)
 				{
 					// 움직임 업데이트 종료
 					// 움직인 시간을 다음에 처리하기 위해 lastMoveTime에 저장한다.
 					bIsMoving = false;
 					lastMoveTime = GETTIMEMS() - startMoveTime;
+					InputAnimationState(enum_PlayerAnimationState::Idle);
 
 					//UE_LOG(LogTemp, Log, TEXT("//End Walk x== %f, y== %f"), LocalPlayer->fForward, LocalPlayer->fRight);
 				}
@@ -537,6 +540,17 @@ void AActor_SolaseadoPhoton::GetMovePlayerAndTime(int playerNr, int vX, int vY, 
 				it->fLerpMoveZ = (lerpVector.Z - it->GetActorLocation().Z) / lerpTimer;
 				it->lerpMoveTimer = lerpTimer;
 			}
+		}
+	}
+}
+
+void AActor_SolaseadoPhoton::GetPlayerAnim(int playerNr, int Anim)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == playerNr)
+		{
+			it->eAnimationState = (enum_PlayerAnimationState)Anim;
 		}
 	}
 }
@@ -696,7 +710,10 @@ Play_Pawn에서 관리중인 애니메이션 상태값이 바뀌었을때 여기에 넣어주면 다른 플레�
 */
 void AActor_SolaseadoPhoton::InputAnimationState(enum_PlayerAnimationState _State)
 {
-	m_pListener->setPlayerAnimationData((uint8)_State);
+	if (m_pListener)
+	{
+		m_pListener->SetPlayerAnim(int(_State));
+	}
 }
 
 
