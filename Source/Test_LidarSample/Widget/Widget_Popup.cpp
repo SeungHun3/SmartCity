@@ -111,3 +111,15 @@ void UWidget_Popup::setRedText(const FText& red)
 		TextBlock_RedText->SetText(red);
 	}
 }
+/*
+void UWidget_Popup::setItemTexture()
+{
+	
+	Overlay_Image->SetVisibility(ESlateVisibility::Visible);
+	
+}*/
+void UWidget_Popup::setPopupSlotImage()
+{
+	Overlay_Image->SetVisibility(ESlateVisibility::Visible);
+	setItemTexture();
+}
