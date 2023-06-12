@@ -23,7 +23,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void CheckPopup_Caution(FText message, enum_PopupRun run);
 	void CheckPopup_SubPanel(enum_PopupStyle style, const FText& message, const FText& title, const FText& subMessage, enum_PopupRun run, int number);
-	void setRedText(const FText& red);
+	UFUNCTION(BlueprintCallable)
+		void setRedText(const FText& red);
+	UFUNCTION(BlueprintImplementableEvent)
+		void setItemTexture();
+	UFUNCTION(BlueprintCallable)
+		void setPopupSlotImage();
 
 	UPROPERTY(EditAnywhere)
 		bool bIsClikedNo;
@@ -44,6 +49,9 @@ public:
 		class UOverlay* Overlay_RedText;
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* TextBlock_RedText;
+	// ¿ÃπÃ¡ˆ
+	UPROPERTY(meta = (BindWidget))
+		class UOverlay* Overlay_Image;
 
 	// 1Key
 	UPROPERTY()
