@@ -99,12 +99,11 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 	{
 		lastMoveTime = 0;
 		startMoveTime = t;
-		//UE_LOG(LogTemp, Log, TEXT("//Update Moving Time"));
 		
 		//회전
 		movePlayerRotation(LocalPlayer->GetActorRotation().Yaw);
 		//위치
-		MovePlayerAndTime(LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y, t % 10000);
+		MovePlayerAndTime(LocalPlayer->GetActorLocation().X, LocalPlayer->GetActorLocation().Y, m_pClient->getServerTime() % 10000);
 	}
 }
 
@@ -330,7 +329,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 			if (it->PlayerNr == playerNr)
 			{
 				it->eAnimationState = (enum_PlayerAnimationState)Anim;
-				UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
+				//UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
 				break;
 			}
 		}
@@ -528,8 +527,8 @@ void AActor_SolaseadoPhoton::GetMovePlayerAndTime(int playerNr, int vX, int vY, 
 			//현재 위치 + 왕복시간으로 예측한 이동 위치
 			FVector lerpVector = FVector(vX, vY, PlayerHeight)+ (it->GetActorForwardVector() * it->fForward + it->GetActorRightVector() * it->fRight).GetSafeNormal() * tTime;
 			
-			//UE_LOG(LogTemp, Log, TEXT("//lerp x== %f, y== %f, tTime==%f"), lerpVector.X, lerpVector.Y, tTime);
-			//UE_LOG(LogTemp, Log, TEXT("//fForward== %f, fRight== %f"), it->fForward, it->fRight);
+			UE_LOG(LogTemp, Log, TEXT("//lerp x== %f, y== %f, tTime==%f"), lerpVector.X, lerpVector.Y, tTime);
+			UE_LOG(LogTemp, Log, TEXT("//fForward== %f, fRight== %f"), it->fForward, it->fRight);
 			
 			//플레이어 간의 거리가 2m(lerpDistance) 이상 차이가 나면 위치값을 보정해준다.
 			//UE_LOG(LogTemp, Log, TEXT("//Player NR %d Recv %d Distance== %f"), playerNr,LocalPlayer->PlayerNr,FVector::Distance(it->GetActorLocation(),  lerpVector));

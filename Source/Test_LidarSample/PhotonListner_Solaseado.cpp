@@ -88,7 +88,7 @@ void PhotonListner_Solaseado::leaveRoomEventAction(int playerNr, bool isInactive
 // 접속자 데이터 변경 
 void PhotonListner_Solaseado::onPlayerPropertiesChange(int playerNr, const Common::Hashtable& changes)
 {
-	UE_LOG(LogTemp, Warning, TEXT("// onPlayerPropertiesChange :: (%d)"), playerNr);
+	//UE_LOG(LogTemp, Warning, TEXT("// onPlayerPropertiesChange :: (%d)"), playerNr);
 	m_pView->updatePlayerProperties(playerNr, changes);
 }
 
@@ -380,8 +380,8 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			int vX = data[0];
 			int vY = data[1];
 			int Delay = data[2];
-			int nowTime = GETTIMEMS() % 10000;
-
+			int nowTime = m_pClient->getServerTime() % 10000;
+			
 			//UE_LOG(LogTemp, Log, TEXT("// GetMovePlayerAndTime RTT :: %d, eventCode == 20 "), (nowTime > Delay) ? nowTime - Delay : (10000 - Delay) + nowTime);
 			m_pView->GetMovePlayerAndTime(playerNr, vX, vY, (nowTime> Delay)? nowTime - Delay : (10000-Delay)+ nowTime);
 			return;
