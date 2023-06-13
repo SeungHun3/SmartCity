@@ -178,7 +178,9 @@ public:
 	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX, int time) override;
 	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) override;
 	virtual void GetMoveAndRotation(int playerNr, int vX, int vY, int vZ, int vYaw) override;
-
+	
+	//사용자 애니메이션 정보 업데이트
+	virtual void GetPlayerAnim(int playerNr, int Anim) override;
 	// Connect
 	virtual void ConnectComplete(void) override;
 

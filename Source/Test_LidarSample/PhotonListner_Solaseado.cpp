@@ -88,7 +88,7 @@ void PhotonListner_Solaseado::leaveRoomEventAction(int playerNr, bool isInactive
 // 접속자 데이터 변경 
 void PhotonListner_Solaseado::onPlayerPropertiesChange(int playerNr, const Common::Hashtable& changes)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("// onPlayerPropertiesChange :: (%d)"), playerNr);
+	UE_LOG(LogTemp, Warning, TEXT("// onPlayerPropertiesChange :: (%d)"), playerNr);
 	m_pView->updatePlayerProperties(playerNr, changes);
 }
 
@@ -296,6 +296,22 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			}
 		}
 	}
+	//애님값
+	else if (eventCode == 15)
+	{
+		if (obj && obj->getDimensions() == 1)
+		{
+			if (obj->getType() == TypeCode::INTEGER)
+			{
+				int* data = ((ValueObject<int*>*)obj)->getDataCopy();
+
+				int vX = data[0];
+
+				m_pView->GetPlayerAnim(playerNr, vX);
+				return;
+			}
+		}
+	}
 	//플레이어 회전
 	else if (eventCode == 16)
 	{
@@ -417,6 +433,18 @@ void PhotonListner_Solaseado::SetMoveAndRotation(int vX, int vY, int vZ, int yaw
 
 	m_pClient->opRaiseEvent(false, data, 8);
 }
+
+void PhotonListner_Solaseado::SetPlayerAnim(int Anim)
+{
+	Hashtable data;
+	int coords[] = { static_cast<int>(Anim) };
+	data.put((nByte)1, coords, 1);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	//option.
+	m_pClient->opRaiseEvent(false, data, 15, option);
+}
+
 
 void PhotonListner_Solaseado::SetPlayerRotationCommand(float vYaw)
 {

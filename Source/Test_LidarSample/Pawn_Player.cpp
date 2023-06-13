@@ -14,8 +14,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "ActorComponent_PlayfabStore.h"
 #include "Actor_SolaseadoPhoton.h"
-//#include "Kismet/KismetSystemLibrary.h"
-
+#include "Kismet/KismetSystemLibrary.h"
 
 
 // Sets default values
@@ -45,14 +44,19 @@ APawn_Player::APawn_Player()
 	Shoes->SetupAttachment(Body);
 	
 	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
+
+
+
 	//애니매이션 설정
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimationBPClass(TEXT("/Game/Project/Skeleton/anim/anim_body/ABP_NPC.ABP_NPC_C"));
-	if (AnimationBPClass.Class)
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimationBPClass(TEXT("/Game/Project/Skeleton/anim/anim_body/ABP_Player.ABP_Player_C"));//여자
+	//static ConstructorHelpers::FClassFinder<UAnimInstance> AnimationBPClass(TEXT("/Game/Project/Skeleton/anim/anim_body/ABP_Player.ABP_Player_C"));	// 남자
+	if (AnimationBPClass.Class)	// 남녀 구분시 beginPlay에 남녀 체크 후 set예정
 	{
 		// Set the Animation Blueprint
 		Body->SetAnimInstanceClass(AnimationBPClass.Class);
-		
 	}
+
+
 	//Body->SetVisibility(false, true);
 	// child설정 되기 전에 호출해버려서 개별적으로 visible세팅 해줘야 함
 
@@ -80,7 +84,6 @@ void APawn_Player::BeginPlay()
 
 	// 로그 출력 테스트
 	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT(" // PawnBeginPlay")), true, true, FColor::Green, 10.0f);
-	//UKismetSystemLibrary::PrintString(GetWorld());
 }
 
 // Called every frame
@@ -265,10 +268,6 @@ float APawn_Player::ZoomFunction(bool isZoomIn, float zoomAxis)
 
 
 
-
-
-
-
 ///  CostumePawn    //////////////////////////
 ///////////////////////////////////////////
 bool APawn_Player::Bind_Init_Implementation(UWidget_CustomizingTab* WB_Customizing_Tab)
@@ -321,15 +320,26 @@ bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
 	}
 
 	//UE_LOG(LogTemp, Log, TEXT("// InputMoveCommand PlayerNr: %d, Command ::%d"), PlayerNr, _Command);
+	
+
 	//애니메이션 상태
+	// 하나의 스테이트에서 적용되는 라인, 스테이트 추가시 추가예정
 	if ((fForward ==0 && fRight == 0) && eAnimationState == enum_PlayerAnimationState::Walk)
 	{
 		eAnimationState = enum_PlayerAnimationState::Idle;
+<<<<<<< HEAD
+=======
+		Change_Anim(enum_PlayerAnimationState::Idle); 
+>>>>>>> Project/main
 		return true;
 	}
 	else if ((fForward || fRight) && eAnimationState == enum_PlayerAnimationState::Idle)
 	{
 		eAnimationState = enum_PlayerAnimationState::Walk;
+<<<<<<< HEAD
+=======
+		Change_Anim(enum_PlayerAnimationState::Walk);
+>>>>>>> Project/main
 		return true;
 	}
 
