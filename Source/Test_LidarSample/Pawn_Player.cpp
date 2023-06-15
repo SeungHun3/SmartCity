@@ -327,19 +327,15 @@ bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
 	if ((fForward ==0 && fRight == 0) && eAnimationState == enum_PlayerAnimationState::Walk)
 	{
 		eAnimationState = enum_PlayerAnimationState::Idle;
-<<<<<<< HEAD
-=======
 		Change_Anim(enum_PlayerAnimationState::Idle); 
->>>>>>> Project/main
+
 		return true;
 	}
 	else if ((fForward || fRight) && eAnimationState == enum_PlayerAnimationState::Idle)
 	{
 		eAnimationState = enum_PlayerAnimationState::Walk;
-<<<<<<< HEAD
-=======
 		Change_Anim(enum_PlayerAnimationState::Walk);
->>>>>>> Project/main
+
 		return true;
 	}
 
