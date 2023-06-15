@@ -11,7 +11,7 @@
 
 UGameInstance_Solaseado::UGameInstance_Solaseado()
 {
-	// 데이터 테이블 세팅하기
+	// 커스텀 데이터 테이블 세팅하기
 	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Hair(TEXT("/Game/Project/DataTable/Data_Folder/Data_Hair"));
 	if (FindTableData_Hair.Succeeded())
 	{
@@ -33,7 +33,14 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		CustomDataArray.Add(FindTableData_Shoes.Object);
 	}
-	// 세팅 끝
+	////////////////////////////
+
+	// 보상데이터 세팅하기
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindCheckingReward(TEXT("/Game/Project/DataTable/Data_Folder/Reward_Folder/Data_Checking_Reward"));
+	if (FindCheckingReward.Succeeded())
+	{
+		Checking_Reward_Table = FindCheckingReward.Object;
+	}
 
 }
 

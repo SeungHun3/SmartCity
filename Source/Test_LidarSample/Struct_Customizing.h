@@ -130,3 +130,15 @@ enum class enum_PopupStyle : uint8
 	Popup1Key,
 	Popup2Key,
 };
+
+
+// 보상, 데이터테이블용
+USTRUCT(Atomic, BlueprintType)
+struct FChecking_Reward : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int Gold;
+};

@@ -3,11 +3,13 @@
 
 #include "ActorComponent_Playfab.h"
 #include "Pawn_Player.h"
+#include "Widget/Checking_Folder/Widget_CheckingAttandance_Main.h"
 
 #include "Core/PlayFabClientAPI.h"
 
 #include "PlayFabJsonObject.h"
 #include "PlayFabJsonValue.h"
+
 
 using namespace PlayFab;
 
@@ -230,6 +232,77 @@ void UActorComponent_Playfab::ErrorScript(const PlayFab::FPlayFabCppError& error
 	//}
 }
 
+//////////////////////////////////////////////////////
+// 출석체크 
+// 오늘 체크했는지 확인여부
+bool UActorComponent_Playfab::Is_Today_Checked()
+{
+	if (PlayFab_Statistics.Contains("Is_Checked_Daily")) // 플레이팹 리더보드에서 오늘 체크를 했는지 확인 후에
+	{
+		// 오늘 체크를 했다면 = true, 안했다면 false
+		return (!PlayFab_Statistics.Find("Is_Checked_Daily") == 0) ?  true :  false ;
+		
+	}
+	else
+	{
+		return true;
+		UE_LOG(LogTemp, Log, TEXT("// NoData : Is_Checked_Daily"));
+
+	}
+}
+// 오늘까지 체크한 출석일수
+int UActorComponent_Playfab::Get_Checking_Count()
+{
+	if (PlayFab_Statistics.Contains("Month_Reward_Count")) // 출석 카운트 데이터 가져와서 반환
+	{
+		return *PlayFab_Statistics.Find("Month_Reward_Count");
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("// NoData : Month_Reward_Count"));
+		return -1;
+	}
+}
+
+//PlayFab에서 daily check 업데이트 + checkCount ++ -> return checkCount 
+void UActorComponent_Playfab::Update_Check_Change(UWidget_CheckingAttandance_Main* Widget)
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+
+	ClientModels::FExecuteCloudScriptRequest request;
+	request.FunctionName = "Update_Attandance";
+	request.GeneratePlayStreamEvent = true;
+
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, Widget](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				TSharedPtr<FJsonObject> result_Object = result.FunctionResult.GetJsonValue()->AsObject();
+				TArray<FString> Keys;
+				result_Object->Values.GetKeys(Keys); // 리턴값 하나의 Key 만 보냈음
+
+
+				if ((Keys[0] == "Month_Reward_Count")&& result_Object->Values.Contains(Keys[0]))
+				{
+						int CheckingCount = static_cast<int>(result_Object->Values.Find(Keys[0])->Get()->AsNumber()); // 리턴받은 Count값
+						if (PlayFab_Statistics.Contains(Keys[0]) && PlayFab_Statistics.Find(Keys[0]))
+						{
+							PlayFab_Statistics.Add(Keys[0], CheckingCount); // Map 데이터 변경시키고
+							// 위젯에 전달
+							Update_Check_Attandance_Widget(Widget);
+						}
+				}
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
+}
+
+void UActorComponent_Playfab::Update_Check_Attandance_Widget(UWidget_CheckingAttandance_Main* Widget)
+{
+	Widget->ChangeSlot();
+
+}
+
 // Playfab Response
 // 플레이팹 스크립트 콜벡 이벤트
 void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
@@ -262,7 +335,7 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 	else if (Selection == "SeunghunGrant")
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Playfab _ GrantSuccess__call__getUserTitleData"));
-		// 서버에서 아이템을 주고 인벤토리에 넣는다 -> 타이틀 데이터 가져오고나서 레벨이동시작
+		// 서버에서 아이템을 주고 인벤토리에 넣고 타이틀 데이터로 적용 -> 타이틀 데이터 가져오고나서 레벨이동시작
 		//getIngamePlayerData();
 		getUserTitleData();
 	}
@@ -540,19 +613,15 @@ void UActorComponent_Playfab::getStatisticsEvent()
 {
 	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 	PlayFab::ClientModels::FGetPlayerStatisticsRequest request;
-
+	
 	ClientAPI->GetPlayerStatistics(
 		request,
 		PlayFab::UPlayFabClientAPI::FGetPlayerStatisticsDelegate::CreateLambda([&](const PlayFab::ClientModels::FGetPlayerStatisticsResult& result) {
-
-			TMap<FString, int> MissionData;
+			// 변수에 통계데이터 채워넣기
 			for (auto it : result.Statistics)
 			{
-				MissionData.Add(it.StatisticName, it.Value);
+				PlayFab_Statistics.Add(it.StatisticName, it.Value);
 			}
-			// 업적 데이터 관리
-			// updateMissionEvent(MissionData);
-
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 		);

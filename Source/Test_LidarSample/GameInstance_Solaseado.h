@@ -19,6 +19,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		TArray<UDataTable*> CustomDataArray;
 
+	UPROPERTY(VisibleAnywhere)
+		UDataTable* Checking_Reward_Table;
+
 
 public:
 	UGameInstance_Solaseado();
@@ -30,8 +33,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FCustomizing_Struct Find_ITem(const FString& ITemID);
 
-
-
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+		UDataTable* GetCheckingRewardTables() { return Checking_Reward_Table; }
 
 
 };

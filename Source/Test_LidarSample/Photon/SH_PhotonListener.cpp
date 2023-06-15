@@ -244,7 +244,7 @@ void SH_PhotonListener::joinRoomEventAction(int playerNr, const JVector<int>& pl
 // 방 떠나기 // 현재 접속중인 방 플레이어 에게 떠난다고 알리기
 void SH_PhotonListener::leaveRoomEventAction(int playerNr, bool isInactive)
 {
-	UE_LOG(LogTemp, Log, TEXT("// Leave Player Nr :: %d"), playerNr);
+	//UE_LOG(LogTemp, Log, TEXT("// Leave Player Nr :: %d"), playerNr);
 	m_pView->RemovePlayer(playerNr);
 }
 

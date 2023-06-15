@@ -52,10 +52,17 @@ public:
 	// 닉네임 금칙어 확인
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bForbidden = false;
-
 	// 캐릭터 생성 여부에 따른 이벤트 처리
 	//UFUNCTION(BlueprintImplementableEvent)
 	//	void InitPlayFabUserTitleData(bool Checker);
+
+	
+
+	////////////////////////////////////////////////////////////
+	// 업적데이터= { 로그인, 출석, 미션}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TMap<FString, int>  PlayFab_Statistics;
+	
 
 protected:
 	// Called when the game starts
@@ -113,10 +120,30 @@ public:
 
 
 	////////////////////////////////////////////////////////////
-	// 승훈 코스튬
-	////////////////////////////////////////////////////////////
+	// 코스튬
+	// 저장된ITemIDs의 배열을 PlayFab 에 FunctionName 스크립트로 전달
 	UFUNCTION(BlueprintCallable)
 	void UploadMyCustom(const FString& FunctionName, const FString& FieldName, const TArray<int> ItemIDs);
+
+
+	////////////////////////////////////////////////////////////
+	// 업적, 플레이팹 리더보드 Name, Value(int) <-- 로그인시 업데이트된 Statistics 데이터
+	
+	// 출석데이터 가져오기
+	UFUNCTION(BlueprintCallable)
+	bool Is_Today_Checked();
+	// 출석 카운팅 가져오기
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int Get_Checking_Count();
+	// 플레이팹-> 오늘 보상받고 업데이트
+	UFUNCTION(BlueprintCallable)
+	void Update_Check_Change(class UWidget_CheckingAttandance_Main* Widget);
+	// Update_Check_Change -> 업데이트된 데이터 위젯 적용
+	UFUNCTION(BlueprintCallable)
+	void Update_Check_Attandance_Widget(class UWidget_CheckingAttandance_Main* Widget);
+
+
+
 
 	////////////////////////////////////////////////////////////
 	// Playfab 스크립트 호출 콜벡 이벤트 처리

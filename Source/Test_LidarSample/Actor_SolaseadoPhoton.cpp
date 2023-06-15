@@ -330,7 +330,7 @@ void AActor_SolaseadoPhoton::updatePlayerProperties(int playerNr, const Hashtabl
 			if (it->PlayerNr == playerNr)
 			{
 				it->eAnimationState = (enum_PlayerAnimationState)Anim;
-				UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
+				//UE_LOG(LogTemp, Log, TEXT("// Change Anim Player :: %d, State :: %d"), playerNr, Anim);
 				break;
 			}
 		}
@@ -551,6 +551,8 @@ void AActor_SolaseadoPhoton::GetPlayerAnim(int playerNr, int Anim)
 		if (it->PlayerNr == playerNr)
 		{
 			it->eAnimationState = (enum_PlayerAnimationState)Anim;
+			//UE_LOG(LogTemp, Log, TEXT("// GetPlayerAnim :: %d"), Anim);
+
 		}
 	}
 }
