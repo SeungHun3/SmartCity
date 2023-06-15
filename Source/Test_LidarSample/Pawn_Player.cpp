@@ -219,7 +219,7 @@ void APawn_Player::BeginDefalutMesh()
 
 	if (!InstanceDataTables.IsValidIndex(0)) // 데이터 테이블이 없다면 탈출
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("// Nodata !!!!"));
+		UE_LOG(LogTemp, Warning, TEXT("// Nodata !!!!"));
 		return;
 	}
 	// 데이터 테이블이 있다면
@@ -328,12 +328,14 @@ bool APawn_Player::InputMoveCommand(const enum_InputPlayer& _Command)
 	{
 		eAnimationState = enum_PlayerAnimationState::Idle;
 		Change_Anim(enum_PlayerAnimationState::Idle); 
+
 		return true;
 	}
 	else if ((fForward || fRight) && eAnimationState == enum_PlayerAnimationState::Idle)
 	{
 		eAnimationState = enum_PlayerAnimationState::Walk;
 		Change_Anim(enum_PlayerAnimationState::Walk);
+
 		return true;
 	}
 
