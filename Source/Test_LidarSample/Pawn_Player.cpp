@@ -219,7 +219,7 @@ void APawn_Player::BeginDefalutMesh()
 
 	if (!InstanceDataTables.IsValidIndex(0)) // 데이터 테이블이 없다면 탈출
 	{
-		UE_LOG(LogTemp, Warning, TEXT("// Nodata !!!!"));
+		//UE_LOG(LogTemp, Warning, TEXT("// Nodata !!!!"));
 		return;
 	}
 	// 데이터 테이블이 있다면

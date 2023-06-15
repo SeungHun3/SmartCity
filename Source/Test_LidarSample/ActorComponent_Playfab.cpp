@@ -239,8 +239,13 @@ bool UActorComponent_Playfab::Is_Today_Checked()
 {
 	if (PlayFab_Statistics.Contains("Is_Checked_Daily")) // 플레이팹 리더보드에서 오늘 체크를 했는지 확인 후에
 	{
+		int32 isChecked = *PlayFab_Statistics.Find("Is_Checked_Daily");
 		// 오늘 체크를 했다면 = true, 안했다면 false
-		return (!PlayFab_Statistics.Find("Is_Checked_Daily") == 0) ?  true :  false ;
+		if (isChecked == 1)
+		{
+			return true;
+		}
+		else { return false; }
 		
 	}
 	else
