@@ -26,6 +26,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool Is_Selected;
-
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		bool Default_Image();
 
 };
