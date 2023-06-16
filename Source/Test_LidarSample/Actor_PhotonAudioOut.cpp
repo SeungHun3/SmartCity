@@ -44,6 +44,7 @@ void AudioOut::outCreate(int frequency, int channels, int bufSamples)
 	mpProcedural->bProcedural = true;
 
 	mpProcedural->init(bufSamples);
+	mpProcedural->SoundClassObject = LoadObject<USoundClass>(nullptr, TEXT("SoundClass'/Game/Project/Sound/Voice.Voice'"));
 	mpAudioComponent->SetSound(mpProcedural);
 }
 
