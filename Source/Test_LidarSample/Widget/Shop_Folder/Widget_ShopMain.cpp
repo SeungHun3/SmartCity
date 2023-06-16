@@ -26,6 +26,4 @@ void UWidget_ShopMain::Min_Price_Sort(TArray<class UWidget_ShopSlot*> SlotArray)
         }
 	}
 
-    // 정렬이 끝났으면 다시 블루프린트에서 위젯 Add to ViewPort처리
-    SelectClass(0);
 }
