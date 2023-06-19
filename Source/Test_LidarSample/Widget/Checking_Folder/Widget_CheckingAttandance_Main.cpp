@@ -60,15 +60,16 @@ void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 	// 출석여부에 따라 보상받기 버튼 활성화
 	Get_Reward_BTN->SetIsEnabled(!MyPlayer->BP_ActorComponent_Playfab->Is_Today_Checked());
 
-	// 디버깅용 //밑의 함수만 주석지우면 됨
-	//Get_Reward_BTN->SetIsEnabled(MyPlayer->BP_ActorComponent_Playfab->Is_Today_Checked());
 
 
 }
 
 void UWidget_CheckingAttandance_Main::PressReward()
-{	// 클릭시 서버에 오늘 체크했다는 표기와 보상 업데이트
+{	// 클릭시 버튼 막아주고
+	Get_Reward_BTN->SetIsEnabled(false);
+	// 서버에 오늘 체크했다는 표기와 보상 업데이트
 	MyPlayer->BP_ActorComponent_Playfab->Update_Check_Change(this);
+
 }
 
 void UWidget_CheckingAttandance_Main::ChangeSlot()
