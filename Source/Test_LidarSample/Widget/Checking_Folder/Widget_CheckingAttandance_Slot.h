@@ -15,5 +15,5 @@ class TEST_LIDARSAMPLE_API UWidget_CheckingAttandance_Slot : public UUserWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-		bool Set_Slot(int SlotCount, bool IsGet = false); // 아직 어떤보상인지 정해지지 않음
+		bool Set_Slot(int SlotCount, bool IsGet = false); // 아직 어떤보상인지 정해지지 않음 // 일단 코인으로 함
 };

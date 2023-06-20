@@ -137,7 +137,7 @@ public:
 	int Get_Checking_Count();
 	// 플레이팹-> 오늘 보상받고 업데이트
 	UFUNCTION(BlueprintCallable)
-	void Update_Check_Change(class UWidget_CheckingAttandance_Main* Widget);
+	void Update_Check_Change(class UWidget_CheckingAttandance_Main* Widget,int coin);
 	// Update_Check_Change -> 업데이트된 데이터 위젯 적용
 	UFUNCTION(BlueprintCallable)
 	void Update_Check_Attandance_Widget(class UWidget_CheckingAttandance_Main* Widget);
