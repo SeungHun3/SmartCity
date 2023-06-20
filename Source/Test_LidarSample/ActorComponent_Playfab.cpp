@@ -270,13 +270,18 @@ int UActorComponent_Playfab::Get_Checking_Count()
 }
 
 //PlayFab에서 daily check 업데이트 + checkCount ++ -> return checkCount 
-void UActorComponent_Playfab::Update_Check_Change(UWidget_CheckingAttandance_Main* Widget)
+void UActorComponent_Playfab::Update_Check_Change(UWidget_CheckingAttandance_Main* Widget, int coin)
 {
-	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
-
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI(); 
+	TSharedPtr<FJsonObject> outerWrapper = MakeShareable(new FJsonObject());
+	outerWrapper->SetNumberField("Coin", coin);
+	auto functionParameter = PlayFab::FJsonKeeper();
+	functionParameter.readFromValue(MakeShareable(new FJsonValueObject(outerWrapper)));
+	
 	ClientModels::FExecuteCloudScriptRequest request;
 	request.FunctionName = "Update_Attandance";
 	request.GeneratePlayStreamEvent = true;
+	request.FunctionParameter = functionParameter;
 
 	ClientAPI->ExecuteCloudScript(
 		request,

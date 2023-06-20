@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "../../Struct_Customizing.h"
+
 #include "Widget_CheckingAttandance_Main.generated.h"
 
 /**
@@ -17,8 +19,14 @@ public:
 	UWidget_CheckingAttandance_Main(const FObjectInitializer& ObjectInitializer);
 		virtual void NativeConstruct() override;
 
+
+		int Checking_Count;
+
 		UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		class APawn_Player* MyPlayer;
+		class APawn_Player* MyPlayer; 
+		UPROPERTY(BlueprintReadWrite, EditAnywhere)
+			FChecking_Reward TodayReward;
+		
 
 		TSubclassOf<class UWidget_CheckingAttandance_Slot> SlotClass;
 		TArray<class UWidget_CheckingAttandance_Slot*> SlotArray;
@@ -29,7 +37,6 @@ public:
 		UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
 			class UUniformGridPanel* Main_gridPanel;
 
-
 		UFUNCTION(BlueprintCallable)
 		void Begin_Bind_Setting();
 
@@ -38,5 +45,7 @@ public:
 
 		UFUNCTION()
 		void ChangeSlot();
-	
+
+		UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+			FText TodayCount(int Count);
 };
