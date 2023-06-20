@@ -32,7 +32,7 @@ bool UWidget_CustomizingTab::Begin_Tab_Bind_Slot_Implementation(int TabNumber)
 			Cast<UWidget_CustomizingSlot>(CustomSlot)->Init_Slot(Costume_Pawn, DataTable, this);
 		}
 	}
-
+	Gender_Visible(true);
 	//각 슬롯들 바인딩 다 끝났으면 호출
 	Change_Slot_Broadcast(TabNumber);
 

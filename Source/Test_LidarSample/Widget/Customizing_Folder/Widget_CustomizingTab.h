@@ -21,8 +21,9 @@ class TEST_LIDARSAMPLE_API UWidget_CustomizingTab : public UUserWidget
 public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget), BlueprintReadWrite)
 		class UHorizontalBox* Slot_Container;
-
-
+	UPROPERTY(EditAnywhere, meta = (BindWidget), BlueprintReadWrite)
+		class UTextBlock* Explain_TEXT;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray <class UDataTable*> DataTable;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -40,5 +41,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 		bool Begin_Tab_Bind_Slot(int TabNumber) ;
 	virtual bool Begin_Tab_Bind_Slot_Implementation(int TabNumber);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void Gender_Visible(bool Is_Gender);
 
 };

@@ -3,7 +3,8 @@
 
 #include "Widget_Customizing.h"
 #include "Widget_CustomizingTab.h"
-
+#include "Components/Button.h"
+#include "Components/Overlay.h"
 #include "../../GameInstance_Solaseado.h"
 
 
@@ -11,16 +12,20 @@ void UWidget_Customizing::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+
 }
 
 void UWidget_Customizing::Begin_Bind_Setting()
 {
 
 	// 게임인스턴스에서 DataTable을 가져와 PlayFab에 넣을 ITemID배열 Default 로 채우고
-	Default_Set_ItemIDs();
+	//Default_Set_ItemIDs();
 	TabNumber = 0;
 	//하위 슬롯들 바인딩처리
 	WB_CustomizingTab->Begin_Tab_Bind_Slot(TabNumber);
+	// 버튼 세팅
+	Overlay_Previous->SetVisibility(ESlateVisibility::Hidden);
+	Button_Next->SetIsEnabled(false);
 }
 
 void UWidget_Customizing::Default_Set_ItemIDs()

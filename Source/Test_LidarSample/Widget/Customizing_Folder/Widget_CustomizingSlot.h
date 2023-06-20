@@ -27,8 +27,9 @@ public:
 	FCustomizing_Struct Customizing_Struct;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class APawn_Player* CostumePawn;
-
-
+	
+	class UWidget_CustomizingTab* Widget_CustomizingTab;
+	class APlayerState_Solaseado* PS;
 	// 현재 슬롯 넘버를 가져오는 함수 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		int GetSlotNumber();
@@ -45,7 +46,7 @@ public:
 
 	// BP  Set Image
 	UFUNCTION(BlueprintImplementableEvent)
-		bool Change_Image(class UTexture2D* MyImage);
+		bool Change_Image(class UTexture2D* DataTable_Image, bool IsSelected);
 
 
 	// Click->ChangeMesh  // 클릭시 슬롯의 정보를 가져와 캐릭터 메쉬변경
