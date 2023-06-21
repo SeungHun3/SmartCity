@@ -342,7 +342,7 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 		if (PlayerOwner)
 			PlayerOwner->Blueprint_CreateCharacter();
 	}
-	else if (Selection == "SeunghunGrant")
+	else if (Selection == "Create_Grant")
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Playfab _ GrantSuccess__call__getUserTitleData"));
 		// 서버에서 아이템을 주고 인벤토리에 넣고 타이틀 데이터로 적용 -> 타이틀 데이터 가져오고나서 레벨이동시작
