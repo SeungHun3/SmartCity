@@ -30,10 +30,14 @@ public class Test_LidarSample : ModuleRules
 	}
 
 	private delegate void AddLibFunction(ReadOnlyTargetRules target, string name);
-	private readonly string[] libraries = { "Common", "Photon", "LoadBalancing", "Chat", "PhotonVoice" }; // "Chat", "PhotonVoice", "crypto", "websockets", "ssl"
-	private readonly string[] Firebaselibraries = { "firebase_app", "firebase_auth", "firebase_functions" }; // , "firebase_admob", "firebase_analytics",  "firebase_database", "firebase_dynamic_links", "firebase_firestore", "firebase_gma", "firebase_installations", "firebase_messaging", "firebase_remote_config", "firebase_storage"
-	private readonly string libArm = "armeabi-v7a_libc++.a";
+	private readonly string[] libraries = { "Common", "Photon", "LoadBalancing", "Chat", "PhotonVoice" };
+	private readonly string[] Phton3rdlibraries = { "crypto", "websockets", "ssl" };
+	private readonly string[] Firebaselibraries = { "firebase_app", "firebase_auth", "firebase_functions" }; 
+	// "firebase_admob", "firebase_analytics",  "firebase_database", "firebase_dynamic_links",
+    // "firebase_firestore", "firebase_gma", "firebase_installations", "firebase_messaging", "firebase_remote_config", "firebase_storage"
+	// private readonly string libArm = "armeabi-v7a_libc++.a";
 
+	private readonly string[] PhotonlibArm = { "arm64-v8a_libc++.a" }; // "armeabi-v7a_libc++.a", 
 	// armeabi-v7a
 	// armeabi-v7a_libc++			// 4.27
 	// armeabi-v7a_no-rtti 
@@ -52,8 +56,19 @@ public class Test_LidarSample : ModuleRules
 
 	private void AddPhotonLibPathAndroid(ReadOnlyTargetRules target, string name)
 	{
-		PublicAdditionalLibraries.Add(Path.Combine(PhotonPath, "lib", "Android",
-			"lib" + name.ToLower() + "-cpp-static_release_android_" + libArm));
+		for(int j = 0; j < PhotonlibArm.Length; j++)
+        {
+			PublicAdditionalLibraries.Add(Path.Combine(PhotonPath, "lib", "Android",
+			"lib" + name.ToLower() + "-cpp-static_release_android_" + PhotonlibArm[j]));
+		}
+	}
+
+	private void AddPhoton3rdPartyLibPathAndroid(ReadOnlyTargetRules target, string name)
+	{
+		for (int j = 0; j < PhotonlibArm.Length; j++)
+		{
+			PublicAdditionalLibraries.Add(Path.Combine(PhotonPath, "lib", "Android", "lib" + name.ToLower() + "_release_android_" + PhotonlibArm[j]));
+		}
 	}
 
 	public void LoadPhotonSDK(ReadOnlyTargetRules target)
@@ -92,9 +107,10 @@ public class Test_LidarSample : ModuleRules
 			AddLibFunc = AddPhotonLibPathAndroid;
 
 			// 포톤 라이브러리 구성 변경에 따른 추가 사항
-			PublicAdditionalLibraries.Add(Path.Combine(PhotonPath, "lib", "Android", "lib" + "crypto" + "_release_android_" + libArm));
-			PublicAdditionalLibraries.Add(Path.Combine(PhotonPath, "lib", "Android", "lib" + "websockets" + "_release_android_" + libArm));
-			PublicAdditionalLibraries.Add(Path.Combine(PhotonPath, "lib", "Android", "lib" + "ssl" + "_release_android_" + libArm));
+			for (int i = 0; i < Phton3rdlibraries.Length; i++)
+			{
+				AddPhoton3rdPartyLibPathAndroid(target, Phton3rdlibraries[i]);
+			}
 
 			PrivateDependencyModuleNames.Add("Launch");
 
