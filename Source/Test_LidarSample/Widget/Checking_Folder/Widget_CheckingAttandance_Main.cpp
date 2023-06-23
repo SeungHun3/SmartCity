@@ -53,8 +53,8 @@ void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 		// Slot당  출석 검사
 		(i < Checking_Count) ? SlotWidget->Set_Slot(i,true): SlotWidget->Set_Slot(i,false);
 		SlotArray.Add(SlotWidget); // 배열에 담아주고
-		int row = i / 10;
-		int Column = i % 10;
+		int row = i / 4;
+		int Column = i % 4;
 		Main_gridPanel->AddChildToUniformGrid(SlotWidget, row, Column);
 	}
 
