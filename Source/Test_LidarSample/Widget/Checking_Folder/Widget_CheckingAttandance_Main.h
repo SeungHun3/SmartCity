@@ -40,7 +40,7 @@ public:
 		UFUNCTION(BlueprintCallable)
 		void Begin_Bind_Setting();
 
-		UFUNCTION()
+		UFUNCTION(BlueprintCallable)
 		void PressReward();
 
 		UFUNCTION()

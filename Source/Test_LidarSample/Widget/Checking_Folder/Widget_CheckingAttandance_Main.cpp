@@ -34,6 +34,10 @@ void UWidget_CheckingAttandance_Main::NativeConstruct()
 
 void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 {
+	Main_gridPanel->ClearChildren();
+	SlotArray.Empty();
+
+
 	//Reward 테이블 세팅
 	UGameInstance_Solaseado* MyInstance = Cast<UGameInstance_Solaseado>(GetGameInstance());
 	class UDataTable* Reward_Table = MyInstance->GetCheckingRewardTables();
@@ -43,8 +47,6 @@ void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 
 	// 출석일 수 확인 후에
 	Checking_Count = MyPlayer->BP_ActorComponent_Playfab->Get_Checking_Count();
-	UE_LOG(LogTemp, Log, TEXT("// mycount :: %d "), Checking_Count);
-
 	 
 	// 총길이만큼 Slot생성 후 출석일에 따라 Array에 담아줌
 	for (int i = 0; i < TableLength; i++)
