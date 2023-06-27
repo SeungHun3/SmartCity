@@ -295,23 +295,70 @@ void UActorComponent_Playfab::Update_Check_Change(UWidget_CheckingAttandance_Mai
 				if ((Keys[0] == "Month_Reward_Count")&& result_Object->Values.Contains(Keys[0]))
 				{
 						int CheckingCount = static_cast<int>(result_Object->Values.Find(Keys[0])->Get()->AsNumber()); // 리턴받은 Count값
+						
 						if (PlayFab_Statistics.Contains(Keys[0]) && PlayFab_Statistics.Find(Keys[0]))
 						{
 							PlayFab_Statistics.Add(Keys[0], CheckingCount); // Map 데이터 변경시키고
 							// 위젯에 전달
-							Update_Check_Attandance_Widget(Widget);
+							Widget->ChangeSlot();
 						}
 				}
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
 }
-
-void UActorComponent_Playfab::Update_Check_Attandance_Widget(UWidget_CheckingAttandance_Main* Widget)
+// 20일 보상
+void UActorComponent_Playfab::Daily_20th_Reward(UWidget_CheckingAttandance_Main* Widget, int Coin)
 {
-	Widget->ChangeSlot();
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	TSharedPtr<FJsonObject> outerWrapper = MakeShareable(new FJsonObject());
+	outerWrapper->SetNumberField("Coin", Coin);
+	auto functionParameter = PlayFab::FJsonKeeper();
+	functionParameter.readFromValue(MakeShareable(new FJsonValueObject(outerWrapper)));
+
+	ClientModels::FExecuteCloudScriptRequest request;
+	request.FunctionName = "Coin_Grant";
+	request.GeneratePlayStreamEvent = true;
+	request.FunctionParameter = functionParameter;
+
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, Widget](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				//서버에 코인주고나서 위젯함수 호출
+				Widget->ChangeSpecial();
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
 
 }
+// 디버깅용 출석체크 초기화
+void UActorComponent_Playfab::Debug_Clear_Attandance(UWidget_CheckingAttandance_Main* Widget)
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	ClientModels::FExecuteCloudScriptRequest request;
+	request.FunctionName = "Clear_Attandance";
+	request.GeneratePlayStreamEvent = true;
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, Widget](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				PlayFab_Statistics.Add("Month_Reward_Count", 0);
+				PlayFab_Statistics.Add("Is_Checked_Daily", 0);
+
+				//서버에 코인주고나서 위젯함수 호출
+				Widget->Debug_Finished_Clear();
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
+}
+
+
+//////////////////////////////////////////////////////
+// 출석체크 끝
+
+
+
 
 // Playfab Response
 // 플레이팹 스크립트 콜벡 이벤트

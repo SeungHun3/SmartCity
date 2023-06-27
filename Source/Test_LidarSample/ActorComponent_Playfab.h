@@ -138,11 +138,12 @@ public:
 	// 플레이팹-> 오늘 보상받고 업데이트
 	UFUNCTION(BlueprintCallable)
 	void Update_Check_Change(class UWidget_CheckingAttandance_Main* Widget,int coin);
-	// Update_Check_Change -> 업데이트된 데이터 위젯 적용
+	//20일 완료보상
 	UFUNCTION(BlueprintCallable)
-	void Update_Check_Attandance_Widget(class UWidget_CheckingAttandance_Main* Widget);
-
-
+	void Daily_20th_Reward(class UWidget_CheckingAttandance_Main* Widget,int Coin);
+	//디버그__출석체크 초기화
+	UFUNCTION(BlueprintCallable)
+	void Debug_Clear_Attandance(class UWidget_CheckingAttandance_Main* Widget);
 
 
 	////////////////////////////////////////////////////////////

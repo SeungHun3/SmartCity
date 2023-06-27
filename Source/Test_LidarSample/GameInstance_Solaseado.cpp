@@ -41,9 +41,12 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		Checking_Reward_Table = FindCheckingReward.Object;
 	}
-
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindSpecialReward(TEXT("/Game/Project/DataTable/Data_Folder/Reward_Folder/Data_Special_Reward"));
+	if (FindCheckingReward.Succeeded())
+	{
+		Special_Reward_Table = FindSpecialReward.Object;
+	}
 }
-
 
 
 
