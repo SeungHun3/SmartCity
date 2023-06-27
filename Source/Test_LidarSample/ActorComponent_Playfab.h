@@ -141,11 +141,15 @@ public:
 	//20일 완료보상
 	UFUNCTION(BlueprintCallable)
 	void Daily_20th_Reward(class UWidget_CheckingAttandance_Main* Widget,int Coin);
+
 	//디버그__출석체크 초기화
 	UFUNCTION(BlueprintCallable)
 	void Debug_Clear_Attandance(class UWidget_CheckingAttandance_Main* Widget);
-
-
+	UFUNCTION(BlueprintCallable)
+	void Debug_Clear_Daily(class UWidget_CheckingAttandance_Main* Widget);
+	//디버깅
+	
+	
 	////////////////////////////////////////////////////////////
 	// Playfab 스크립트 호출 콜벡 이벤트 처리
 	void ScriptResponseEvent(FJsonValue* value);

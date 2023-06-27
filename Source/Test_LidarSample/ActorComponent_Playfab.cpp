@@ -332,6 +332,8 @@ void UActorComponent_Playfab::Daily_20th_Reward(UWidget_CheckingAttandance_Main*
 				);
 
 }
+
+
 // 디버깅용 출석체크 초기화
 void UActorComponent_Playfab::Debug_Clear_Attandance(UWidget_CheckingAttandance_Main* Widget)
 {
@@ -348,6 +350,25 @@ void UActorComponent_Playfab::Debug_Clear_Attandance(UWidget_CheckingAttandance_
 
 				//서버에 코인주고나서 위젯함수 호출
 				Widget->Debug_Finished_Clear();
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
+}
+// 디버기용 오늘 출석내용 초기화
+void UActorComponent_Playfab::Debug_Clear_Daily(UWidget_CheckingAttandance_Main* Widget)
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	ClientModels::FExecuteCloudScriptRequest request;
+	request.FunctionName = "Clear_CheckDaily";
+	request.GeneratePlayStreamEvent = true;
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, Widget](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				PlayFab_Statistics.Add("Is_Checked_Daily", 0);
+
+				//서버에 코인주고나서 위젯함수 호출
+				Widget->Debug_Finished_DailyClear();
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
