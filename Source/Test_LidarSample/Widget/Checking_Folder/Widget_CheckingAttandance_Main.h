@@ -31,9 +31,10 @@ public:
 		TSubclassOf<class UWidget_CheckingAttandance_Slot> SlotClass;
 		TArray<class UWidget_CheckingAttandance_Slot*> SlotArray;
 		int TableLength;
-
+		
 		UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
 			class UButton* Get_Reward_BTN;
+		
 		UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
 			class UUniformGridPanel* Main_gridPanel;
 		UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
@@ -55,7 +56,7 @@ public:
 
 		UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 			void ChangeSpecial();
-		void ChangeSpecial_Implementation();
+		virtual void ChangeSpecial_Implementation();
 
 
 		// 디버깅용
@@ -64,6 +65,12 @@ public:
 
 		UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 			void Debug_Finished_Clear();
+
+		UFUNCTION(BlueprintCallable)
+			void Debug_ClearCheck();
+
+		UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+			void Debug_Finished_DailyClear();
 		//여기까지
 
 

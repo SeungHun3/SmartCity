@@ -12,7 +12,6 @@
 #include "../../ActorComponent_PlayfabStore.h"
 
 
-
 UWidget_CheckingAttandance_Main::UWidget_CheckingAttandance_Main(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -38,7 +37,7 @@ void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 {
 	Main_gridPanel->ClearChildren();
 	SlotArray.Empty();
-
+	const int FixView = 4; // 보여지는 슬롯 갯수
 
 	//Reward 테이블 세팅
 	UGameInstance_Solaseado* MyInstance = Cast<UGameInstance_Solaseado>(GetGameInstance());
@@ -56,6 +55,18 @@ void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 		Checking_Count = TableLength;
 		IsTodayChecked = true;
 	}
+
+	// 총길이만큼 Slot생성 후 출석일에 따라 Array에 담아줌
+	for (int i = 0; i < TableLength; i++)
+	{
+		//위젯생성
+		UWidget_CheckingAttandance_Slot* SlotWidget = CreateWidget<UWidget_CheckingAttandance_Slot>(GetWorld(), SlotClass);
+
+		// Slot당  출석 검사
+		(i < Checking_Count) ? SlotWidget->Set_Slot(i,true): SlotWidget->Set_Slot(i, false);
+		SlotArray.Add(SlotWidget); // 배열에 담아주고		
+	}
+
 	// 출석여부에 따라 보상받기 버튼 활성화
 	Get_Reward_BTN->SetIsEnabled(!IsTodayChecked);
 	// 오늘기준 출석 남은일수
@@ -65,25 +76,24 @@ void UWidget_CheckingAttandance_Main::Begin_Bind_Setting()
 	}
 	else
 	{
-		TodayCount(Checking_Count + 1);
+		Checking_Count += 1;
+		TodayCount(Checking_Count);
 		//오늘 보상을 받지 않았다면
 		//오늘날짜 보상 세팅
-		FName CountSTR(*FString::FromInt(Checking_Count + 1));
+		FName CountSTR(*FString::FromInt(Checking_Count));
 		TodayReward = *Reward_Table->FindRow<FChecking_Reward>(CountSTR, "");
+		SlotArray[Checking_Count-1]->Today_Slot();
 	}
+	
 
-
-	// 총길이만큼 Slot생성 후 출석일에 따라 Array에 담아줌
-	for (int i = 0; i < TableLength; i++)
+	//오늘까지 FixView 단위로 보여주게함
+	int ViewCount = static_cast<int>((Checking_Count - 1) / FixView);
+	for (int i = 0; i < FixView; i++)
 	{
-		UWidget_CheckingAttandance_Slot* SlotWidget = CreateWidget<UWidget_CheckingAttandance_Slot>(GetWorld(), SlotClass);
-		// Slot당  출석 검사
-		(i < Checking_Count) ? SlotWidget->Set_Slot(i,true): SlotWidget->Set_Slot(i,false);
-		SlotArray.Add(SlotWidget); // 배열에 담아주고
-		int row = i / 4;
-		int Column = i % 4;
-		Main_gridPanel->AddChildToUniformGrid(SlotWidget, row, Column);
+		int count = ViewCount * FixView + i;
+		Main_gridPanel->AddChildToUniformGrid(SlotArray[count], 0, i);
 	}
+	
 }
 
 void UWidget_CheckingAttandance_Main::PressReward()
@@ -114,12 +124,12 @@ void UWidget_CheckingAttandance_Main::PressSpecial()
 void UWidget_CheckingAttandance_Main::ChangeSlot()
 {
 	// ==>PressReward()
-	if (Checking_Count<TableLength)
+	if (Checking_Count-1<TableLength)
 	{
-		SlotArray[Checking_Count]->Set_Slot(Checking_Count,true);
+		SlotArray[Checking_Count-1]->Set_Slot(Checking_Count-1,true);
 		MyPlayer->BP_ActorComponent_Playfab->UpdateCoin();
 	}
-	if (Checking_Count + 1 == TableLength) // 20일 다채우면
+	if (Checking_Count == TableLength) // 20일 다채우면
 	{
 		Button_SpecialReward->SetIsEnabled(true); //버튼 오픈
 	}
@@ -130,7 +140,16 @@ void UWidget_CheckingAttandance_Main::ChangeSpecial_Implementation()
 	MyPlayer->BP_ActorComponent_Playfab->UpdateCoin();
 }
 
+
+//디버깅용
 void UWidget_CheckingAttandance_Main::Debug_ClearAttandance()
 {
 	MyPlayer->BP_ActorComponent_Playfab->Debug_Clear_Attandance(this);
 }
+
+void UWidget_CheckingAttandance_Main::Debug_ClearCheck()
+{
+	MyPlayer->BP_ActorComponent_Playfab->Debug_Clear_Daily(this);
+
+}
+//여기까지 디버깅
