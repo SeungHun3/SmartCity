@@ -21,7 +21,7 @@ public:
 
 
 		int Checking_Count;
-
+		bool IsTodayChecked;
 		UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		class APawn_Player* MyPlayer; 
 		UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -36,6 +36,10 @@ public:
 			class UButton* Get_Reward_BTN;
 		UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
 			class UUniformGridPanel* Main_gridPanel;
+		UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
+			class UButton* Button_SpecialReward;
+
+
 
 		UFUNCTION(BlueprintCallable)
 		void Begin_Bind_Setting();
@@ -43,8 +47,25 @@ public:
 		UFUNCTION(BlueprintCallable)
 		void PressReward();
 
+		UFUNCTION(BlueprintCallable)
+		void PressSpecial();
+
 		UFUNCTION()
 		void ChangeSlot();
+
+		UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+			void ChangeSpecial();
+		void ChangeSpecial_Implementation();
+
+
+		// 디버깅용
+		UFUNCTION(BlueprintCallable)
+			void Debug_ClearAttandance();
+
+		UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+			void Debug_Finished_Clear();
+		//여기까지
+
 
 		UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 			FText TodayCount(int Count);

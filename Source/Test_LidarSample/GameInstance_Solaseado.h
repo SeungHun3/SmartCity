@@ -22,6 +22,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		UDataTable* Checking_Reward_Table;
 
+	UPROPERTY(VisibleAnywhere)
+		UDataTable* Special_Reward_Table;
 
 public:
 	UGameInstance_Solaseado();
@@ -35,6 +37,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 		UDataTable* GetCheckingRewardTables() { return Checking_Reward_Table; }
-
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+		UDataTable* GetSpecialRewardTables() { return Special_Reward_Table; }
 
 };
