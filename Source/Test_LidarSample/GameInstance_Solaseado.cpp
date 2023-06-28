@@ -18,6 +18,11 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 		CustomDataArray.Add(FindTableData_Hair.Object);
 	}
 	//CustomDataArray[0] = FindTableData.Object;
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Shoes(TEXT("/Game/Project/DataTable/Data_Folder/Data_Shoes"));
+	if (FindTableData_Shoes.Succeeded())
+	{
+		CustomDataArray.Add(FindTableData_Shoes.Object);
+	}
 	static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Top(TEXT("/Game/Project/DataTable/Data_Folder/Data_Top"));
 	if (FindTableData_Top.Succeeded())
 	{
@@ -28,11 +33,7 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		CustomDataArray.Add(FindTableData_Bottoms.Object);
 	}
-		static ConstructorHelpers::FObjectFinder<UDataTable> FindTableData_Shoes(TEXT("/Game/Project/DataTable/Data_Folder/Data_Shoes"));
-	if (FindTableData_Shoes.Succeeded())
-	{
-		CustomDataArray.Add(FindTableData_Shoes.Object);
-	}
+	
 	////////////////////////////
 
 	// 보상데이터 세팅하기
