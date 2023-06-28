@@ -27,8 +27,8 @@ public:
 		UPROPERTY(BlueprintReadWrite, EditAnywhere)
 			FChecking_Reward TodayReward;
 		
-
-		TSubclassOf<class UWidget_CheckingAttandance_Slot> SlotClass;
+		UPROPERTY(BlueprintReadWrite, EditAnywhere)
+			TSubclassOf<class UWidget_CheckingAttandance_Slot> SlotClass;
 		TArray<class UWidget_CheckingAttandance_Slot*> SlotArray;
 		int TableLength;
 		

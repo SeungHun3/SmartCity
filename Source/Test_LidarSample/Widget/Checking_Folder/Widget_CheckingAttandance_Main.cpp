@@ -15,12 +15,13 @@
 UWidget_CheckingAttandance_Main::UWidget_CheckingAttandance_Main(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	/*
 	//슬롯세팅(블루프린트)
 	static ConstructorHelpers::FClassFinder<UWidget_CheckingAttandance_Slot> SlotWidget(TEXT("/Game/Project/Widget/Checking/WB_CheckingAttandance_Slot.WB_CheckingAttandance_Slot_C"));
 	if (SlotWidget.Succeeded())
 	{
 		SlotClass = SlotWidget.Class;
-	}
+	}*/
 }
 void UWidget_CheckingAttandance_Main::NativeConstruct()
 {
