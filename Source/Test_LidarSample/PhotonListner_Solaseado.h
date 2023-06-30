@@ -48,6 +48,8 @@ public:
 
 	// 방 정보 프로퍼티 업데이트 
 	virtual void onRoomPropertiesChange(const Common::Hashtable& changes) override;
+
+	virtual void onRoomListUpdate(void) override;
 protected:
 
 	// 포톤 업데이트 시간 체크
@@ -97,15 +99,13 @@ public:
 	void setRoomEventProperties(uint8 Ev);
 	// 진행중인 이벤트 일시정지
 	void setEventPause(bool ev);
-
 protected:
 	//서버 수용 최대 인원수
 	int MaxPlayerRoom = 15;
 	//서버에 뿌릴 데이터를 저장해 둘 헤시 테이블
 	//여기에 저장된 값들은 데이터가 뿌려지고 엑터 포톤의 updatePlayerProperties()에서 처리할 수 있게 한다.
 	ExitGames::Common::Hashtable mCharacterInfo;
-	//ExitGames::Common::JString sRoomName="TestRoomName";
-	ExitGames::Common::JString sRoomName="InitRoomName";
+
 public:
 	//플레이어 커스텀 데이터 정보 처리
 	void SetChracterInfo(FString _key, FString _value);
@@ -115,6 +115,23 @@ public:
 	void InitJoinOrCreateRoom();
 
 	void SendPlayerAnimState(uint8 _State);
+
+
+
+//////////////////////룸정보, 변경
+protected:
+	FString sRoomName = "MainRoom";
+	FString sRoomCount;
+	bool b_IsFirstConnect = true;
+public:
+	void ChangeRoomNumber(int Number) { sRoomCount = FString::FromInt(Number); }
+
+///////////////////////더미여부 판단
+protected:
+	bool b_IsDummy = false;
+public:
+	void setDummy(bool IsDummy);
+
 };
 
 

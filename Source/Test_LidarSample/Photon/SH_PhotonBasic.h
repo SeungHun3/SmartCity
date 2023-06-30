@@ -22,7 +22,7 @@ public:
 	virtual void ConnectComplete(void) {}
 
 	// Photon Region
-	virtual void setRegion(void) {}
+	virtual void setRegion(ExitGames::LoadBalancing::Client* Client) {}
 
 	// Photon Room 
 	virtual void CreateChannelComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel) {}
@@ -38,7 +38,7 @@ public:
 
 	// change room Property 
 	virtual void updateRoomProperties(const ExitGames::Common::Hashtable& changes) {}
-	
+	virtual void UpdateRoomList() {}
 	// Game
 	virtual void getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type) {}
 	virtual void GetMovePlayerRotation(int playerNr, float fX) {}

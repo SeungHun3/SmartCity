@@ -2,6 +2,7 @@
 
 
 #include "Actor_SolaseadoPhoton.h"
+#include "GameModeBase_Solaseado.h"
 
 #include "Engine/LevelStreaming.h"
 
@@ -33,9 +34,15 @@ AActor_SolaseadoPhoton::AActor_SolaseadoPhoton() : serverAddress(TEXT(Photon_Ser
 AActor_SolaseadoPhoton::~AActor_SolaseadoPhoton()
 {
 	if (m_pListener)
+	{
 		delete m_pListener;
-	if (m_pListener)
 		delete m_pClient;
+	}
+	if (dummy_pListener)
+	{
+		delete dummy_pClient;
+		delete dummy_pListener;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -91,6 +98,10 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 		{
 			m_pListener->service();
 		}
+		if (dummy_pListener)
+		{
+			dummy_pListener->service();
+		}
 	}
 
 	//아직 테스트 중인 이동 동기화 부분을 bOnTimeMove로 On/Off한다
@@ -117,19 +128,50 @@ void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 		Photon::ConnectionProtocol::DEFAULT, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT, false); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
 	m_pListener->SetClient(m_pClient);
 	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
+	
+	//메인 클라이언트 접속시도 후 채팅 접속(보이스 접속)
+	ConnectPhotonCHat();
+
+	//더미생성만
+	dummy_pListener = new PhotonListner_Solaseado(this);
+	dummy_pClient = new ExitGames::LoadBalancing::Client(*dummy_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion),
+		Photon::ConnectionProtocol::DEFAULT, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT, false); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
+	//세팅
+	dummy_pListener->setDummy(true);
+	dummy_pListener->SetClient(dummy_pClient);
 }
 
-void AActor_SolaseadoPhoton::DummyConnectLogin(const FString& username, APawn_Player* dummy)
+void AActor_SolaseadoPhoton::ChangeRoom(int Number)
 {
-	srand(GETTIMEMS());
-
-	LocalPlayer = dummy;
-	m_pListener = new PhotonListner_Solaseado(this);
-	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion)); //  (nByte)0U, false, ExitGames::LoadBalancing::RegionSelectionMode::SELECT
-	m_pListener->SetClient(m_pClient);
-	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
-
+	if (!IsChangingRoom)
+	{
+		IsChangingRoom = true; //  == > JoinOrCreateComplete  에서 룸접속 후 false로 바꿈 // 중복클릭 방지
+		RoomNumber = Number;
+		m_pClient->opLeaveRoom(); // ==> LeaveRoomComplete
+	}
 }
+
+///////////////////////////////////////////////////////////////////////
+///////////////////Dummy or RoomSetting 시작
+void AActor_SolaseadoPhoton::OpenDummy()
+{
+	FString FuserName = m_pClient->getLocalPlayer().getName().UTF8Representation().cstr();
+	FString DummyName = "dummy_" + FuserName;
+	//접속
+	dummy_pListener->Connect(TCHAR_TO_UTF8(*DummyName), TCHAR_TO_UTF8(*serverAddress));
+}
+
+void AActor_SolaseadoPhoton::UpdateRoomList()
+{
+	UE_LOG(LogTemp, Log, TEXT("// ActorRespone"));
+}
+
+void AActor_SolaseadoPhoton::CloseDummy()
+{
+	dummy_pClient->disconnect();
+}
+////////////////////////////////////////////////Dummy or Room Setting끝
+
 
 // 텍스트 메세지 출력 
 void AActor_SolaseadoPhoton::SendTextMessage(const FString& Message, const FString& type)
@@ -192,10 +234,12 @@ void AActor_SolaseadoPhoton::PhotonDisconnect()
 		m_pClient->disconnect();
 }
 
-void AActor_SolaseadoPhoton::setRegion()
+void AActor_SolaseadoPhoton::setRegion(ExitGames::LoadBalancing::Client* Client)
 {
-	//UE_LOG(LogTemp, Log, TEXT("//setRegion"));
-	m_pClient->selectRegion("kr");
+	if (Client)
+	{
+		Client->selectRegion("kr");
+	}
 }
 
 void AActor_SolaseadoPhoton::ErrorCheckMessage(const FString& message, int error)
@@ -209,9 +253,13 @@ void AActor_SolaseadoPhoton::InitPlayers(void)
 {
 	for (auto it : PlayerList)
 	{
-		it->Destroy();
+		if (!it->bLocal)
+		{
+			it->Destroy();
+		}
 	}
 	PlayerList.Reset();
+	
 }
 
 void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::JString& playerName, bool local, const ExitGames::Common::Hashtable& Custom)
@@ -263,6 +311,7 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 
 			//포톤으로 받은 코스튬 데이터를 전달한다.
 			LocalPlayer->SetCostumeArray(ArrayPlayerCostume);
+
 		}
 	}
 	else
@@ -574,25 +623,36 @@ void AActor_SolaseadoPhoton::CreateRoomComplete(const ExitGames::Common::JString
 
 void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel)
 {
-	ConnectPhotonCHat();
+	
 }
 
-void AActor_SolaseadoPhoton::JoinOrCreateComplete()
+// 룸에 들어왔을때 호출
+void AActor_SolaseadoPhoton::JoinOrCreateComplete() 
 {
 	//UE_LOG(LogTemp, Log, TEXT("// JoinOrCreateComplete :: "));
 	// #include "Actor_RosActor.h"	
 	// 헤더 연결 오류 처리 // Blueprint Spawn 변경 
 	//ConnectRosActor();
-	ConnectPhotonCHat();
-}
 
+
+	//ConnectPhotonCHat();
+
+	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode()); // moveLevel_ SimPoly1, Fade
+	GM_Solaseado->MoveLevel(enum_Level::SimPoly1, true);
+	IsChangingRoom = false;
+}
+// 룸 나갈때 호출
 void AActor_SolaseadoPhoton::LeaveRoomComplete(void)
 {
-	//UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
 	if (LocalPlayer)
 	{
 		LocalPlayer->isInRoom = false;
 		LocalPlayer->isInLoby = true;
+	}
+	if (IsChangingRoom)
+	{
+		InitPlayerData();
+		UE_LOG(LogTemp, Log, TEXT("// LeaveRoomComplete :: "));
 	}
 }
 
@@ -745,6 +805,7 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 
 
 	//쌓인 데이터 보내고 룸 입장하기
+	m_pListener->ChangeRoomNumber(RoomNumber);
 	m_pListener->InitJoinOrCreateRoom();
 }
 

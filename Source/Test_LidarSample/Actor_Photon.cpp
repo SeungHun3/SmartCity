@@ -56,7 +56,7 @@ void AActor_Photon::Tick(float DeltaTime)
 	}
 }
 
-void AActor_Photon::setRegion()
+void AActor_Photon::setRegion(ExitGames::LoadBalancing::Client* Client)
 {
 	// 지역 선택 "kr"
 	m_pClient->selectRegion("kr");

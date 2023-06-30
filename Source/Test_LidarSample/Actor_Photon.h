@@ -96,7 +96,7 @@ public:
 	void PhotonDisconnect();
 
 	// 포톤 지역 설정 변경 
-	virtual void setRegion() override;
+	virtual void setRegion(ExitGames::LoadBalancing::Client* Client) override;
 
 	// 에레 출력
 	virtual void ErrorCheckMessage(const FString& message, int error) override;
