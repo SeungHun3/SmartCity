@@ -71,10 +71,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class APawn_Player> targetCharacter;
 
-	// 룸 리스트
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TArray<FString> RoomList;
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -260,9 +256,13 @@ protected:
 	ExitGames::LoadBalancing::Client* dummy_pClient;
 	PhotonListner_Solaseado* dummy_pListener;
 
-	int RoomNumber = 0;
 	bool IsChangingRoom = false;
 public:
+
+	// 룸 리스트
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TMap<int, int> ChannelList;
+
 	// 방변경
 	UFUNCTION(BlueprintCallable)
 		void ChangeRoom(int Number);
@@ -271,13 +271,13 @@ public:
 		void OpenDummy();
 	
 	UFUNCTION(BlueprintCallable)
-		virtual	void UpdateRoomList() override;
+		virtual	void UpdateRoomList(const TMap<int, int>& Channel_Count) override;
 
 	UFUNCTION(BlueprintCallable)
 		void CloseDummy();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void ChangeViewCount();
+		void ChangeViewCount(const TMap<int, int>& Channel_Count);
 
 ////////////////////////////////////////////////채널 끝
 

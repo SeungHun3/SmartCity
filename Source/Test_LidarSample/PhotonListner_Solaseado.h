@@ -123,6 +123,9 @@ protected:
 	FString sRoomName = "MainRoom";
 	FString sRoomCount;
 	bool b_IsFirstConnect = true;
+	int RoomMaxSize = 20;
+	int PlayerMaxCount = 20;
+
 public:
 	void ChangeRoomNumber(int Number) { sRoomCount = FString::FromInt(Number); }
 

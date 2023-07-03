@@ -38,7 +38,7 @@ public:
 
 	// change room Property 
 	virtual void updateRoomProperties(const ExitGames::Common::Hashtable& changes) {}
-	virtual void UpdateRoomList() {}
+	virtual void UpdateRoomList(const TMap<int, int>& Channel_Count) {}
 	// Game
 	virtual void getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type) {}
 	virtual void GetMovePlayerRotation(int playerNr, float fX) {}

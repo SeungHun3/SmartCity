@@ -146,7 +146,7 @@ void AActor_SolaseadoPhoton::ChangeRoom(int Number)
 	if (!IsChangingRoom)
 	{
 		IsChangingRoom = true; //  == > JoinOrCreateComplete  에서 룸접속 후 false로 바꿈 // 중복클릭 방지
-		RoomNumber = Number;
+		m_pListener->ChangeRoomNumber(Number);
 		m_pClient->opLeaveRoom(); // ==> LeaveRoomComplete
 	}
 }
@@ -161,9 +161,10 @@ void AActor_SolaseadoPhoton::OpenDummy()
 	dummy_pListener->Connect(TCHAR_TO_UTF8(*DummyName), TCHAR_TO_UTF8(*serverAddress));
 }
 
-void AActor_SolaseadoPhoton::UpdateRoomList()
+void AActor_SolaseadoPhoton::UpdateRoomList(const TMap<int, int>& Channel_Count)
 {
-	UE_LOG(LogTemp, Log, TEXT("// ActorRespone"));
+	ChannelList = Channel_Count;
+	ChangeViewCount(Channel_Count);
 }
 
 void AActor_SolaseadoPhoton::CloseDummy()
@@ -805,7 +806,6 @@ void AActor_SolaseadoPhoton::InitPlayerData_Implementation()
 
 
 	//쌓인 데이터 보내고 룸 입장하기
-	m_pListener->ChangeRoomNumber(RoomNumber);
 	m_pListener->InitJoinOrCreateRoom();
 }
 
