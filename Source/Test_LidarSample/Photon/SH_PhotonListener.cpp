@@ -56,7 +56,7 @@ void SH_PhotonListener::onAvailableRegions(const JVector<JString>& availableRegi
 	{
 		FString str = availableRegions[i].UTF8Representation().cstr();
 	}
-	m_pView->setRegion();
+	m_pView->setRegion(m_pClient);
 }
 // 연결 종료
 void SH_PhotonListener::disconnectReturn(void)

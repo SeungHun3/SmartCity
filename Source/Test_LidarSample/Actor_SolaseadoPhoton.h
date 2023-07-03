@@ -71,10 +71,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class APawn_Player> targetCharacter;
 
-	// 룸 리스트
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TArray<FString> RoomList;
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -86,6 +82,7 @@ protected:
 	// 포톤 클라이언트
 	ExitGames::LoadBalancing::Client* m_pClient;
 	PhotonListner_Solaseado* m_pListener;
+
 
 	// 캐릭터 위치 포톤 업데이트
 	UFUNCTION(BlueprintCallable)
@@ -154,7 +151,7 @@ public:
 	void PhotonDisconnect();
 
 	// 포톤 지역 설정 변경 
-	virtual void setRegion() override;
+	virtual void setRegion(ExitGames::LoadBalancing::Client* Client) override;
 
 	// 에레 출력
 	virtual void ErrorCheckMessage(const FString& message, int error) override;
@@ -250,9 +247,41 @@ protected:
 	//로컬 플레이어의 움직임이 있는지
 	bool bIsMoving = false;
 
-	//테스트 더미용 포톤 서버 접속
+
+
+
+////////////////////////////////////
+/////////// 채널 ///////////////////   cpp 140
+protected:
+	ExitGames::LoadBalancing::Client* dummy_pClient;
+	PhotonListner_Solaseado* dummy_pListener;
+
+	bool IsChangingRoom = false;
+public:
+
+	// 룸 리스트
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TMap<int, int> ChannelList;
+
+	// 방변경
 	UFUNCTION(BlueprintCallable)
-		void DummyConnectLogin(const FString& username, APawn_Player* dummy);
+		void ChangeRoom(int Number);
+	
+	UFUNCTION(BlueprintCallable)
+		void OpenDummy();
+	
+	UFUNCTION(BlueprintCallable)
+		virtual	void UpdateRoomList(const TMap<int, int>& Channel_Count) override;
+
+	UFUNCTION(BlueprintCallable)
+		void CloseDummy();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ChangeViewCount(const TMap<int, int>& Channel_Count);
+
+////////////////////////////////////////////////채널 끝
+
+
 
 	virtual void updateLocalPlayerPosion() override;
 

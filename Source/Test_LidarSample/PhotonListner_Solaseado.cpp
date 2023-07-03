@@ -46,18 +46,17 @@ void PhotonListner_Solaseado::Connect(const JString& userName, const JString& se
 {
 	m_pClient->setAutoJoinLobby(true);
 	m_pClient->connect(ConnectOptions(AuthenticationValues().setUserID(JString() + GETTIMEMS()), userName, serverAddress));
-	
 }
 
 void PhotonListner_Solaseado::onAvailableRegions(const JVector<JString>& availableRegions, const JVector<JString>& availableRegionServers)
 {
-
 	int size = availableRegions.getSize();
 	for (int i = 0; i < size; i++)
 	{
 		FString str = availableRegions[i].UTF8Representation().cstr();
 	}
-	m_pView->setRegion();
+
+	m_pView->setRegion(m_pClient);
 }
 
 
@@ -98,27 +97,110 @@ void PhotonListner_Solaseado::onRoomPropertiesChange(const Common::Hashtable& ch
 	m_pView->updateRoomProperties(changes);
 }
 
+//채널 뷰 설정 세팅 // channel = 1 ~ 20 // 총 20개의 룸 탐색함수 // RoomMaxSize; 
+void PhotonListner_Solaseado::onRoomListUpdate(void) // Room프로퍼티가 변경될때마다 호출 // ex)방생성, 삭제, 인원수변동
+{
+	TMap<int, int> RoomMap; // channel, PlayerCount;
+
+	// dummy일 경우에만
+	if (b_IsDummy) 
+	{
+		int RoomListSize = m_pClient->getRoomList().getSize(); // 룸배열은 먼저 생성된 순서대로 설정됨
+		for (int i = 0; i < RoomListSize; i++)
+		{
+			FString Channel;
+			FString RoomName = m_pClient->getRoomList()[i]->getName().UTF8Representation().cstr();
+			int Index = RoomName.Len() - sRoomName.Len();
+			while (Index--)
+			{
+				Channel += RoomName[(RoomName.Len() - 1) - Index];				//채널		
+			}
+			int PlayerCount = m_pClient->getRoomList()[i]->getPlayerCount();	//플레이어수 
+			RoomMap.Add(FCString::Atoi(*Channel), PlayerCount);					// 맵에 넣어서
+		}
+		m_pView->UpdateRoomList(RoomMap);										// 액터로 전송
+
+		return;
+	}
+	// 더미가 아닌 메인클라이언트가 첫접속시에
+	if(b_IsFirstConnect) 
+	{
+		b_IsFirstConnect = false;
+		TArray<int> ChannelArray;
+		TArray<int> PlayerCountArray;
+		
+
+		int RoomSize = m_pClient->getRoomList().getSize(); // 룸배열은 먼저 생성된 순서대로 설정됨
+		for (int i = 0; i < RoomSize; i++)
+		{
+			FString Channel;
+			FString RoomName = m_pClient->getRoomList()[i]->getName().UTF8Representation().cstr();
+			int Index = RoomName.Len() - sRoomName.Len();
+			while (Index--)
+			{
+				Channel += RoomName[(RoomName.Len() - 1) - Index];				//채널		
+			}
+			int PlayerCount = m_pClient->getRoomList()[i]->getPlayerCount();	//플레이어수 
+			RoomMap.Add(FCString::Atoi(*Channel), PlayerCount);					// 맵에 넣어서
+		}
+
+	
+		for (int i = 1; i <= RoomMaxSize; i++)									// 룸탐색
+		{
+			if (RoomMap.Contains(i)) // 룸을 찾았다면
+			{
+				//최대 인원수 체크
+				int PlayerCount = *RoomMap.Find(i);
+				if (PlayerCount <= PlayerMaxCount)
+				{
+					sRoomCount = FString::FromInt(i);
+					m_pView->ConnectComplete(); // 방 입장
+					return;
+				}
+			}
+			else//찾지 못했다면 룸이 없음 ->  해당번호 룸입장
+			{
+				sRoomCount = FString::FromInt(i);
+				m_pView->ConnectComplete(); // 방 입장
+				return;
+			}
+		}
+		// 전부다 풀방이라면
+
+		sRoomCount = "Full";
+		m_pView->ConnectComplete();
+		return;
+	}
+	
+
+}
+
 
 // 연결 종료
 void PhotonListner_Solaseado::disconnectReturn(void)
 {
 	m_pView->InitPlayers();
 	m_pView->ErrorCheckMessage("// DisconnectReturn :: ", 99);
+
+	FString UserName = m_pClient->getLocalPlayer().getName().UTF8Representation().cstr();
+	UE_LOG(LogTemp, Log, TEXT("// disconnectReturn UserName : %s"), *UserName);
 }
 
-// 접속 성공 
+// 접속 성공 (로직변경) // connectReturn이 RoomListUpdate보다 빨리 호출해서 방정보 검색 불가능 -> RoomListUpdate로 방검색 후 접속
 void PhotonListner_Solaseado::connectReturn(int errorCode, const Common::JString& errorString, const Common::JString& region, const Common::JString& cluster)
 {
-	if (errorCode == ErrorCode::OK)
+	/*
+	if (errorCode == ErrorCode::OK && !b_IsDummy) // 더미가 아닐경우에만 접속
 	{
-		FString str = m_pClient->getLocalPlayer().getName().UTF8Representation().cstr();
-
 		m_pView->ConnectComplete();
 	}
+	*/
 }
+
+
 void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Common::Hashtable& roomProperties, const Common::Hashtable& playerProperties, int errorCode, const Common::JString& errorString)
 {
-	if (errorCode == ErrorCode::OK)
+	if (errorCode == ErrorCode::OK && !b_IsDummy)
 	{
 		int playersize = playerProperties.getSize();
 		//UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn :: playerProperties.getSize() :: %d"), playersize);
@@ -210,6 +292,12 @@ void PhotonListner_Solaseado::createRoomReturn(int localPlayerNr, const Common::
 
 void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, const Common::Object& eventContentObj)
 {
+	if (b_IsDummy)
+	{
+		return;
+	}
+
+
 	ExitGames::Common::Hashtable eventContent = ExitGames::Common::ValueObject<ExitGames::Common::Hashtable>(eventContentObj).getDataCopy();
 	
 	
@@ -392,15 +480,10 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 // 방 떠나기 성공
 void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JString& errorString)
 {
-	if (errorCode == ErrorCode::OK)
+	if (errorCode == ErrorCode::OK && !b_IsDummy)
 	{
-		m_pView->LeaveRoomComplete();
 		m_pView->InitPlayers();
-	}
-	else
-	{
-		FString str = UTF8_TO_TCHAR(errorString.UTF8Representation().cstr());
-		//UE_LOG(LogTemp, Warning, TEXT("// LeaveRoom Return Error :: %s , %d"), *str, errorCode);
+		m_pView->LeaveRoomComplete();
 	}
 }
 
@@ -578,9 +661,7 @@ void PhotonListner_Solaseado::debugReturn(int debugLevel, const Common::JString&
 {
 	// Console::get().debugReturn(debugLevel, string);
 	FString str = UTF8_TO_TCHAR(string.UTF8Representation().cstr());
-	m_pView->ErrorCheckMessage(str, debugLevel);
-
-	
+	m_pView->ErrorCheckMessage(str, debugLevel);	
 }
 
 
@@ -635,14 +716,17 @@ void PhotonListner_Solaseado::RemoveCharacterInfo()
 //처음 접속하고 데이터를 보내고 방에 접속합니다.
 void PhotonListner_Solaseado::InitJoinOrCreateRoom()
 {
-	//UE_LOG(LogTemp, Log, TEXT("//CustomJoinOrCreateRoom()"));
+	// 룸이름 세팅
+	FString FmyRoom = sRoomName + sRoomCount;
+	ExitGames::Common::JString JmyRoom = TCHAR_TO_UTF8(*FmyRoom);
+	
 	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
 	RemoveCharacterInfo();
-
+	
 	RoomOptions options;
 	options.setMaxPlayers(MaxPlayerRoom);
 	options.setPublishUserID(true);
-	m_pClient->opJoinOrCreateRoom(sRoomName, options);
+	m_pClient->opJoinOrCreateRoom(JmyRoom, options);
 }
 
 
@@ -654,6 +738,14 @@ void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
 	m_pClient->getLocalPlayer().addCustomProperties(mCharacterInfo);
 	////데이터를 보냈으니 새로 채워두기 위해서 비운다.
 	RemoveCharacterInfo();
+}
+
+
+
+//Dummy 세팅
+void PhotonListner_Solaseado::setDummy(bool IsDummy)
+{
+	b_IsDummy = IsDummy;
 }
 
 
