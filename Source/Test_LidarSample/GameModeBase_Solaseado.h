@@ -75,8 +75,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Photon")
 		class AActor_SolaseadoPhoton* PhotonCloud;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widgets")
-		class UWidget_Popup* MyWidget;
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widgets")
+		//class UWidget_Popup* MyWidget;
 
 	class UWidget_Popup* WidgetPopup;
 private:
