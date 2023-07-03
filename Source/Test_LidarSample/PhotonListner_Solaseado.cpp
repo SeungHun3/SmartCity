@@ -181,20 +181,12 @@ void PhotonListner_Solaseado::disconnectReturn(void)
 {
 	m_pView->InitPlayers();
 	m_pView->ErrorCheckMessage("// DisconnectReturn :: ", 99);
-
-	FString UserName = m_pClient->getLocalPlayer().getName().UTF8Representation().cstr();
-	UE_LOG(LogTemp, Log, TEXT("// disconnectReturn UserName : %s"), *UserName);
 }
 
 // 접속 성공 (로직변경) // connectReturn이 RoomListUpdate보다 빨리 호출해서 방정보 검색 불가능 -> RoomListUpdate로 방검색 후 접속
 void PhotonListner_Solaseado::connectReturn(int errorCode, const Common::JString& errorString, const Common::JString& region, const Common::JString& cluster)
 {
-	/*
-	if (errorCode == ErrorCode::OK && !b_IsDummy) // 더미가 아닐경우에만 접속
-	{
-		m_pView->ConnectComplete();
-	}
-	*/
+
 }
 
 
@@ -216,9 +208,6 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 		m_pView->CurrentRoomInfo(Name, Count, Maxcount);
 
 		
-		//FString str = UTF8_TO_TCHAR(p->getName().UTF8Representation().cstr());
-		//UE_LOG(LogTemp, Log, TEXT("// AddPlayer count :: %d, Max Count : %d"), Count, Maxcount);
-
 
 		// FString str = "Ev";
 		// 라이다 이벤트 출력 // 데이터 테이블 quiz Row number

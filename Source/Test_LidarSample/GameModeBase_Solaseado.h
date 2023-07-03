@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "Widget/Widget_Popup.h"
+
 #include "Struct_Customizing.h"
 #include "GameModeBase_Solaseado.generated.h"
 
@@ -76,7 +76,7 @@ public:
 		class AActor_SolaseadoPhoton* PhotonCloud;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widgets")
-		UWidget_Popup* MyWidget;
+		class UWidget_Popup* MyWidget;
 
 	class UWidget_Popup* WidgetPopup;
 private:
