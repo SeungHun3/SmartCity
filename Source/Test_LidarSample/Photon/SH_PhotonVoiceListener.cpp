@@ -181,7 +181,7 @@ void SH_PhotonVoiceListener::update(void)
 		break;
 	}
 	case State::RECEIVED_DATA:
-		mLoadBalancingClient.opLeaveRoom();
+		//mLoadBalancingClient.opLeaveRoom();
 		mState = State::LEAVING;
 		break;
 	case State::LEFT:
@@ -526,7 +526,9 @@ void SH_PhotonVoiceListener::joinRandomRoomReturn(int localPlayerNr, const Commo
 void SH_PhotonVoiceListener::leaveRoomReturn(int errorCode, const Common::JString& errorString)
 {
 	//LoadBalancingListener::leaveRoomReturn(errorCode, errorString);
-	
+	mVoicesCreated = false;
+	mAudioSources.clear();
+	mLocalVoices.clear();
 	if (errorCode)
 	{
 		mState = State::DISCONNECTING;
