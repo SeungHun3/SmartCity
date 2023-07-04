@@ -521,15 +521,21 @@ void SH_PhotonVoiceListener::joinRandomRoomReturn(int localPlayerNr, const Commo
 void SH_PhotonVoiceListener::leaveRoomReturn(int errorCode, const Common::JString& errorString)
 {
 	//LoadBalancingListener::leaveRoomReturn(errorCode, errorString);
-	mVoicesCreated = false;
-	for (unsigned int i = 0; i < mAudioSources.size(); i++)
+	if (mVoicesCreated)
 	{
-		delete mAudioSources[i];
+		mVoicesCreated = false;
+		for (unsigned int i = 0; i < mAudioSources.size(); i++)
+		{
+			delete mAudioSources[i];
+		}
+		mAudioSources.clear();
+		for (unsigned int i = 0; i < mLocalVoices.size(); i++)
+		{
+			mLocalVoices[i]->removeSelf();
+		}
+		mLocalVoices.clear();
 	}
-	for (unsigned int i = 0; i < mLocalVoices.size(); i++)
-	{
-		mLocalVoices[i]->removeSelf();
-	}
+
 
 	mState = State::LEFT;
 	if (IsChanging)
