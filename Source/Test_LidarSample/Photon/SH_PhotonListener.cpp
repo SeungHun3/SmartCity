@@ -113,7 +113,7 @@ void SH_PhotonListener::joinOrCreateRoomReturn(int localPlayerNr, const Common::
 			Hashtable table = p->getCustomProperties();
 			m_pView->AddPlayers(p->getNumber(), p->getName().UTF8Representation().cstr(), local, table);
 		}
-		m_pView->ConnectComplete();
+		//m_pView->ConnectComplete();
 	}
 	else
 	{
@@ -154,7 +154,7 @@ void SH_PhotonListener::createRoomReturn(int localPlayerNr, const Common::Hashta
 			Hashtable table = p->getCustomProperties();
 			m_pView->AddPlayers(p->getNumber(), p->getName().UTF8Representation().cstr(), local, table);
 		}
-		m_pView->ConnectComplete();
+		//m_pView->ConnectComplete();
 	}
 	else
 	{

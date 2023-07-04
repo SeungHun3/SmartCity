@@ -2,7 +2,7 @@
 
 
 #include "Test_LidarSampleGameModeBase.h"
-#include "Actor_Photon.h"
+//#include "Actor_Photon.h"
 #include "Account/AccountManager.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -41,8 +41,8 @@ FLiDARQuizData* ATest_LidarSampleGameModeBase::getLiDARQuiz(const FString& row)
 void ATest_LidarSampleGameModeBase::changeAnim(uint8 anim)
 {
 	// checkf(PhotonClient, TEXT("// GameModeBase :: PhotonClient NULL"));
-	if(PhotonClient)
-		PhotonClient->setPlayerAnimationData(anim);
+	//if(PhotonClient)
+	//	PhotonClient->setPlayerAnimationData(anim);
 }
 
 //// Load Level System

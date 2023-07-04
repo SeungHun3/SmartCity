@@ -16,6 +16,7 @@ enum class enum_PhotonChat : uint8
 	Private, // 귓속말.
 	TEST,
 	Max,
+	World,
 };
 
 
@@ -32,7 +33,7 @@ public:
 	TArray<FString> SubscribeList;
 
 	// 현재 채팅 채널
-	FString targetSubscribe = FString("TEST");
+	FString targetSubscribe;
 
 protected:
 	// Called when the game starts or when spawned
@@ -80,7 +81,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 	// Blueprint Binding Func
 	UFUNCTION(BlueprintImplementableEvent)
-		void Blueprint_ConnectComplete();
+		void Blueprint_ConnectComplete(); // 보이스 스폰액터
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_getMessageEvent(const FString& ChannelName, const FString& Sender, const FString& Message);
 public:
@@ -88,4 +89,6 @@ public:
 
 	ExitGames::Chat::Client* m_pChatClient;
 
+	FString m_RoomName;
+	void Chat_ResetJoinChannel(const FString& FullName);
 };

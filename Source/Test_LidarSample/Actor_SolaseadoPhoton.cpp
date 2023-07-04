@@ -3,6 +3,7 @@
 
 #include "Actor_SolaseadoPhoton.h"
 #include "GameModeBase_Solaseado.h"
+#include "Actor_PhotonChat.h"
 
 #include "Engine/LevelStreaming.h"
 
@@ -122,6 +123,9 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 
 void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 {
+	//포톤 채팅 connect
+	ConnectPhotonCHat(); // 블루프린트 스폰시 photonchat변수담고 // JoinOrCreateComplete 때 방진입
+
 	srand(GETTIMEMS());
 	m_pListener = new PhotonListner_Solaseado(this);
 	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion),
@@ -129,9 +133,7 @@ void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 	m_pListener->SetClient(m_pClient);
 	m_pListener->Connect(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*serverAddress));
 	
-	//메인 클라이언트 접속시도 후 채팅 접속(보이스 접속)
-	ConnectPhotonCHat();
-
+	
 	//더미생성만
 	dummy_pListener = new PhotonListner_Solaseado(this);
 	dummy_pClient = new ExitGames::LoadBalancing::Client(*dummy_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion),
@@ -609,6 +611,7 @@ void AActor_SolaseadoPhoton::GetPlayerAnim(int playerNr, int Anim)
 void AActor_SolaseadoPhoton::ConnectComplete(void)
 {
 	//UE_LOG(LogTemp, Log, TEXT("// ConnectComplete "));
+	
 	InitPlayerData_Implementation();
 }
 
@@ -619,7 +622,7 @@ void AActor_SolaseadoPhoton::CreateChannelComplete(const ExitGames::Common::JStr
 
 void AActor_SolaseadoPhoton::CreateRoomComplete(const ExitGames::Common::JString& map)
 {
-	ConnectPhotonCHat();
+	
 }
 
 void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel)
@@ -628,7 +631,7 @@ void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& 
 }
 
 // 룸에 들어왔을때 호출
-void AActor_SolaseadoPhoton::JoinOrCreateComplete() 
+void AActor_SolaseadoPhoton::JoinOrCreateComplete(const FString& RoomFullName)
 {
 	//UE_LOG(LogTemp, Log, TEXT("// JoinOrCreateComplete :: "));
 	// #include "Actor_RosActor.h"	
@@ -636,7 +639,12 @@ void AActor_SolaseadoPhoton::JoinOrCreateComplete()
 	//ConnectRosActor();
 
 
-	//ConnectPhotonCHat();
+
+	if (PhotonChat) // 방에 완전히 진입했을때 채팅방 세팅
+	{
+		// 접속시키고나서 메인클라우드가 접속이 완료되면 룸번호를 얻고 채팅서버에 subscripe으로 넘겨주기
+		PhotonChat->Chat_ResetJoinChannel(RoomFullName);
+	}
 
 	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode()); // moveLevel_ SimPoly1, Fade
 	GM_Solaseado->MoveLevel(enum_Level::SimPoly1, true);

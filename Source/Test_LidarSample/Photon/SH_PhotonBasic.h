@@ -28,7 +28,7 @@ public:
 	virtual void CreateChannelComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel) {}
 	virtual void CreateRoomComplete(const ExitGames::Common::JString& map) {}
 	virtual void JoinRoomComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel) {}
-	virtual void JoinOrCreateComplete() {}
+	virtual void JoinOrCreateComplete(const FString& RoomFullName) {}
 
 	virtual void LeaveRoomComplete(void) {}
 	virtual void CurrentRoomInfo(const ExitGames::Common::JString& Name, nByte Count, nByte MaxCount) {}

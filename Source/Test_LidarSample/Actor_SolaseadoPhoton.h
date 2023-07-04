@@ -184,7 +184,7 @@ public:
 	virtual void CreateChannelComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel) override;
 	virtual void CreateRoomComplete(const ExitGames::Common::JString& map) override;
 	virtual void JoinRoomComplete(const ExitGames::Common::JString& map, const ExitGames::Common::JString& channel) override;
-	virtual void JoinOrCreateComplete() override;
+	virtual void JoinOrCreateComplete(const FString& RoomFullName) override;
 
 	virtual void LeaveRoomComplete(void) override;
 	virtual void CurrentRoomInfo(const ExitGames::Common::JString& name, nByte Count, nByte MaxCount) override;
@@ -258,9 +258,10 @@ protected:
 
 	bool IsChangingRoom = false;
 public:
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class AActor_PhotonChat* PhotonChat;
 	// 룸 리스트
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TMap<int, int> ChannelList;
 
 	// 방변경

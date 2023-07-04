@@ -4,7 +4,7 @@
 #include "Actor_PhotonChat.h"
 
 #define CHAT_AppID "bd96a445-11ab-4bc6-bb45-71b681b17273"
-
+#define WorldChannel "World"
 using namespace ExitGames;
 
 // Sets default values
@@ -72,24 +72,31 @@ void AActor_PhotonChat::AddSubscribeEvent(TArray<FString> sub)
 		Subscribechannels.addElement(TCHAR_TO_UTF8(*Subscribe));
 	}
 	m_pChatClient->opSubscribe(Subscribechannels);
+	
 }
 // 일반 메세지 
 void AActor_PhotonChat::SendMessageEvent(const FString& Message)
 {
 	// Channel Name;
 	// 구독 채널 리스트 관리 후 타겟 채널(targetSubscribe)에 메세지 보내기
-	m_pChatClient->opPublishMessage(TCHAR_TO_UTF8(*targetSubscribe), TCHAR_TO_UTF8(*Message));
+	
+	m_pChatClient->opPublishMessage(TCHAR_TO_UTF8(*targetSubscribe)  , TCHAR_TO_UTF8(*Message));
 }
 // 귓속말 
 void AActor_PhotonChat::SendPrivateMessage(const FString& username, const FString& message)
 {
 	m_pChatClient->opSendPrivateMessage(TCHAR_TO_UTF8(*username), TCHAR_TO_UTF8(*message));
 }
-// 채팅 채널 변경 
+// 채팅 타겟 변경  // 룸 -> 월드 or 귓말 
 void AActor_PhotonChat::setTargetSubscribe(enum_PhotonChat target)
 {
-	targetSubscribe = FString::Printf(TEXT("Channel_%d"), (int)target);
-
+	if (target == enum_PhotonChat::World)
+	{
+		targetSubscribe = WorldChannel;
+	}
+	else {
+		targetSubscribe = m_RoomName + "_" + FString::FromInt((int)target);
+	}
 	// 변경에 따른 UI 수정
 	// ChangeTargetSubscribe(target);
 }
@@ -98,22 +105,11 @@ void AActor_PhotonChat::setTargetSubscribe(enum_PhotonChat target)
 // Basic Class override / Binding Event 
 void AActor_PhotonChat::Chat_ConnectComplete(void)
 {
-	// 기본 채널 구독하기 
-	// Test 목록 :: enum_PhotonChat
-	// Test Channel name :: Channel_(enum_PhotonChat)
-
-	TArray<FString> ChannelList;
-	for (int i = 0; i < (int)enum_PhotonChat::Max; i++)
-	{
-		ChannelList.Add(FString::Printf(TEXT("Channel_%d"), i));
-	}
-	AddSubscribeEvent(ChannelList);
-
-	// 디폴트 채널 설정
-	targetSubscribe = FString::Printf(TEXT("Channel_%d"), (int)enum_PhotonChat::Public);
 	
 	// Blueprint
-	Blueprint_ConnectComplete();
+	Blueprint_ConnectComplete(); // 보이스채팅 스폰액터
+	
+	
 }
 // 구독자 추가 
 void AActor_PhotonChat::Chat_AddSubscribe(const FString& Channel)
@@ -124,6 +120,39 @@ void AActor_PhotonChat::Chat_AddSubscribe(const FString& Channel)
 void AActor_PhotonChat::Chat_RemoveSubscribe(const FString& Channel)
 {
 	SubscribeList.Remove(Channel);
+}
+
+// 채널 접속
+void AActor_PhotonChat::Chat_ResetJoinChannel(const FString& FullName)
+{// 클라이언트 룸이 있다면 전부 지우고 새로 생성
+
+	//기존리스트 가지고 있다면 삭제 후 초기화
+	if (SubscribeList.IsValidIndex(0))
+	{
+		Common::JVector<Common::JString> Subscribechannels;
+		for (auto it : SubscribeList)
+		{
+			Subscribechannels.addElement(TCHAR_TO_UTF8(*it));
+		}
+		m_pChatClient->opUnsubscribe(Subscribechannels);
+	}
+	SubscribeList.Reset();
+
+
+	m_RoomName = FullName;
+
+	for (int i = 0; i < (int)enum_PhotonChat::Max; i++)
+	{
+		FString ChannelName = m_RoomName + "_" + FString::FromInt(i); // 일반, 귓속말 ...
+		SubscribeList.Add(ChannelName);
+	}
+	FString WorldName = WorldChannel;
+	SubscribeList.Add(WorldName);
+	AddSubscribeEvent(SubscribeList);
+
+	// 디폴트 채널 설정
+	setTargetSubscribe(enum_PhotonChat::Public);
+
 }
 // 메세지 출력 
 void AActor_PhotonChat::Chat_getMessageEvent(const FString& ChannelName, const FString& sender, const FString& Message)

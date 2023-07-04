@@ -31,8 +31,8 @@ class TEST_LIDARSAMPLE_API ATest_LidarSampleGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite)
-		class AActor_Photon* PhotonClient;
+	//UPROPERTY(BlueprintReadWrite)
+	//	class AActor_Photon* PhotonClient;
 
 protected:
 	ATest_LidarSampleGameModeBase();

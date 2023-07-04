@@ -186,7 +186,7 @@ void PhotonListner_Solaseado::disconnectReturn(void)
 // 접속 성공 (로직변경) // connectReturn이 RoomListUpdate보다 빨리 호출해서 방정보 검색 불가능 -> RoomListUpdate로 방검색 후 접속
 void PhotonListner_Solaseado::connectReturn(int errorCode, const Common::JString& errorString, const Common::JString& region, const Common::JString& cluster)
 {
-
+	//onRoomListUpdate -> connectComplete(Channel)
 }
 
 
@@ -197,15 +197,15 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 		int playersize = playerProperties.getSize();
 		//UE_LOG(LogTemp, Log, TEXT("// joinOrCreateRoomReturn :: playerProperties.getSize() :: %d"), playersize);
 
-		// this->LocalPlayerNr = localPlayerNr;
+		//this->LocalPlayerNr = localPlayerNr;
 		MutableRoom& myRoom = m_pClient->getCurrentlyJoinedRoom();
 		Hashtable props = myRoom.getCustomProperties();
 
 		// 접속중인 방 기본 정보
-		JString Name = myRoom.getName();
+		JString CurRoomName = myRoom.getName();
 		nByte Count = myRoom.getPlayerCount();
 		nByte Maxcount = myRoom.getMaxPlayers();
-		m_pView->CurrentRoomInfo(Name, Count, Maxcount);
+		m_pView->CurrentRoomInfo(CurRoomName, Count, Maxcount);
 
 		
 
@@ -225,7 +225,10 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 			Hashtable table = p->getCustomProperties();
 			m_pView->AddPlayers(p->getNumber(), p->getName().UTF8Representation().cstr(), local, table);
 		}
-		m_pView->JoinOrCreateComplete();
+
+
+		FString FRoomName = CurRoomName.UTF8Representation().cstr();
+		m_pView->JoinOrCreateComplete(FRoomName);
 	}
 	else
 	{
@@ -269,8 +272,9 @@ void PhotonListner_Solaseado::createRoomReturn(int localPlayerNr, const Common::
 			// 외형 정보
 			Hashtable table = p->getCustomProperties();
 			m_pView->AddPlayers(p->getNumber(), p->getName().UTF8Representation().cstr(), local, table);
-		}
-		m_pView->JoinOrCreateComplete();
+		}	
+		FString RoomNumber = Name.UTF8Representation().cstr();
+		m_pView->JoinOrCreateComplete(RoomNumber);
 	}
 	else
 	{
