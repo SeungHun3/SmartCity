@@ -4,6 +4,7 @@
 #include "Actor_SolaseadoPhoton.h"
 #include "GameModeBase_Solaseado.h"
 #include "Actor_PhotonChat.h"
+#include "Actor_PhotonVoice.h"
 
 #include "Engine/LevelStreaming.h"
 
@@ -123,9 +124,6 @@ void AActor_SolaseadoPhoton::Tick(float DeltaTime)
 
 void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 {
-	//포톤 채팅 connect
-	ConnectPhotonCHat(); // 블루프린트 스폰시 photonchat변수담고 // JoinOrCreateComplete 때 방진입
-
 	srand(GETTIMEMS());
 	m_pListener = new PhotonListner_Solaseado(this);
 	m_pClient = new ExitGames::LoadBalancing::Client(*m_pListener, TCHAR_TO_UTF8(*AppID), TCHAR_TO_UTF8(*appVersion),
@@ -145,11 +143,13 @@ void AActor_SolaseadoPhoton::ConnectLogin(const FString& username)
 
 void AActor_SolaseadoPhoton::ChangeRoom(int Number)
 {
+	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode());
 	if (!IsChangingRoom)
 	{
-		IsChangingRoom = true; //  == > JoinOrCreateComplete  에서 룸접속 후 false로 바꿈 // 중복클릭 방지
+		GM_Solaseado->PhotonVoice->setIschanging(true); // 보이스 바꾸기
+		IsChangingRoom = true; //  == > JoinOrCreateComplete  될때 false로 바꿈 // 중복클릭 방지
 		m_pListener->ChangeRoomNumber(Number);
-		m_pClient->opLeaveRoom(); // ==> LeaveRoomComplete
+		m_pClient->opLeaveRoom(); // ==> LeaveRoomComplete		
 	}
 }
 
@@ -638,15 +638,12 @@ void AActor_SolaseadoPhoton::JoinOrCreateComplete(const FString& RoomFullName)
 	// 헤더 연결 오류 처리 // Blueprint Spawn 변경 
 	//ConnectRosActor();
 
-
-
-	if (PhotonChat) // 방에 완전히 진입했을때 채팅방 세팅
-	{
-		// 접속시키고나서 메인클라우드가 접속이 완료되면 룸번호를 얻고 채팅서버에 subscripe으로 넘겨주기
-		PhotonChat->Chat_ResetJoinChannel(RoomFullName);
-	}
-
 	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode()); // moveLevel_ SimPoly1, Fade
+
+
+	GM_Solaseado->PhotonChat->Chat_ResetJoinChannel(RoomFullName);
+	GM_Solaseado->PhotonVoice->Voice_ChangeOrJoinRoom(RoomFullName);
+	
 	GM_Solaseado->MoveLevel(enum_Level::SimPoly1, true);
 	IsChangingRoom = false;
 }

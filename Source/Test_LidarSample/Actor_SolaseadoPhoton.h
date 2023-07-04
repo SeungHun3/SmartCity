@@ -258,8 +258,7 @@ protected:
 
 	bool IsChangingRoom = false;
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class AActor_PhotonChat* PhotonChat;
+	
 	// ·ë ¸®½ºÆ®
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TMap<int, int> ChannelList;

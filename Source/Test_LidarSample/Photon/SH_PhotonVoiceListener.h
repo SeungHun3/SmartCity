@@ -82,7 +82,7 @@ private:
 	};
 	State::States mState;
 
-	ExitGames::LoadBalancing::Client mLoadBalancingClient;
+	
 	ExitGames::Common::Logger mLogger;
 
 	int64 mSendCount;
@@ -105,7 +105,16 @@ private:
 	SH_PhotonVoiceBasic* mBasic;
 
 public:
+	ExitGames::LoadBalancing::Client mLoadBalancingClient;
+	void JoinRoom();
+	void SetRoomName(const FString& FullName) { v_RoomName = TCHAR_TO_UTF8(*FullName); }
 	//id와 플레이어 넘버를 저장한다.
 	ExitGames::Common::Hashtable mCharacterInfo;
 	bool isconnected = false;
+	bool IsChanging = false;
+
+private:
+	ExitGames::Common::JString v_RoomName;
+
+	
 };

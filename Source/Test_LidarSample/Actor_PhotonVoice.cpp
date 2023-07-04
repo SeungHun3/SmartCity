@@ -142,6 +142,29 @@ uint8 AActor_PhotonVoice::GetInMikeVolume()
 	return 0;
 }
 
+bool AActor_PhotonVoice::getIsChanging()
+{
+	return mpPhotonLib->IsChanging;
+}
+
+void AActor_PhotonVoice::setIschanging(bool Change)
+{
+	mpPhotonLib->IsChanging = Change;
+}
+
+void AActor_PhotonVoice::Voice_ChangeOrJoinRoom(const FString& RoomFullName)
+{
+	mpPhotonLib->SetRoomName(RoomFullName);
+	if (getIsChanging()) // change중이라면 leaveRoom
+	{
+		mpPhotonLib->mLoadBalancingClient.opLeaveRoom();
+	}
+	else
+	{
+		mpPhotonLib->JoinRoom();
+	}
+}
+
 
 
 

@@ -78,7 +78,7 @@ private:
 
 	void PostEditChangeProperty(struct FPropertyChangedEvent& e);
 
-	class SH_PhotonVoiceListener* mpPhotonLib;
+	
 	class AActor_PhotonAudioIn* mPhotonAudioIn;
 	TArray<class AActor_PhotonAudioOut*> mPhotonAudioOut;
 
@@ -102,4 +102,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	uint8 GetInMikeVolume();
+
+	class SH_PhotonVoiceListener* mpPhotonLib;
+	bool getIsChanging();
+	void setIschanging(bool Change);
+	void Voice_ChangeOrJoinRoom(const FString& RoomFullName);
+
 };

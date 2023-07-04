@@ -28,7 +28,6 @@ using namespace ExitGames::Voice::AudioUtil;
 static const bool DIRECT = false; // send audio peer to peer (debug echo mode is not supported)
 static const bool DEBUG_ECHO_MODE_INIT = false; // initial state of local voice debug echo mode (streaming back to client via server)
 
-static Common::JString gameName = L"Test_VoiceBasics";
 
 static const int MAX_SENDCOUNT = 100;
 
@@ -91,6 +90,20 @@ void SH_PhotonVoiceListener::remoteVoiceInfoCallback(int channelId, int playerId
 	options.setOutput(out->getPlayer(), frameDataCallback);
 }
 
+void SH_PhotonVoiceListener::JoinRoom()
+{
+	RoomOptions opt;
+	if (DIRECT)
+		opt.setDirectMode(DirectMode::ALL_TO_ALL);
+	opt.setPublishUserID(true);
+	opt.setMaxPlayers(0);
+
+
+	mLoadBalancingClient.opJoinOrCreateRoom(v_RoomName, opt);
+	mState = State::JOINING;
+	
+}
+
 // Client(LoadBalancing::Listener& listener, const Common::JString& applicationID, const Common::JString& appVersion, const ClientConstructOptions& clientConstructOptions=ClientConstructOptions());
 SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Common::JString const& appVersion, IAudioInFactory* audioInFactory, IAudioOutFactory* audioOutFactory, SH_PhotonVoiceBasic* PhotonVoiceBasic)
 #ifdef _EG_MS_COMPILER
@@ -98,13 +111,14 @@ SH_PhotonVoiceListener::SH_PhotonVoiceListener(Common::JString const& appID, Com
 #	pragma warning(disable:4355)
 #endif
 	: mState(State::INITIALIZED)
-	, mLoadBalancingClient(*this, appID, appVersion) //  ConnectionProtocol::UDP, true, RegionSelectionMode::SELECT
 	, mSendCount(0)
 	, mReceiveCount(0)
 	, mVoicesCreated(false)
 	, mpAudioInFactory(audioInFactory)
 	, mpAudioOutFactory(audioOutFactory)
 	, mBasic(PhotonVoiceBasic)
+	, mLoadBalancingClient(*this, appID, appVersion) //  ConnectionProtocol::UDP, true, RegionSelectionMode::SELECT
+
 #ifdef _EG_MS_COMPILER
 #	pragma warning(pop)
 #endif
@@ -157,15 +171,7 @@ void SH_PhotonVoiceListener::update(void)
 		break;
 	case State::CONNECTED:
 	{
-		RoomOptions opt;
-		if (DIRECT)
-			opt.setDirectMode(DirectMode::ALL_TO_ALL);
-		opt.setPublishUserID(true);
-		opt.setMaxPlayers(0);
-
-
-		mLoadBalancingClient.opJoinOrCreateRoom(gameName, opt);
-		mState = State::JOINING;
+		
 	}
 	break;
 	case State::JOINED:
@@ -179,8 +185,6 @@ void SH_PhotonVoiceListener::update(void)
 		mState = State::LEAVING;
 		break;
 	case State::LEFT:
-		mLoadBalancingClient.disconnect();
-		mState = State::DISCONNECTING;
 		isconnected = false;
 		break;
 	case State::DISCONNECTED:
@@ -435,32 +439,27 @@ void SH_PhotonVoiceListener::createRoomReturn(int localPlayerNr, const Common::H
 	}
 
 	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been created");
-	//Console::get().writeLine(L"regularly sending dummy events now");
 	mState = State::JOINED;
+	isconnected = true;
 }
 
 void SH_PhotonVoiceListener::joinOrCreateRoomReturn(int localPlayerNr, const Common::Hashtable& gameProperties, const Common::Hashtable& playerProperties, int errorCode, const Common::JString& errorString)
 {
-	LoadBalancingListener::joinOrCreateRoomReturn(localPlayerNr, gameProperties, playerProperties, errorCode, errorString);
+	//LoadBalancingListener::joinOrCreateRoomReturn(localPlayerNr, gameProperties, playerProperties, errorCode, errorString);
+	
+	FString RoomName = mLoadBalancingClient.getCurrentlyJoinedRoom().getName().UTF8Representation().cstr();
+	UE_LOG(LogTemp, Log, TEXT("//joinOrCreateRoomReturn RoomName %s"), *RoomName);
 
-	EGLOG(Common::DebugLevel::INFO, L"");
+	
 	if (errorCode)
 	{
-		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		//Console::get().writeLine(L"opJoinOrCreateRoom() failed: " + errorString);
 		mState = State::CONNECTED;
 		return;
 	}
-
-	EGLOG(Common::DebugLevel::INFO, L"localPlayerNr: %d", localPlayerNr);
-	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been entered");
-	//Console::get().writeLine(L"regularly sending dummy events now"); //Console::get().writeLine
-
 	UE_LOG(LogTemp, Log, TEXT("//joinOrCreateRoomReturn// voicde id :: %d"), localPlayerNr);
 
 	mState = State::JOINED;
-
+	IsChanging = false;
 }
 
 void SH_PhotonVoiceListener::joinRandomOrCreateRoomReturn(int localPlayerNr, const Common::Hashtable& gameProperties, const Common::Hashtable& playerProperties, int errorCode, const Common::JString& errorString)
@@ -480,6 +479,7 @@ void SH_PhotonVoiceListener::joinRandomOrCreateRoomReturn(int localPlayerNr, con
 	//Console::get().writeLine(L"... room " + mLoadBalancingClient.getCurrentlyJoinedRoom().getName() + " has been entered");
 	//Console::get().writeLine(L"regularly sending dummy events now");
 	mState = State::JOINED;
+
 }
 
 
@@ -525,18 +525,19 @@ void SH_PhotonVoiceListener::joinRandomRoomReturn(int localPlayerNr, const Commo
 
 void SH_PhotonVoiceListener::leaveRoomReturn(int errorCode, const Common::JString& errorString)
 {
-	LoadBalancingListener::leaveRoomReturn(errorCode, errorString);
-
-	EGLOG(Common::DebugLevel::INFO, L"");
+	//LoadBalancingListener::leaveRoomReturn(errorCode, errorString);
+	
 	if (errorCode)
 	{
-		EGLOG(Common::DebugLevel::ERRORS, L"%ls", errorString.cstr());
-		//Console::get().writeLine(L"opLeaveRoom() failed: " + errorString);
 		mState = State::DISCONNECTING;
 		return;
 	}
 	mState = State::LEFT;
-	//Console::get().writeLine(L"room has been successfully left");
+	if (IsChanging)
+	{
+		JoinRoom();
+	}
+
 }
 
 void SH_PhotonVoiceListener::joinLobbyReturn(void)
