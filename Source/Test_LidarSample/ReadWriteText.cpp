@@ -16,14 +16,14 @@ bool UReadWriteText::LoadLocalTxt(FString FileName, TArray<FString>& LoadSoundAr
 	{
 		//파싱
 		FileContent.ParseIntoArray(LoadSoundArray, TEXT(","), true);
-		UE_LOG(LogTemp, Warning, TEXT("File loaded successfully: %s"), *FilePath);
+		//UE_LOG(LogTemp, Warning, TEXT("File loaded successfully: %s"), *FilePath);
 		
 		return true;
 	}
 	else 
 	{
 		// 파일 읽기 실패
-		UE_LOG(LogTemp, Error, TEXT("Failed to load file: %s"), *FilePath);
+		//UE_LOG(LogTemp, Error, TEXT("Failed to load file: %s"), *FilePath);
 		return false;
 	}
 }
@@ -36,12 +36,12 @@ bool UReadWriteText::SaveLocalTxt(TArray<FString> SaveSoundArray, FString FileNa
 	// 텍스트 파일로 저장
 	if (FFileHelper::SaveStringToFile(OutPutString, *(FPaths::ProjectDir() + FileName)))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("File Save Success: %s"), *FileName);
+		//UE_LOG(LogTemp, Warning, TEXT("File Save Success: %s"), *FileName);
 		return true;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("File Save Fail: %s"), *FileName);
+		//UE_LOG(LogTemp, Error, TEXT("File Save Fail: %s"), *FileName);
 		return false;
 	}
 }
