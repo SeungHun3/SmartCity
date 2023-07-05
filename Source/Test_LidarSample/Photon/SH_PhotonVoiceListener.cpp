@@ -445,11 +445,6 @@ void SH_PhotonVoiceListener::createRoomReturn(int localPlayerNr, const Common::H
 
 void SH_PhotonVoiceListener::joinOrCreateRoomReturn(int localPlayerNr, const Common::Hashtable& gameProperties, const Common::Hashtable& playerProperties, int errorCode, const Common::JString& errorString)
 {
-	//LoadBalancingListener::joinOrCreateRoomReturn(localPlayerNr, gameProperties, playerProperties, errorCode, errorString);
-	
-	FString RoomName = mLoadBalancingClient.getCurrentlyJoinedRoom().getName().UTF8Representation().cstr();
-	UE_LOG(LogTemp, Log, TEXT("//joinOrCreateRoomReturn RoomName %s"), *RoomName);
-
 	
 	if (errorCode)
 	{
@@ -526,20 +521,33 @@ void SH_PhotonVoiceListener::joinRandomRoomReturn(int localPlayerNr, const Commo
 void SH_PhotonVoiceListener::leaveRoomReturn(int errorCode, const Common::JString& errorString)
 {
 	//LoadBalancingListener::leaveRoomReturn(errorCode, errorString);
-	mVoicesCreated = false;
-	mAudioSources.clear();
-	mLocalVoices.clear();
-	if (errorCode)
+	if (mVoicesCreated)
 	{
-		mState = State::DISCONNECTING;
-		return;
+		mVoicesCreated = false;
+		for (unsigned int i = 0; i < mAudioSources.size(); i++)
+		{
+			delete mAudioSources[i];
+		}
+		mAudioSources.clear();
+		for (unsigned int i = 0; i < mLocalVoices.size(); i++)
+		{
+			mLocalVoices[i]->removeSelf();
+		}
+		mLocalVoices.clear();
 	}
+
+
 	mState = State::LEFT;
 	if (IsChanging)
 	{
 		JoinRoom();
+		return;
 	}
-
+	else if (errorCode)
+	{
+		mState = State::DISCONNECTING;
+		return;
+	}
 }
 
 void SH_PhotonVoiceListener::joinLobbyReturn(void)
