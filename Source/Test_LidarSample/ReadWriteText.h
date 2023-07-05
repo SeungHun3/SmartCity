@@ -16,7 +16,7 @@ enum class enum_Sound : uint8
 	Bgm,
 	Effect,
 	Voice,
-	Max,
+	//Max,
 };
 
 UCLASS()
