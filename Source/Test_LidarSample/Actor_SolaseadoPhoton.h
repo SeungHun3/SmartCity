@@ -279,6 +279,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ChangeViewCount(const TMap<int, int>& Channel_Count);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		int GetMyChannelNumber();
+
 ////////////////////////////////////////////////Ã¤³Î ³¡
 
 
