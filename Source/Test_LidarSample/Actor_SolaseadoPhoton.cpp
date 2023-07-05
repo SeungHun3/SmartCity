@@ -166,7 +166,19 @@ void AActor_SolaseadoPhoton::OpenDummy()
 void AActor_SolaseadoPhoton::UpdateRoomList(const TMap<int, int>& Channel_Count)
 {
 	ChannelList = Channel_Count;
-	ChangeViewCount(Channel_Count);
+
+	TArray<FString> PlayerNames;
+
+
+	ExitGames::Common::JVector<ExitGames::LoadBalancing::Player*> Players = m_pClient->getCurrentlyJoinedRoom().getPlayers();
+	for (int i = 0; i < (int)Players.getSize(); i++)
+	{
+		FString PlayerName = Players[i]->getName().UTF8Representation().cstr();
+		PlayerNames.Add(PlayerName);
+	}
+
+	ChangeViewCount(Channel_Count,PlayerNames);
+	
 }
 
 void AActor_SolaseadoPhoton::CloseDummy()

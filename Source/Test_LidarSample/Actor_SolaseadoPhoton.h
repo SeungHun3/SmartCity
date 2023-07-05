@@ -277,7 +277,7 @@ public:
 		void CloseDummy();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void ChangeViewCount(const TMap<int, int>& Channel_Count);
+		void ChangeViewCount(const TMap<int, int>& Channel_Count ,const TArray<FString>& PlayerNames);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		int GetMyChannelNumber();
