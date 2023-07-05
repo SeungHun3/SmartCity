@@ -29,6 +29,8 @@ public:
 		void setItemTexture();
 	UFUNCTION(BlueprintCallable)
 		void setPopupSlotImage();
+	UFUNCTION(BlueprintCallable)
+		void setButtonEnabled();
 
 	UPROPERTY(EditAnywhere)
 		bool bIsClikedNo;
