@@ -760,6 +760,11 @@ void AActor_SolaseadoPhoton::SendPlayerInfo()
 }
 
 
+int AActor_SolaseadoPhoton::GetMyChannelNumber()
+{
+	return m_pListener->getRoomCount();
+}
+
 //로컬 플레이어 위치 갱신
 void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 {

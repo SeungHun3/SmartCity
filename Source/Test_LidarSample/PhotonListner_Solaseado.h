@@ -128,6 +128,7 @@ protected:
 
 public:
 	void ChangeRoomNumber(int Number) { sRoomCount = FString::FromInt(Number); }
+	int getRoomCount() { return FCString::Atoi(*sRoomCount); }
 
 ///////////////////////더미여부 판단
 protected:
