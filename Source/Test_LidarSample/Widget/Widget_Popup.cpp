@@ -123,3 +123,10 @@ void UWidget_Popup::setPopupSlotImage()
 	Overlay_Image->SetVisibility(ESlateVisibility::Visible);
 	setItemTexture();
 }
+
+void UWidget_Popup::setButtonEnabled()
+{
+	Button_Confirm->SetIsEnabled(true);
+	Button_NO->SetIsEnabled(true);
+	Button_Yes->SetIsEnabled(true);
+}
