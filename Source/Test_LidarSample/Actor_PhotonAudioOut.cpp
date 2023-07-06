@@ -77,6 +77,7 @@ UProcedural::UProcedural(const FObjectInitializer& ObjectInitializer)
 	: USoundWaveProcedural(ObjectInitializer)
 	, mReadPos(0)
 {
+	VirtualizationMode = EVirtualizationMode::PlayWhenSilent;
 }
 
 void UProcedural::init(int bufSize)
