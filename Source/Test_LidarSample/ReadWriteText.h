@@ -27,8 +27,8 @@ class TEST_LIDARSAMPLE_API UReadWriteText : public UBlueprintFunctionLibrary
 public:
 	//파일 로드
 	UFUNCTION(BlueprintCallable, Category = "TxtSave", meta = (Keywords = "LoadLocal"))
-		static bool LoadLocalTxt(FString FileName, TArray<FString>& LoadSoundArray);
+		static bool LoadLocalTxt(FString FileName, TArray<FString>& LoadSoundArray, TArray<FString>& LoadMuteArray);
 	//파일 저장
 	UFUNCTION(BlueprintCallable, Category = "TxtSave", meta = (Keywords = "SaveLocal"))
-		static bool SaveLocalTxt(TArray<FString> SaveSoundArray, FString FileName);
+		static bool SaveLocalTxt(TArray<FString> SaveSoundArray, TArray<FString> SaveMuteArray, FString FileName);
 };
