@@ -284,6 +284,25 @@ public:
 
 ////////////////////////////////////////////////채널 끝
 
+	
+////////////////////////////////////////////////
+////이동로직////////////////////////////////////////
+	UFUNCTION(BlueprintCallable)
+		void PhotonMove(bool IsForward, FRotator rot, float axis);
+	UFUNCTION(BlueprintCallable)
+		void PhotonStop(bool IsForward);
+	UFUNCTION(BlueprintCallable)
+		void PhotonFinish(FVector Loc);
+	
+	virtual void UpdateForward(int PlayerNum, FRotator rot, float Axis) override;
+	virtual void UpdateRight(int PlayerNum, FRotator rot, float Axis) override;
+	virtual void UpdateStop(int PlayerNum, bool IsForward) override;
+	virtual void UpdateStopFinished(int PlayerNum, FVector Loc) override;
+
+
+
+
+////////////////////////////////////////////////이동 끝
 
 
 	virtual void updateLocalPlayerPosion() override;

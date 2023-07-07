@@ -294,18 +294,18 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	ExitGames::Common::Hashtable eventContent = ExitGames::Common::ValueObject<ExitGames::Common::Hashtable>(eventContentObj).getDataCopy();
 	
 	
-	//지연테스트를 할 때 쓴다.
-	//UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,TimeDelay : %d ,eventCode : %d"), playerNr, m_pClient->getLocalPlayer().getNumber(), GETTIMEMS() %10000, eventCode);
-	
-
 	Object const* obj = eventContent.getValue("1");
 	if (!obj)	obj = eventContent.getValue((nByte)1);
 	if (!obj)	obj = eventContent.getValue(1);
 	if (!obj)	obj = eventContent.getValue(1.0);
 
+	if (!obj)
+	{
+		return;
+	}
 	if (eventCode == 1) // Chat , World Message 
 	{
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			JString* data = ((ValueObject<JString*>*)obj)->getDataCopy();
 			JString Message = data[0];
@@ -318,7 +318,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	else if (eventCode == 6) // vector3 위치 데이터
 	{
 		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
 			
@@ -335,7 +335,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	}
 	else if (eventCode == 7)
 	{
-		if (obj && obj->getDimensions() == 1) // float 캐릭터 회전 데이터
+		if (obj->getDimensions() == 1) // float 캐릭터 회전 데이터
 		{
 			if (obj->getType() == TypeCode::EG_FLOAT)
 			{
@@ -350,7 +350,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	}
 	else if (eventCode == 8)
 	{
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
 
@@ -366,7 +366,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	}
 	else if (eventCode == 11)
 	{
-		if (obj && obj->getDimensions() == 1) // 이벤트 일시정지
+		if (obj->getDimensions() == 1) // 이벤트 일시정지
 		{
 			if (obj->getType() == TypeCode::BOOLEAN)
 			{
@@ -380,7 +380,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	//애님값
 	else if (eventCode == 15)
 	{
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			if (obj->getType() == TypeCode::INTEGER)
 			{
@@ -397,7 +397,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	else if (eventCode == 16)
 	{
 		//입력받은 커맨드와 보간을 위환 좌표값
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			if (obj->getType() == TypeCode::EG_FLOAT)
 			{
@@ -413,7 +413,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	//플레이어 이동
 	else if (eventCode == 17)
 	{
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			if (obj->getType() == TypeCode::INTEGER)
 			{
@@ -430,7 +430,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	//테스트 지연 샘플링(테스트 로그 출력용)
 	else if (eventCode == 18)
 	{
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			if (obj->getType() == TypeCode::INTEGER)
 			{
@@ -454,7 +454,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	else if (eventCode == 20)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
-		if (obj && obj->getDimensions() == 1)
+		if (obj->getDimensions() == 1)
 		{
 			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
 
@@ -465,6 +465,65 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			
 			//UE_LOG(LogTemp, Log, TEXT("// GetMovePlayerAndTime RTT :: %d, eventCode == 20 "), (nowTime > Delay) ? nowTime - Delay : (10000 - Delay) + nowTime);
 			m_pView->GetMovePlayerAndTime(playerNr, vX, vY, (nowTime> Delay)? nowTime - Delay : (10000-Delay)+ nowTime);
+			return;
+		}
+	}
+	//MoveForward
+	else if (eventCode == 50)
+	{
+		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
+		if (obj->getDimensions() == 1)
+		{
+			float* data = ((ValueObject<float*>*)obj)->getDataCopy();
+			FRotator PlayerRot;
+			PlayerRot.Roll = data[0];
+			PlayerRot.Pitch = data[1];
+			PlayerRot.Yaw = data[2];
+			float MyAxis = data[3];
+			
+			m_pView->UpdateForward(playerNr,PlayerRot, MyAxis);
+			return;
+		}
+	}
+	//MoveRight
+	else if (eventCode == 51)
+	{
+		if (obj->getDimensions() == 1)
+		{
+			float* data = ((ValueObject<float*>*)obj)->getDataCopy();
+			FRotator PlayerRot;
+			PlayerRot.Roll = data[0];
+			PlayerRot.Pitch = data[1];
+			PlayerRot.Yaw = data[2];
+			float MyAxis = data[3];
+
+			m_pView->UpdateRight(playerNr,PlayerRot, MyAxis);
+			return;
+		}
+	}
+	//MoveStop
+	else if (eventCode == 52)
+	{
+		if (obj->getDimensions() == 1)
+		{
+			bool* data = ((ValueObject<bool*>*)obj)->getDataCopy();
+			bool IsForward = data[0];
+			m_pView->UpdateStop(playerNr, IsForward);
+			return;
+		}
+	}
+
+	//StopFinesh
+	else if (eventCode == 53)
+	{
+		if (obj->getDimensions() == 1)
+		{
+			float* data = ((ValueObject<float*>*)obj)->getDataCopy();
+			FVector PlayerLoc;
+			PlayerLoc.X = data[0];
+			PlayerLoc.Y = data[1];
+			PlayerLoc.Z = data[2];
+			m_pView->UpdateStopFinished(playerNr, PlayerLoc);
 			return;
 		}
 	}
@@ -739,6 +798,67 @@ void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
 void PhotonListner_Solaseado::setDummy(bool IsDummy)
 {
 	b_IsDummy = IsDummy;
+}
+
+void PhotonListner_Solaseado::MoveFoward(FRotator rot, float Axis)
+{
+	float MoveX = rot.Roll;
+	float MoveY = rot.Pitch;
+	float MoveZ = rot.Yaw;
+	Hashtable data;
+
+
+	float coords[] = { static_cast<float>(MoveX),static_cast<float>(MoveY),static_cast<float>(MoveZ), static_cast<float>(Axis) };
+	data.put((nByte)1, coords, 4);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	
+	m_pClient->opRaiseEvent(false, data, 50, option);
+}
+
+void PhotonListner_Solaseado::MoveRight(FRotator rot, float Axis)
+{
+	float MoveX = rot.Roll;
+	float MoveY = rot.Pitch;
+	float MoveZ = rot.Yaw;
+	Hashtable data;
+
+
+	float coords[] = { static_cast<float>(MoveX),static_cast<float>(MoveY),static_cast<float>(MoveZ), static_cast<float>(Axis) };
+	data.put((nByte)1, coords, 4);
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	
+	m_pClient->opRaiseEvent(false, data, 51, option);
+}
+
+void PhotonListner_Solaseado::MoveStop(bool IsForward)
+{
+	Hashtable data;
+	bool Forward = IsForward;
+	bool coords[] = { static_cast<bool>(Forward)};
+	data.put((nByte)1, coords, 1);
+	
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+	
+	m_pClient->opRaiseEvent(false, data, 52, option);
+	
+}
+
+void PhotonListner_Solaseado::MoveStopFinish(FVector Loc)
+{
+	Hashtable data;
+	float LocX = Loc.X;
+	float LocY = Loc.Y;
+	float LocZ = Loc.Z;
+	float coords[] = { static_cast<float>(LocX),static_cast<float>(LocY),static_cast<float>(LocZ) };
+	data.put((nByte)1, coords, 3);
+
+	RaiseEventOptions option;
+	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
+
+	m_pClient->opRaiseEvent(false, data, 53, option);
 }
 
 

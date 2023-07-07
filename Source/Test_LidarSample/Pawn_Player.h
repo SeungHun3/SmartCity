@@ -81,7 +81,6 @@ public:
 		class USkeletalMeshComponent* Bottoms;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* Shoes;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class USpringArmComponent* BP_SpringArm;
 
@@ -264,4 +263,17 @@ public:
 	// 메쉬 변경시 포톤 동기화
 	UFUNCTION(BlueprintCallable)
 	bool InputMoveCommand(const enum_InputPlayer& _Command);
+
+	// 이동
+	UFUNCTION(BlueprintImplementableEvent)
+		void Pawn_MoveForward(FRotator rot, float Axis);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Pawn_MoveRight(FRotator rot, float Axis);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Pawn_StopMove(bool IsForward);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Pawn_StopMoveFinish(FVector Loc);
 };

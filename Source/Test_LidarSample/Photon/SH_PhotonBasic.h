@@ -53,4 +53,10 @@ public:
 	// Quiz Event
 	virtual void getEventPause(bool ev) {}
 	virtual void updateLocalPlayerPosion() {}
+
+	// ¿Ãµø
+	virtual void UpdateForward(int PlayerNum, FRotator rot, float Axis) {}
+	virtual void UpdateRight(int PlayerNum, FRotator rot, float Axis) {}
+	virtual void UpdateStop(int PlayerNum, bool IsForward) {}
+	virtual void UpdateStopFinished(int PlayerNum, FVector Loc) {}
 };
