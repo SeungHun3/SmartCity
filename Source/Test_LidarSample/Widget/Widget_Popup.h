@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void setPopupSlotImage();
 	UFUNCTION(BlueprintCallable)
+		void ClosePopupSlotImage();
+	UFUNCTION(BlueprintCallable)
 		void setButtonEnabled();
 
 	UPROPERTY(EditAnywhere)
