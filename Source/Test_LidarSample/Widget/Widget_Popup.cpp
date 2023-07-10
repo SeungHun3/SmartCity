@@ -135,3 +135,10 @@ void UWidget_Popup::setButtonEnabled()
 	Button_NO->SetIsEnabled(true);
 	Button_Yes->SetIsEnabled(true);
 }
+
+void UWidget_Popup::setButtonDisabled()
+{
+	Button_Confirm->SetIsEnabled(false);
+	Button_NO->SetIsEnabled(false);
+	Button_Yes->SetIsEnabled(false);
+}
