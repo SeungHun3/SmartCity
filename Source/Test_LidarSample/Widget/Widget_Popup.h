@@ -30,7 +30,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void setPopupSlotImage();
 	UFUNCTION(BlueprintCallable)
+		void ClosePopupSlotImage();
+	UFUNCTION(BlueprintCallable)
 		void setButtonEnabled();
+	UFUNCTION(BlueprintCallable)
+		void setButtonDisabled();
 
 	UPROPERTY(EditAnywhere)
 		bool bIsClikedNo;

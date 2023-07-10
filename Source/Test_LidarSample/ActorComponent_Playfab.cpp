@@ -3,6 +3,7 @@
 
 #include "ActorComponent_Playfab.h"
 #include "Pawn_Player.h"
+#include "Engine/Engine.h"
 #include "Widget/Checking_Folder/Widget_CheckingAttandance_Main.h"
 
 #include "Core/PlayFabClientAPI.h"
@@ -548,6 +549,9 @@ void UActorComponent_Playfab::getUserTitleName()
 
 			UserCharacterName = result.AccountInfo.Get()->TitleInfo->DisplayName;
 			UE_LOG(LogTemp, Log, TEXT("// getAccountInfo titleName :: %s "), *UserCharacterName);
+			if (GEngine) {
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("// getAccountInfo titleName :: %s "), *UserCharacterName));
+			}
 			if (PlayerOwner)
 				PlayerOwner->Check_getIngameLoadingCount();
 			}),

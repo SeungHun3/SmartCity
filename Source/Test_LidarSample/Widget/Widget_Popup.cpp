@@ -124,9 +124,21 @@ void UWidget_Popup::setPopupSlotImage()
 	setItemTexture();
 }
 
+void UWidget_Popup::ClosePopupSlotImage()
+{
+	Overlay_Image->SetVisibility(ESlateVisibility::Collapsed);
+}
+
 void UWidget_Popup::setButtonEnabled()
 {
 	Button_Confirm->SetIsEnabled(true);
 	Button_NO->SetIsEnabled(true);
 	Button_Yes->SetIsEnabled(true);
+}
+
+void UWidget_Popup::setButtonDisabled()
+{
+	Button_Confirm->SetIsEnabled(false);
+	Button_NO->SetIsEnabled(false);
+	Button_Yes->SetIsEnabled(false);
 }
