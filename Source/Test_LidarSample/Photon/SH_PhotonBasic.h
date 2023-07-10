@@ -55,8 +55,7 @@ public:
 	virtual void updateLocalPlayerPosion() {}
 
 	// ¿Ãµø
-	virtual void UpdateForward(int PlayerNum, FRotator rot, float Axis) {}
-	virtual void UpdateRight(int PlayerNum, FRotator rot, float Axis) {}
-	virtual void UpdateStop(int PlayerNum, bool IsForward) {}
+	virtual void UpdateMove(int PlayerNum, FVector Loc) {}
+	virtual void UpdateStop(int PlayerNum) {}
 	virtual void UpdateStopFinished(int PlayerNum, FVector Loc) {}
 };

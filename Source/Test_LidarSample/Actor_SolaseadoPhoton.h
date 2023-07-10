@@ -288,15 +288,14 @@ public:
 ////////////////////////////////////////////////
 ////이동로직////////////////////////////////////////
 	UFUNCTION(BlueprintCallable)
-		void PhotonMove(bool IsForward, FRotator rot, float axis);
+		void PhotonMove(FVector Loc);
 	UFUNCTION(BlueprintCallable)
-		void PhotonStop(bool IsForward);
+		void PhotonStop();
 	UFUNCTION(BlueprintCallable)
 		void PhotonFinish(FVector Loc);
 	
-	virtual void UpdateForward(int PlayerNum, FRotator rot, float Axis) override;
-	virtual void UpdateRight(int PlayerNum, FRotator rot, float Axis) override;
-	virtual void UpdateStop(int PlayerNum, bool IsForward) override;
+	virtual void UpdateMove(int PlayerNum, FVector Loc) override;
+	virtual void UpdateStop(int PlayerNum) override;
 	virtual void UpdateStopFinished(int PlayerNum, FVector Loc) override;
 
 

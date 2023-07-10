@@ -266,13 +266,10 @@ public:
 
 	// ¿Ãµø
 	UFUNCTION(BlueprintImplementableEvent)
-		void Pawn_MoveForward(FRotator rot, float Axis);
+		void Pawn_Move(FVector Loc);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void Pawn_MoveRight(FRotator rot, float Axis);
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void Pawn_StopMove(bool IsForward);
+		void Pawn_StopMove();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void Pawn_StopMoveFinish(FVector Loc);
