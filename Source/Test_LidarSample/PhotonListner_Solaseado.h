@@ -138,9 +138,8 @@ public:
 
 ///////////////////////¿Ãµø
 public:
-	void MoveFoward(FRotator rot, float Axis);
-	void MoveRight(FRotator rot, float Axis);
-	void MoveStop(bool IsForward);
+	void Move(FVector Loc);
+	void MoveStop();
 	void MoveStopFinish(FVector Loc);
 
 

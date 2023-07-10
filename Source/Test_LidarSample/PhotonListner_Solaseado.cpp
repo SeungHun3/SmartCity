@@ -475,46 +475,23 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 		if (obj->getDimensions() == 1)
 		{
 			float* data = ((ValueObject<float*>*)obj)->getDataCopy();
-			FRotator PlayerRot;
-			PlayerRot.Roll = data[0];
-			PlayerRot.Pitch = data[1];
-			PlayerRot.Yaw = data[2];
-			float MyAxis = data[3];
+			FVector PlayerLoc;
+			PlayerLoc.X = data[0];
+			PlayerLoc.Y = data[1];
+			PlayerLoc.Z = data[2];
 			
-			m_pView->UpdateForward(playerNr,PlayerRot, MyAxis);
-			return;
-		}
-	}
-	//MoveRight
-	else if (eventCode == 51)
-	{
-		if (obj->getDimensions() == 1)
-		{
-			float* data = ((ValueObject<float*>*)obj)->getDataCopy();
-			FRotator PlayerRot;
-			PlayerRot.Roll = data[0];
-			PlayerRot.Pitch = data[1];
-			PlayerRot.Yaw = data[2];
-			float MyAxis = data[3];
-
-			m_pView->UpdateRight(playerNr,PlayerRot, MyAxis);
+			m_pView->UpdateMove(playerNr, PlayerLoc);
 			return;
 		}
 	}
 	//MoveStop
-	else if (eventCode == 52)
+	else if (eventCode == 51)
 	{
-		if (obj->getDimensions() == 1)
-		{
-			bool* data = ((ValueObject<bool*>*)obj)->getDataCopy();
-			bool IsForward = data[0];
-			m_pView->UpdateStop(playerNr, IsForward);
-			return;
-		}
+		m_pView->UpdateStop(playerNr);
 	}
 
 	//StopFinesh
-	else if (eventCode == 53)
+	else if (eventCode == 52)
 	{
 		if (obj->getDimensions() == 1)
 		{
@@ -800,50 +777,29 @@ void PhotonListner_Solaseado::setDummy(bool IsDummy)
 	b_IsDummy = IsDummy;
 }
 
-void PhotonListner_Solaseado::MoveFoward(FRotator rot, float Axis)
+void PhotonListner_Solaseado::Move(FVector Loc)
 {
-	float MoveX = rot.Roll;
-	float MoveY = rot.Pitch;
-	float MoveZ = rot.Yaw;
+	float MoveX = Loc.X;
+	float MoveY = Loc.Y;
+	float MoveZ = Loc.Z;
 	Hashtable data;
 
 
-	float coords[] = { static_cast<float>(MoveX),static_cast<float>(MoveY),static_cast<float>(MoveZ), static_cast<float>(Axis) };
-	data.put((nByte)1, coords, 4);
+	float coords[] = { static_cast<float>(MoveX),static_cast<float>(MoveY),static_cast<float>(MoveZ)};
+	data.put((nByte)1, coords, 3);
 	RaiseEventOptions option;
 	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
 	
 	m_pClient->opRaiseEvent(false, data, 50, option);
 }
 
-void PhotonListner_Solaseado::MoveRight(FRotator rot, float Axis)
+void PhotonListner_Solaseado::MoveStop()
 {
-	float MoveX = rot.Roll;
-	float MoveY = rot.Pitch;
-	float MoveZ = rot.Yaw;
 	Hashtable data;
-
-
-	float coords[] = { static_cast<float>(MoveX),static_cast<float>(MoveY),static_cast<float>(MoveZ), static_cast<float>(Axis) };
-	data.put((nByte)1, coords, 4);
+	data.put((nByte)1);
 	RaiseEventOptions option;
 	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	
 	m_pClient->opRaiseEvent(false, data, 51, option);
-}
-
-void PhotonListner_Solaseado::MoveStop(bool IsForward)
-{
-	Hashtable data;
-	bool Forward = IsForward;
-	bool coords[] = { static_cast<bool>(Forward)};
-	data.put((nByte)1, coords, 1);
-	
-	RaiseEventOptions option;
-	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	
-	m_pClient->opRaiseEvent(false, data, 52, option);
-	
 }
 
 void PhotonListner_Solaseado::MoveStopFinish(FVector Loc)
@@ -858,7 +814,7 @@ void PhotonListner_Solaseado::MoveStopFinish(FVector Loc)
 	RaiseEventOptions option;
 	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
 
-	m_pClient->opRaiseEvent(false, data, 53, option);
+	m_pClient->opRaiseEvent(false, data, 52, option);
 }
 
 
