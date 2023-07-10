@@ -8,6 +8,8 @@
 #include "Struct_Customizing.h"
 #include "GameModeBase_Solaseado.generated.h"
 
+#define SH_LOG(Value) if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Value )
+
 UENUM(BlueprintType)
 enum class enum_Level : uint8
 {
@@ -72,20 +74,15 @@ public:
 
 
 	// 포톤변수
-	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "Photon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class AActor_SolaseadoPhoton* PhotonCloud;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Photon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class AActor_PhotonChat* PhotonChat;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Photon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class AActor_PhotonVoice* PhotonVoice;
 
-
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Widgets")
-		//class UWidget_Popup* MyWidget;
-
-	class UWidget_Popup* WidgetPopup;
 private:
 	// 페이드 진행 시간
 	float FadeDuration = 3.5f;

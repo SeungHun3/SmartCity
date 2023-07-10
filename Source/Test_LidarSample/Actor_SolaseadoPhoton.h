@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Pawn_Player.h"
-#include "PhotonListner_Solaseado.h"
-#include"ActorComponent_Playfab.h"
+#include "Photon/PhotonListner_Solaseado.h"
+#include "ActorComponent_Playfab.h"
 #include "GameFramework/Actor.h"
 #include "Actor_SolaseadoPhoton.generated.h"
 
@@ -38,10 +38,11 @@ struct FCostume
 {
 	GENERATED_BODY()
 public:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	enum_CostumeType Type= enum_CostumeType::Default;
+		enum_CostumeType Type= enum_CostumeType::Default;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int PartNumber=0;
+		int PartNumber=0;
 };
 
 
@@ -51,8 +52,6 @@ class TEST_LIDARSAMPLE_API AActor_SolaseadoPhoton : public AActor, public SH_Pho
 	GENERATED_BODY()
 
 public:
-	//Enum_TextType aa;
-	// Sets default values for this actor's properties
 	AActor_SolaseadoPhoton();
 	virtual ~AActor_SolaseadoPhoton();
 	
@@ -83,14 +82,13 @@ protected:
 	ExitGames::LoadBalancing::Client* m_pClient;
 	PhotonListner_Solaseado* m_pListener;
 
-
 	// 캐릭터 위치 포톤 업데이트
 	UFUNCTION(BlueprintCallable)
-	void movePlayer(FVector Loc);
-	void movePlayer(int vx, int vy, int vz);
+		void movePlayer(FVector Loc);
+		void movePlayer(int vx, int vy, int vz);
+
 	UFUNCTION(BlueprintCallable)
-	void movePlayerRotation(float fZ);
-	
+		void movePlayerRotation(float fZ);
 
 	// 현재 입장 방 정보
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -116,8 +114,6 @@ public:
 	// 진행중인 방 이벤트. 0 없음 , 1~ 특정 이벤트
 	UFUNCTION(BlueprintCallable)
 		void ChangeRoomEventProperty(uint8 Ev);
-	UFUNCTION(BlueprintCallable)
-		void ChangeEventPause(bool ev);
 
 	// 캐릭터 애니메이션 세팅
 	UFUNCTION(BlueprintCallable)
@@ -125,27 +121,33 @@ public:
 	// 포톤 서버 접속 
 	UFUNCTION(BlueprintCallable)
 		void ConnectLogin(const FString& username);
-	// 채팅 , 월드 메세지 출력
-	UFUNCTION(BlueprintCallable)
-		void SendTextMessage(const FString& Message, const FString& type);
+	
 	// Blueprint Ros Actor Spawn 
 	UFUNCTION(BlueprintImplementableEvent)
 		void ConnectRosActor();
 
+	//////////////////////////////////////////////// 
+	// Blueprint Widget Binding Func
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_RemovePlayer(int PlayerNr);
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_AddPlayer(int PlayerNr, const FString& name);
+	UFUNCTION(BlueprintImplementableEvent)
+		void Blueprint_ResetPlayer();
 
 	// 커맨드 입력이 되었을때 서버에 송신
 	UFUNCTION(BlueprintCallable)
-	void movePlayerCommand(enum_InputPlayer _Commnad);
+		void movePlayerCommand(enum_InputPlayer _Commnad);
 	// 캐릭터 회전 Yaw
 	UFUNCTION(BlueprintCallable)
-	void RotationPlayerX(float fX);
+		void RotationPlayerX(float fX);
 	//회전 보정용 함수(미구현, 필요시 구현)
-	void MovePlayerRotationAndTime(float fX, int time);
+		void MovePlayerRotationAndTime(float fX, int time);
 	//위치 보정용 함수
-	void MovePlayerAndTime(int vX, int vY, int time);
+		void MovePlayerAndTime(int vX, int vY, int time);
 	UFUNCTION(BlueprintCallable)
-	void MoveAndRotation(FVector Loc, int vYaw);
-
+		void MoveAndRotation(FVector Loc, int vYaw);
+	
 	// 포톤 재접속, 접속 해제
 	void ReconnectMessage();
 	void PhotonDisconnect();
@@ -188,12 +190,6 @@ public:
 
 	virtual void LeaveRoomComplete(void) override;
 	virtual void CurrentRoomInfo(const ExitGames::Common::JString& name, nByte Count, nByte MaxCount) override;
-
-	// Message
-	virtual void getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type)  override;
-
-	// Quiz Event 
-	virtual void getEventPause(bool ev) override;
 
 public:
 	// 캐릭터 정보 데이터(아바타...) 추가 함수
@@ -253,8 +249,8 @@ protected:
 ////////////////////////////////////
 /////////// 채널 ///////////////////   cpp 140
 protected:
-	ExitGames::LoadBalancing::Client* dummy_pClient;
-	PhotonListner_Solaseado* dummy_pListener;
+	ExitGames::LoadBalancing::Client*	dummy_pClient;
+	PhotonListner_Solaseado*			dummy_pListener;
 
 	bool IsChangingRoom = false;
 public:
@@ -298,11 +294,7 @@ public:
 	virtual void UpdateStop(int PlayerNum) override;
 	virtual void UpdateStopFinished(int PlayerNum, FVector Loc) override;
 
-
-
-
 ////////////////////////////////////////////////이동 끝
-
 
 	virtual void updateLocalPlayerPosion() override;
 

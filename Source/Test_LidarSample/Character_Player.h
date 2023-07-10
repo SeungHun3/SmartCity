@@ -87,5 +87,5 @@ public:
 
 	// 
 	void ChangeRoomEvent(uint8 ev);
-	void ChangeEventPause(bool ev);
+	//void ChangeEventPause(bool ev);
 };

@@ -132,13 +132,13 @@ void ACharacter_Player::ChangeRoomEvent(uint8 ev)
 	}
 }
 // (LiDAR ) Event Pause
-void ACharacter_Player::ChangeEventPause(bool ev)
-{
-	if (MainWidget)
-	{
-		MainWidget->PhotonPauseQuizEvent(ev);
-	}
-}
+//void ACharacter_Player::ChangeEventPause(bool ev)
+//{
+//	if (MainWidget)
+//	{
+//		MainWidget->PhotonPauseQuizEvent(ev);
+//	}
+//}
 
 // 참여 인원수 체크 
 void ACharacter_Player::AddLiDARPlayerCount()

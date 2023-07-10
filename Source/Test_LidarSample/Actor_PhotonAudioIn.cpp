@@ -66,16 +66,16 @@ void AActor_PhotonAudioIn::onTimer()
 			return;
 		
 		//테스트 빌드용 출력
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(12, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d / %d"), readBytes, bytesAvailable));
+		/*if (GEngine)
+			GEngine->AddOnScreenDebugMessage(12, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d / %d"), readBytes, bytesAvailable));*/
 
 		if (readBytes > 10)
 		{
 			//테스트 빌드용 출력
-			if (GEngine)
+			/*if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(13, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! Captured: %d %d %d %d %d %d %d %d %d %d"), buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9]));
-			}
+			}*/
 
 			AveageMike(buf);
 			
@@ -110,10 +110,10 @@ void AActor_PhotonAudioIn::AveageMike(const short* buf)
 	}
 	aveMike /= 10;
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(14, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! average : %d "), aveMike));
-	}
+	//if (GEngine)
+	//{
+	//	GEngine->AddOnScreenDebugMessage(14, 15.0f, FColor::Blue, *FString::Printf(TEXT("!!!!! average : %d "), aveMike));
+	//}
 }
 
 

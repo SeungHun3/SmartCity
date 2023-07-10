@@ -22,11 +22,11 @@ enum class EMoveEvent : uint8;
 using namespace ExitGames;
 using namespace Common;
 
-class SH_PhotonListener : public ExitGames::LoadBalancing::Listener
+class PhotonListner_Solaseado : public ExitGames::LoadBalancing::Listener
 {
 public:
-	SH_PhotonListener(SH_PhotonBasic* pView);
-	virtual ~SH_PhotonListener(void);
+	PhotonListner_Solaseado(SH_PhotonBasic* pView);
+	virtual ~PhotonListner_Solaseado(void);
 	virtual void service(void);
 
 	void SetClient(ExitGames::LoadBalancing::Client* client);
@@ -46,7 +46,7 @@ public:
 	virtual void leaveRoomEventAction(int playerNr, bool isInactive) override;
 
 	// 커스텀 이벤트 
-	virtual void customEventAction(int playerNr, nByte eventCode, const Common::Object& eventContent) override;
+	virtual void customEventAction(int playerNr, nByte eventCode, const Common::Object& eventContentObj) override;
 
 	// callbacks for operations on the server
 	virtual void connectReturn(int errorCode, const Common::JString& errorString, const Common::JString& region, const Common::JString& cluster) override;
@@ -67,6 +67,8 @@ public:
 
 	// 방 정보 프로퍼티 업데이트 
 	virtual void onRoomPropertiesChange(const Common::Hashtable& changes) override;
+
+	virtual void onRoomListUpdate(void) override;
 protected:
 
 	// 포톤 업데이트 시간 체크
@@ -90,9 +92,19 @@ public:
 
 	// // Custom Event 
 	// 위치 정보 
-	void SetMovePlayer(int vX, int vY, int vz);	// 6
-	void SetMovePlayerRotation(float fZ);		// 7
-	
+	void SetMovePlayer(int vX, int vY, int vz);						// 6
+	void SetMovePlayerRotation(float fZ);							// 7
+	void SetMoveAndRotation(int vX, int vY, int vZ, int yaw);		// 7
+
+	void SetPlayerAnim(int Anim);									// 15
+
+	//입력 받은 회전값
+	void SetPlayerRotationCommand(float vYaw);						// 16
+	void SetPlayerCommand(int ICommand);							// 17
+	void SendTestDelay(int lDelay);									// 18
+	void SetPlayerRotationAndTime(float fX, int time);				// 19
+	void SetPlayerMoveAndTime(int vX, int vY, int time);			// 20
+
 	// 텍스트 정보
 	void PlayerTargetMessage(const int* target, int size, nByte text);	// 2
 	void TextMessage(const JString& message, const JString& type);		// 1
@@ -104,4 +116,49 @@ public:
 	void setRoomEventProperties(uint8 Ev);
 	// 진행중인 이벤트 일시정지
 	void setEventPause(bool ev);
+
+protected:
+
+	//서버 수용 최대 인원수
+	int MaxPlayerRoom = 15;
+
+	//서버에 뿌릴 데이터를 저장해 둘 헤시 테이블
+	//여기에 저장된 값들은 데이터가 뿌려지고 엑터 포톤의 updatePlayerProperties()에서 처리할 수 있게 한다.
+	ExitGames::Common::Hashtable mCharacterInfo;
+
+public:
+	//플레이어 커스텀 데이터 정보 처리
+	void SetChracterInfo(FString _key, FString _value);
+	void SendCharacterInfo();
+	void RemoveCharacterInfo();
+
+	void InitJoinOrCreateRoom();
+	void SendPlayerAnimState(uint8 _State);
+
+//////////////////////룸정보, 변경
+protected:
+	FString sRoomName = "MainRoom";
+	FString sRoomCount;
+	bool b_IsFirstConnect = true;
+	int RoomMaxSize = 20;
+	int PlayerMaxCount = 20;
+
+public:
+	void ChangeRoomNumber(int Number) { sRoomCount = FString::FromInt(Number); }
+	int getRoomCount() { return FCString::Atoi(*sRoomCount); }
+
+///////////////////////더미여부 판단
+protected:
+	bool b_IsDummy = false;
+public:
+	void setDummy(bool IsDummy);
+
+///////////////////////이동
+public:
+	void Move(FVector Loc);
+	void MoveStop();
+	void MoveStopFinish(FVector Loc);
+
 };
+
+

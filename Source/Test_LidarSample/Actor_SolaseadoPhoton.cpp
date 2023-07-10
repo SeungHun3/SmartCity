@@ -169,7 +169,6 @@ void AActor_SolaseadoPhoton::UpdateRoomList(const TMap<int, int>& Channel_Count)
 
 	TArray<FString> PlayerNames;
 
-
 	ExitGames::Common::JVector<ExitGames::LoadBalancing::Player*> Players = m_pClient->getCurrentlyJoinedRoom().getPlayers();
 	for (int i = 0; i < (int)Players.getSize(); i++)
 	{
@@ -178,27 +177,17 @@ void AActor_SolaseadoPhoton::UpdateRoomList(const TMap<int, int>& Channel_Count)
 	}
 
 	ChangeViewCount(Channel_Count,PlayerNames);
-	
 }
 
 void AActor_SolaseadoPhoton::CloseDummy()
 {
 	dummy_pClient->disconnect();
 }
-////////////////////////////////////////////////Dummy or Room Setting끝
-
-
-// 텍스트 메세지 출력 
-void AActor_SolaseadoPhoton::SendTextMessage(const FString& Message, const FString& type)
-{
-	if (m_pListener)
-		m_pListener->TextMessage(TCHAR_TO_UTF8(*Message), TCHAR_TO_UTF8(*type));
-}
-
 
 //커맨드를 입력했을때 이 함수를 써서 포톤 서버에 뿌려준다.
 //이동은 서버에서 받았을때 처리한다.
 //이전에 입력이 됐는지에 대한 검사는 다른 함수로 처리하고 입력받는다.
+
 void AActor_SolaseadoPhoton::movePlayerCommand(enum_InputPlayer _Commnad)
 {
 	if (m_pListener)
@@ -274,7 +263,7 @@ void AActor_SolaseadoPhoton::InitPlayers(void)
 		}
 	}
 	PlayerList.Reset();
-	
+	Blueprint_ResetPlayer();
 }
 
 void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::JString& playerName, bool local, const ExitGames::Common::Hashtable& Custom)
@@ -308,12 +297,10 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 		FMemory::Free((void*)Temp);
 	}
 
-
 	if (local)
 	{
 		// UE_LOG(LogTemp, Log, TEXT("// Add Local Player :: %s"), *name);
 		PlayerList.Add(LocalPlayer);
-		LocalPlayer->AddClentPlayerCount();
 		if (LocalPlayer)
 		{
 			LocalPlayer->isInRoom = true;
@@ -341,14 +328,9 @@ void AActor_SolaseadoPhoton::AddPlayers(int playerNr, const ExitGames::Common::J
 			// 타겟 플레이어 이름
 			target->PlayerName = name;
 			target->PlayerNr = playerNr;
-			//target->setPlayerNameTag(name);
-
-			// 애니메이션 데이터 
-			// FString str = FString(UTF8_TO_TCHAR(chAnim.UTF8Representation().cstr()));
-			// target->bWalk = (bool)FCString::Atoi(*str);
 
 			PlayerList.Add(target);
-			LocalPlayer->AddClentPlayerCount();
+			Blueprint_AddPlayer(playerNr , name);
 
 			//UE_LOG(LogTemp, Log, TEXT("// addplayer yaw :: %d , local : %d"), playerNr, LocalPlayer->PlayerNr);
 			MoveAndRotation(LocalPlayer->GetActorLocation(), LocalPlayer->GetActorRotation().Yaw);
@@ -369,10 +351,10 @@ void AActor_SolaseadoPhoton::RemovePlayer(int playerNr)
 		// 참여자 액터
 		if (it->PlayerNr == playerNr)
 		{
-			// UE_LOG(LogTemp, Log, TEXT("// RemovePlayer :: playerNr( %d )"), playerNr);
-			LocalPlayer->RemoveClentPlayerCount();
 			it->Destroy();
 			PlayerList.Remove(it);
+			// Widget Event 
+			Blueprint_RemovePlayer(playerNr);
 			return;
 		}
 	}
@@ -645,19 +627,15 @@ void AActor_SolaseadoPhoton::JoinRoomComplete(const ExitGames::Common::JString& 
 // 룸에 들어왔을때 호출
 void AActor_SolaseadoPhoton::JoinOrCreateComplete(const FString& RoomFullName)
 {
-	//UE_LOG(LogTemp, Log, TEXT("// JoinOrCreateComplete :: "));
-	// #include "Actor_RosActor.h"	
-	// 헤더 연결 오류 처리 // Blueprint Spawn 변경 
-	//ConnectRosActor();
-
 	AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode()); // moveLevel_ SimPoly1, Fade
+	if (GM_Solaseado)
+	{
+		GM_Solaseado->PhotonChat->Chat_ResetJoinChannel(RoomFullName);
+		GM_Solaseado->PhotonVoice->Voice_ChangeOrJoinRoom(RoomFullName);
 
-
-	GM_Solaseado->PhotonChat->Chat_ResetJoinChannel(RoomFullName);
-	GM_Solaseado->PhotonVoice->Voice_ChangeOrJoinRoom(RoomFullName);
-	
-	GM_Solaseado->MoveLevel(enum_Level::SimPoly1, true);
-	IsChangingRoom = false;
+		GM_Solaseado->MoveLevel(enum_Level::SimPoly1, true);
+		IsChangingRoom = false;
+	}
 }
 // 룸 나갈때 호출
 void AActor_SolaseadoPhoton::LeaveRoomComplete(void)
@@ -684,45 +662,6 @@ void AActor_SolaseadoPhoton::CurrentRoomInfo(const ExitGames::Common::JString& n
 	//UE_LOG(LogTemp, Log, TEXT("// MaxPeople :: %d , CurrentPeople:: %d "), MaxCount, Count);
 }
 
-void AActor_SolaseadoPhoton::getTextMessage(int playerNr, const ExitGames::Common::JString& Message, const ExitGames::Common::JString& Type)
-{
-	FString TextMessage = FString(UTF8_TO_TCHAR(Message.UTF8Representation().cstr()));
-	FString TextType = FString(UTF8_TO_TCHAR(Type.UTF8Representation().cstr()));
-
-	// UE_LOG(LogTemp, Log, TEXT("// getTextMessage (%d) :: %s (%s)"), playerNr, *TextMessage, *TextType);
-	// 
-	for (auto it : PlayerList)
-	{
-		// UE_LOG(LogTemp, Log, TEXT("// getTextMessage :: %d "), it->PlayerNr);
-		if (it->PlayerNr == playerNr)
-		{
-			Enum_TextType3 type = (Enum_TextType3)FCString::Atoi(*TextType);
-			switch (type)
-			{
-			case Enum_TextType3::Normal:
-			{
-				// 말풍선 띄우기
-				//it->OpenMessageBox(TextMessage);
-				//LocalPlayer->AddChatList(it->PlayerName, TextMessage);
-				break;
-			}
-			case Enum_TextType3::World:
-			{
-				// 화면 전체 메세지 띄우기
-				//LocalPlayer->OpenWorldMessageBox(TextMessage, true);
-				break;
-			}
-			case Enum_TextType3::infinite:
-			{
-				//LocalPlayer->OpenWorldMessageBox(TextMessage, false);
-				break;
-			}
-			}
-		}
-	}
-}
-
-
 // photon : 룸 커스텀 데이터 변경 호출
 void AActor_SolaseadoPhoton::ChangeRoomEventProperty(uint8 Ev)
 {
@@ -739,20 +678,6 @@ void AActor_SolaseadoPhoton::updateRoomProperties(const Hashtable& changes)
 		nByte roomEvent = ((ValueObject<nByte>*)changes.getValue("Ev"))->getDataCopy();
 		//LocalPlayer->ChangeRoomEvent((uint8)roomEvent);
 	}
-}
-
-// 이벤트 일시정지 호출
-void AActor_SolaseadoPhoton::ChangeEventPause(bool ev)
-{
-	//if (m_pListener)
-	//	m_pListener->setEventPause(ev);
-}
-
-// 이벤트 일시정지
-void AActor_SolaseadoPhoton::getEventPause(bool ev)
-{
-	//if (LocalPlayer)
-	//	LocalPlayer->ChangeEventPause(ev);
 }
 
 // 캐릭터 데이터 저장
@@ -780,7 +705,6 @@ int AActor_SolaseadoPhoton::GetMyChannelNumber()
 void AActor_SolaseadoPhoton::PhotonMove(FVector Loc)
 {
 	m_pListener->Move(Loc);
-	
 }
 
 void AActor_SolaseadoPhoton::PhotonStop()
@@ -800,7 +724,6 @@ void AActor_SolaseadoPhoton::UpdateMove(int PlayerNum, FVector Loc)
 		if (it->PlayerNr == PlayerNum)
 		{
 			it->Pawn_Move(Loc);
-
 			return;
 		}
 	}
@@ -827,7 +750,6 @@ void AActor_SolaseadoPhoton::UpdateStopFinished(int PlayerNum, FVector Loc)
 			return;
 		}
 	}
-
 }
 
 //로컬 플레이어 위치 갱신

@@ -178,19 +178,6 @@ TArray<FString> APawn_Player::UploadPlayer()
 	return ItemIDs;
 }
 
-
-
-
-void APawn_Player::AddClentPlayerCount()
-{
-	++ParticipantClient;
-}
-
-void APawn_Player::RemoveClentPlayerCount()
-{
-	--ParticipantClient;
-}
-
 // 메쉬 변경 시키는 함수 
 void APawn_Player::ChangeMesh(const FString& ClassName, USkeletalMesh* Mesh)
 {

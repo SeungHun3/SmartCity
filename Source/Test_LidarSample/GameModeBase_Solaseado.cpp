@@ -9,7 +9,7 @@
 void AGameModeBase_Solaseado::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 }
 
 void AGameModeBase_Solaseado::OpenStreamLevel(enum_Level level)

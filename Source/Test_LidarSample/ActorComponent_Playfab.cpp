@@ -743,6 +743,5 @@ void UActorComponent_Playfab::UploadMyCustom(const FString& FunctionName, const 
 		FirstCostumeData.Push(FString::FromInt(it));
 	}
 	// 커스텀 데이터 일단 저장
-
 	ScriptCustomArray(FunctionName, FieldName, FirstCostumeData);
 }

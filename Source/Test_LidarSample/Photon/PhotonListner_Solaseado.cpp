@@ -1,4 +1,5 @@
-#include"PhotonListner_Solaseado.h"
+
+#include "PhotonListner_Solaseado.h"
 
 #ifdef PLATFORM_ANDROID
 #include "Engine/Engine.h"
@@ -13,12 +14,10 @@
 #	include <android/log.h>
 #endif
 
-#include "CoreMinimal.h"
-
 using namespace ExitGames::Common;
 using namespace ExitGames::LoadBalancing;
 
-PhotonListner_Solaseado::PhotonListner_Solaseado(SH_PhotonBasic* pView) :SH_PhotonListener(pView)
+PhotonListner_Solaseado::PhotonListner_Solaseado(SH_PhotonBasic* pView)
 {
 	m_pView = pView;
 	m_pClient = NULL;
@@ -71,8 +70,7 @@ void PhotonListner_Solaseado::joinRoomEventAction(int playerNr, const Common::JV
 	// 외형 정보
 	Hashtable table = player.getCustomProperties();
 	m_pView->AddPlayers(playerNr, player.getName().UTF8Representation().cstr(), local, table);
-	//접속한 인원에게 캐릭터 정보값 갱신
-	//m_pView->updateLocalPlayerPosion();
+
 }
 
 
@@ -128,7 +126,6 @@ void PhotonListner_Solaseado::onRoomListUpdate(void) // Room프로퍼티가 변경될때�
 		b_IsFirstConnect = false;
 		TArray<int> ChannelArray;
 		TArray<int> PlayerCountArray;
-		
 
 		int RoomSize = m_pClient->getRoomList().getSize(); // 룸배열은 먼저 생성된 순서대로 설정됨
 		for (int i = 0; i < RoomSize; i++)
@@ -143,7 +140,6 @@ void PhotonListner_Solaseado::onRoomListUpdate(void) // Room프로퍼티가 변경될때�
 			int PlayerCount = m_pClient->getRoomList()[i]->getPlayerCount();	//플레이어수 
 			RoomMap.Add(FCString::Atoi(*Channel), PlayerCount);					// 맵에 넣어서
 		}
-
 	
 		for (int i = 1; i <= RoomMaxSize; i++)									// 룸탐색
 		{
@@ -171,10 +167,7 @@ void PhotonListner_Solaseado::onRoomListUpdate(void) // Room프로퍼티가 변경될때�
 		m_pView->ConnectComplete();
 		return;
 	}
-	
-
 }
-
 
 // 연결 종료
 void PhotonListner_Solaseado::disconnectReturn(void)
@@ -207,10 +200,6 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 		nByte Maxcount = myRoom.getMaxPlayers();
 		m_pView->CurrentRoomInfo(CurRoomName, Count, Maxcount);
 
-		
-
-		// FString str = "Ev";
-		// 라이다 이벤트 출력 // 데이터 테이블 quiz Row number
 		m_pView->updateRoomProperties(props);
 
 		// 기존 방에 있는 플레이어 정보 출력 
@@ -226,7 +215,6 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 			m_pView->AddPlayers(p->getNumber(), p->getName().UTF8Representation().cstr(), local, table);
 		}
 
-
 		FString FRoomName = CurRoomName.UTF8Representation().cstr();
 		m_pView->JoinOrCreateComplete(FRoomName);
 	}
@@ -240,8 +228,6 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 void PhotonListner_Solaseado::createRoomReturn(int localPlayerNr, const Common::Hashtable& roomProperties, const Common::Hashtable& playerProperties, int errorCode, const Common::JString& errorString)
 {
 	//일단 기본은 이거가 아닌 joinorcreatee룸으로
-
-
 	if (errorCode == ErrorCode::OK)
 	{
 		int playersize = playerProperties.getSize();
@@ -290,9 +276,7 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 		return;
 	}
 
-
 	ExitGames::Common::Hashtable eventContent = ExitGames::Common::ValueObject<ExitGames::Common::Hashtable>(eventContentObj).getDataCopy();
-	
 	
 	Object const* obj = eventContent.getValue("1");
 	if (!obj)	obj = eventContent.getValue((nByte)1);
@@ -303,19 +287,8 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	{
 		return;
 	}
-	if (eventCode == 1) // Chat , World Message 
-	{
-		if (obj->getDimensions() == 1)
-		{
-			JString* data = ((ValueObject<JString*>*)obj)->getDataCopy();
-			JString Message = data[0];
-			JString Type = data[1];
 
-			m_pView->getTextMessage(playerNr, Message, Type);
-			return;
-		}
-	}
-	else if (eventCode == 6) // vector3 위치 데이터
+	if (eventCode == 6) // vector3 위치 데이터
 	{
 		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
 		if (obj->getDimensions() == 1)
@@ -426,7 +399,6 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			}
 		}
 	}
-
 	//테스트 지연 샘플링(테스트 로그 출력용)
 	else if (eventCode == 18)
 	{
@@ -435,7 +407,6 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			if (obj->getType() == TypeCode::INTEGER)
 			{
 				int* data = ((ValueObject<int*>*)obj)->getDataCopy();
-
 				int vX = data[0];
 
 				//UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,RecvTimeDelay : %d ,Now Timdelay-RecvTimeDelay RTT : %d, eventCode : 18"), playerNr, m_pClient->getLocalPlayer().getNumber(), vX,GETTIMEMS() % 10000- vX);
@@ -443,13 +414,6 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 			}
 		}
 	}
-	//회전과 딜레이 보정
-	//현재 사용안함
-	else if (eventCode == 19)
-	{
-		
-	}
-
 	//이동 딜레이 보정
 	else if (eventCode == 20)
 	{
@@ -489,7 +453,6 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 	{
 		m_pView->UpdateStop(playerNr);
 	}
-
 	//StopFinesh
 	else if (eventCode == 52)
 	{
@@ -515,7 +478,6 @@ void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JStri
 		m_pView->LeaveRoomComplete();
 	}
 }
-
 
 // 위치 전송 // Location & Rotation 
 void PhotonListner_Solaseado::SetMovePlayer(int vX, int vY, int vz)
@@ -556,7 +518,6 @@ void PhotonListner_Solaseado::SetPlayerAnim(int Anim)
 	//option.
 	m_pClient->opRaiseEvent(false, data, 15, option);
 }
-
 
 void PhotonListner_Solaseado::SetPlayerRotationCommand(float vYaw)
 {
@@ -615,28 +576,6 @@ void PhotonListner_Solaseado::SetPlayerMoveAndTime(int vX, int vY, int time)
 	m_pClient->opRaiseEvent(false, data, 20, option);
 }
 
-// 특정 유저에게 보내는 메세지 
-void PhotonListner_Solaseado::PlayerTargetMessage(const int* target, int size, nByte text)
-{
-	Hashtable data;
-	nByte coords[] = { static_cast<nByte>(text) };
-	data.put((nByte)1, coords, 1);
-	RaiseEventOptions option;
-	option.setTargetPlayers(target, size);
-	m_pClient->opRaiseEvent(false, data, 2, option);
-}
-
-// 월드 메시지 
-void PhotonListner_Solaseado::TextMessage(const JString& message, const JString& type)
-{
-	Hashtable data;
-	JString coords[] = { static_cast<JString>(message)  , static_cast<JString>(type) };
-	data.put((nByte)1, coords, 2);
-	RaiseEventOptions Options;
-	Options.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	m_pClient->opRaiseEvent(false, data, 1, Options);
-}
-
 // 캐릭터 움직임, 애니메이션
 void PhotonListner_Solaseado::setPlayerAnimationData(uint8 anim)
 {
@@ -649,7 +588,6 @@ void PhotonListner_Solaseado::setPlayerAnimationData(uint8 anim)
 	// UE_LOG(LogTemp, Log, TEXT("// Change Animation :: %d"), anim);
 	player.addCustomProperties(table);
 }
-
 
 // ( LiDAR ) RoomProperties // 이벤트, 공지메세지 
 // ( LiDAR ) 이벤트 정보 출력  // "Ev" >> 이벤트 데이터 테이블 (Data_LiDARQuiz) 행넘버
@@ -675,14 +613,11 @@ void PhotonListner_Solaseado::setEventPause(bool ev)
 	m_pClient->opRaiseEvent(false, data, 11, Options);
 }
 
-
-
 // 접속 오류 처리 
 void PhotonListner_Solaseado::connectionErrorReturn(int errorCode)
 {
 	m_pView->ErrorCheckMessage("// Connection failed with error", errorCode);
 }
-
 
 /**	서버 에러 문구 처리
 	*/
@@ -692,7 +627,6 @@ void PhotonListner_Solaseado::debugReturn(int debugLevel, const Common::JString&
 	FString str = UTF8_TO_TCHAR(string.UTF8Representation().cstr());
 	m_pView->ErrorCheckMessage(str, debugLevel);	
 }
-
 
 void PhotonListner_Solaseado::clientErrorReturn(int errorCode)
 {
@@ -723,7 +657,6 @@ void PhotonListner_Solaseado::SetChracterInfo(FString _key, FString _value)
 	mCharacterInfo.put(TCHAR_TO_UTF8(*_key), TCHAR_TO_UTF8(*_value));
 }
 
-
 //저장해둔 캐릭터 데이터를 플레이어들에게 뿌려준다.
 void PhotonListner_Solaseado::SendCharacterInfo()
 {
@@ -733,14 +666,12 @@ void PhotonListner_Solaseado::SendCharacterInfo()
 	RemoveCharacterInfo();
 }
 
-
 //저장해둔 캐릭터 데이터를 비워준다.
 void PhotonListner_Solaseado::RemoveCharacterInfo()
 {
 	//UE_LOG(LogTemp, Log, TEXT("//RemoveCharacterInfo()"));
 	mCharacterInfo.removeAllElements();
 }
-
 
 //처음 접속하고 데이터를 보내고 방에 접속합니다.
 void PhotonListner_Solaseado::InitJoinOrCreateRoom()
@@ -758,7 +689,6 @@ void PhotonListner_Solaseado::InitJoinOrCreateRoom()
 	m_pClient->opJoinOrCreateRoom(JmyRoom, options);
 }
 
-
 //애니메이션 상태 데이터를 보내주는 함수
 void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
 {
@@ -768,8 +698,6 @@ void PhotonListner_Solaseado::SendPlayerAnimState(uint8 _State)
 	////데이터를 보냈으니 새로 채워두기 위해서 비운다.
 	RemoveCharacterInfo();
 }
-
-
 
 //Dummy 세팅
 void PhotonListner_Solaseado::setDummy(bool IsDummy)
@@ -783,7 +711,6 @@ void PhotonListner_Solaseado::Move(FVector Loc)
 	float MoveY = Loc.Y;
 	float MoveZ = Loc.Z;
 	Hashtable data;
-
 
 	float coords[] = { static_cast<float>(MoveX),static_cast<float>(MoveY),static_cast<float>(MoveZ)};
 	data.put((nByte)1, coords, 3);

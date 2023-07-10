@@ -196,7 +196,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void CoinUpdate(int coin);
 
-
 	//포톤에 플레이팹 데이터 동기화 = PlayFab에 있는 userdata받아와서 InstanceID매칭 시켜 ITemID받아오기
 	UFUNCTION(BlueprintCallable)
 		TArray<FString> UploadPlayer();
@@ -207,13 +206,6 @@ public:
 	// 아이템 구매 후 인벤토리 업데이트.
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_AddInventoryItem(FItemproperty item);
-	
-	/////////////////////////////////////////////
-	// 참가중인 인원수 체크
-	void AddClentPlayerCount();
-	void RemoveClentPlayerCount();
-
-
 
 
 	////////// 메쉬관련 변경함수
@@ -229,19 +221,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeProperty(const FString& ITemID);
 
-
 	// Zoom_In_out
 	UFUNCTION(BlueprintCallable)
 		float ZoomFunction(bool isZoomIn, float zoomAxis = 10.0f);
-
-
 
 	//////////////////////////////////////////////////////////////
 	// 애니매이션 변경
 	UFUNCTION(BlueprintImplementableEvent)
 		void Change_Anim(enum_PlayerAnimationState animstate);
-
-
 
 	/////////////////////////
 	//Costume Pawn Function
@@ -258,8 +245,6 @@ public:
 	void Change_Scene(int TabNumber);
 	virtual void Change_Scene_Implementation(int TabNumber);
 
-
-
 	// 메쉬 변경시 포톤 동기화
 	UFUNCTION(BlueprintCallable)
 	bool InputMoveCommand(const enum_InputPlayer& _Command);
@@ -267,10 +252,8 @@ public:
 	// 이동
 	UFUNCTION(BlueprintImplementableEvent)
 		void Pawn_Move(FVector Loc);
-
 	UFUNCTION(BlueprintImplementableEvent)
 		void Pawn_StopMove();
-
 	UFUNCTION(BlueprintImplementableEvent)
 		void Pawn_StopMoveFinish(FVector Loc);
 };
