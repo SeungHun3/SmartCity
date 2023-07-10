@@ -249,10 +249,11 @@ bool UActorComponent_Playfab::Is_Today_Checked()
 		else { return false; }
 		
 	}
-	else
+	else //Is_Checked_Daily의 키가 없다면
 	{
-		return true;
+		ScriptCustomNotField("Default_Statistics");
 		UE_LOG(LogTemp, Log, TEXT("// NoData : Is_Checked_Daily"));
+		return false;
 
 	}
 }
@@ -263,10 +264,11 @@ int UActorComponent_Playfab::Get_Checking_Count()
 	{
 		return *PlayFab_Statistics.Find("Month_Reward_Count");
 	}
-	else
+	else // 출석 데이터가 없다면 
 	{
+		ScriptCustomNotField("Default_Statistics");
 		UE_LOG(LogTemp, Log, TEXT("// NoData : Month_Reward_Count"));
-		return -1;
+		return 0;
 	}
 }
 
