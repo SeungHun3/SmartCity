@@ -136,6 +136,14 @@ protected:
 public:
 	void setDummy(bool IsDummy);
 
+///////////////////////¿Ãµø
+public:
+	void MoveFoward(FRotator rot, float Axis);
+	void MoveRight(FRotator rot, float Axis);
+	void MoveStop(bool IsForward);
+	void MoveStopFinish(FVector Loc);
+
+
 };
 
 

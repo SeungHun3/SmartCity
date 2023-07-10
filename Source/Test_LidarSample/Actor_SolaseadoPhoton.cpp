@@ -777,6 +777,80 @@ int AActor_SolaseadoPhoton::GetMyChannelNumber()
 	return m_pListener->getRoomCount();
 }
 
+void AActor_SolaseadoPhoton::PhotonMove(bool IsForward, FRotator rot, float axis)
+{
+	if (IsForward)
+	{
+		m_pListener->MoveFoward(rot, axis);
+	}
+	else
+	{
+		m_pListener->MoveRight(rot, axis);
+	}
+}
+
+void AActor_SolaseadoPhoton::PhotonStop(bool IsForward)
+{
+	m_pListener->MoveStop(IsForward);
+}
+
+void AActor_SolaseadoPhoton::PhotonFinish(FVector Loc)
+{
+	m_pListener->MoveStopFinish(Loc);
+}
+
+void AActor_SolaseadoPhoton::UpdateForward(int PlayerNum, FRotator rot, float Axis)
+{
+	//UE_LOG(LogTemp, Log, TEXT("// UpdateForward %f "), Axis);
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == PlayerNum)
+		{
+			it->Pawn_MoveForward(rot, Axis);
+
+			return;
+		}
+	}
+}
+
+void AActor_SolaseadoPhoton::UpdateRight(int PlayerNum, FRotator rot, float Axis)
+{
+	//UE_LOG(LogTemp, Log, TEXT("// UpdateRight %f "), Axis);
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == PlayerNum)
+		{
+			it->Pawn_MoveRight(rot, Axis);
+			return;
+		}
+	}
+}
+
+void AActor_SolaseadoPhoton::UpdateStop(int PlayerNum, bool IsForward)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == PlayerNum)
+		{
+			it->Pawn_StopMove(IsForward);
+			return;
+		}
+	}
+}
+
+void AActor_SolaseadoPhoton::UpdateStopFinished(int PlayerNum, FVector Loc)
+{
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == PlayerNum)
+		{
+			it->Pawn_StopMoveFinish(Loc);
+			return;
+		}
+	}
+
+}
+
 //로컬 플레이어 위치 갱신
 void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 {
