@@ -172,6 +172,10 @@ void PhotonListner_Solaseado::onRoomListUpdate(void) // Room프로퍼티가 변경될때�
 // 연결 종료
 void PhotonListner_Solaseado::disconnectReturn(void)
 {
+	if (b_IsDummy)
+	{
+		return;
+	}
 	m_pView->InitPlayers();
 	m_pView->ErrorCheckMessage("// DisconnectReturn :: ", 99);
 }
