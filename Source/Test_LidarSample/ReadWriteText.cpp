@@ -29,12 +29,36 @@ bool UReadWriteText::LoadLocalTxt(FString FileName, TArray<FString>& LoadSoundAr
 		{
 			LoadSoundArray.Init("5", 4);
 		}
-
+		else
+		{
+			// LoadSoundArray의 요소가 0~10 사이인지 확인하고 아니면 모두 5로 초기화
+			for (const FString& Sound : LoadSoundArray)
+			{
+				int32 SoundValue = FCString::Atoi(*Sound);
+				if (SoundValue < 0 || SoundValue > 10)
+				{
+					LoadSoundArray.Init("5", 4);
+					break;
+				}
+			}
+		}
 		if (LoadMuteArray.Num() != 4)
 		{
 			LoadMuteArray.Init("0", 4);
 		}
-
+		else
+		{
+			// LoadMuteArray의 요소가 0 또는 1인지 확인하고 아니면 모두 0으로 초기화
+			for (const FString& Mute : LoadMuteArray)
+			{
+				int32 MuteValue = FCString::Atoi(*Mute);
+				if (MuteValue != 0 && MuteValue != 1)
+				{
+					LoadMuteArray.Init("0", 4);
+					break;
+				}
+			}
+		}
 		return true;
 	}
 	else 
@@ -57,12 +81,36 @@ bool UReadWriteText::SaveLocalTxt(TArray<FString> SaveSoundArray, TArray<FString
 	{
 		SaveSoundArray.Init("5", 4);
 	}
-
+	else
+	{
+		// SaveSoundArray의 요소가 0~10 사이인지 확인하고 아니면 모두 5로 초기화
+		for (const FString& Sound : SaveSoundArray)
+		{
+			int32 SoundValue = FCString::Atoi(*Sound);
+			if (SoundValue < 0 || SoundValue > 10)
+			{
+				SaveSoundArray.Init("5", 4);
+				break;
+			}
+		}
+	}
 	if (SaveMuteArray.Num() != 4)
 	{
 		SaveMuteArray.Init("0", 4);
 	}
-
+	else
+	{
+		// SaveMuteArray의 요소가 0 또는 1인지 확인하고 아니면 모두 0으로 초기화
+		for (const FString& Mute : SaveMuteArray)
+		{
+			int32 MuteValue = FCString::Atoi(*Mute);
+			if (MuteValue != 0 && MuteValue != 1)
+			{
+				SaveMuteArray.Init("0", 4);
+				break;
+			}
+		}
+	}
 	//각 타입은 개행 문자로 Join
 	FString OutPutString = FString::Join(SaveTypeArray, TEXT("\n"));
 
