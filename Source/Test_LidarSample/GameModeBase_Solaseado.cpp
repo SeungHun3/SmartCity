@@ -74,7 +74,7 @@ void AGameModeBase_Solaseado::FadeOut()
 	if (FadeOn)
 		StartFadeOut(1.f, 0.f, FadeDuration);
 }
-void AGameModeBase_Solaseado::AddPopup()
+void AGameModeBase_Solaseado::CreatePopup()
 {
 	WidgetCreate_Popup();
 	InsufficientFunds_Popup();

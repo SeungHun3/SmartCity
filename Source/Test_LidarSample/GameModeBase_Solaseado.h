@@ -151,7 +151,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void WidgetCreate_Popup();
 	UFUNCTION(BlueprintCallable)
-		void AddPopup();
+		void CreatePopup();
 	UFUNCTION(BlueprintImplementableEvent)
 		void InsufficientFunds_Popup();
 	

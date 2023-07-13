@@ -47,7 +47,7 @@ void UActorComponent_PlayfabStore::StoreErrorScript(const PlayFab::FPlayFabCppEr
 		// ÆË¾÷
 		
 		AGameModeBase_Solaseado* GM_Solaseado = Cast<AGameModeBase_Solaseado>(GetWorld()->GetAuthGameMode());
-		GM_Solaseado->AddPopup();
+		GM_Solaseado->CreatePopup();
 		//WidgetPopup->CheckPopup(enum_PopupStyle::Popup1Key, FText::FromString("fefefefef"), FText::FromString("fefefef"), enum_PopupRun::Cancel);
 	}
 }
