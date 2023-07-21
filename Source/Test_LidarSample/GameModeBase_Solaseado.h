@@ -155,7 +155,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void InsufficientFunds_Popup();
 	
-
+	UPROPERTY(BlueprintReadOnly, Category = "MyActors")
+		TArray<AActor*> POIActors;
 	///////////////////////////////////////
 	// State °ü¸®
 
