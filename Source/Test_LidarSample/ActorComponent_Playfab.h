@@ -59,6 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TMap<FString, int>  PlayFab_Statistics;
 
+	// 퀘스트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FQuest_Info MyQuestInfo;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -119,6 +123,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UploadMyCustom(const FString& FunctionName, const FString& FieldName, const TArray<int> ItemIDs);
 
+
+
+
+	/////////////////////////////////////////////////////////////
+	//퀘스트
+	// 타이틀 데이터에서 Quest라는 Key를 읽고 없으면 0으로 초기화 // 완료가 됬을때 업적으로 시간을 남겨놓을 데이터가 있을땐 업적 등록
+	
+	void GetMyQuestToServer(); // 플레이팹에 있는 quest데이터 가져오기(접속할때)
+
+	UFUNCTION(BlueprintCallable)
+		void UpdateMyQuest(); // 플레이팹에 있는 quest데이터 업데이트하기(완료, 다음)
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		TArray<int> GetQuestRowNames(const FString& QuestStep, class UDataTable* QuestTable);
+	UFUNCTION(BlueprintCallable)
+		void Setting_QuestData();
+	UFUNCTION(BlueprintCallable)
+		bool Play_Quest(class UDataTable* QuestData, int Step);
+	UFUNCTION(BlueprintCallable)
+		void Change_Quest_Main_or_Step(bool isMain);
 	////////////////////////////////////////////////////////////
 	// 업적, 플레이팹 리더보드 Name, Value(int) <-- 로그인시 업데이트된 Statistics 데이터
 	

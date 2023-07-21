@@ -142,3 +142,56 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		int Gold;
 };
+
+// 퀘스트 진행사항
+USTRUCT(Atomic,BlueprintType)
+struct FQuest_List : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString QuestName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UDataTable* QuestData;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+		FString Explain;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int reward;
+};
+
+
+USTRUCT(Atomic)
+struct FQuest_Struct : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TMap<FString, bool > MyQuest;
+
+};
+USTRUCT(Atomic, BlueprintType)
+struct FQuest_Info : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int Quest_Name = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int Quest_Step = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TArray<bool> indexCheck;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UDataTable* QuestTable;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int reward;
+};

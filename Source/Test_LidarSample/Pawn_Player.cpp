@@ -84,6 +84,8 @@ void APawn_Player::BeginPlay()
 
 	// 로그 출력 테스트
 	//UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT(" // PawnBeginPlay")), true, true, FColor::Green, 10.0f);
+
+
 }
 
 // Called every frame

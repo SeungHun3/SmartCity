@@ -5,11 +5,13 @@
 #include "Pawn_Player.h"
 #include "Engine/Engine.h"
 #include "Widget/Checking_Folder/Widget_CheckingAttandance_Main.h"
+#include "GameInstance_Solaseado.h"
 
 #include "Core/PlayFabClientAPI.h"
 
 #include "PlayFabJsonObject.h"
 #include "PlayFabJsonValue.h"
+#include "Kismet/DataTableFunctionLibrary.h"
 
 
 using namespace PlayFab;
@@ -57,7 +59,7 @@ void UActorComponent_Playfab::Login_Custom(const FString& customid)
 
 	request.CreateAccount = true;
 	request.CustomId = customid;
-
+	
 	ClientAPI->LoginWithCustomID(
 		request,
 		UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateLambda([&](const ClientModels::FLoginResult& result) {
@@ -532,6 +534,8 @@ void UActorComponent_Playfab::getIngamePlayerData()
 	getInventoryList();
 	// 업적 데이터 체크
 	getStatisticsEvent();
+	// 퀘스트 데이터 체크
+	GetMyQuestToServer();
 	// 공지 정보 체크
 	getNoticeEvent(3);
 
@@ -710,6 +714,7 @@ void UActorComponent_Playfab::getStatisticsEvent()
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 		);
 }
+
 // 공지 정보 가져오기 NoticeCount 가져올 공지 수
 void UActorComponent_Playfab::getNoticeEvent(int NoticeCount)
 {
@@ -735,7 +740,7 @@ void UActorComponent_Playfab::getNoticeEvent(int NoticeCount)
 }
 
 /////////////////////////////////Grant -> getinGamePlayerData -> level이동
-// 승훈 업로드 코스튬, Grant 
+// FunctionName : Create_Grant  == 코스튬 플레이팹에 업로드 
 void UActorComponent_Playfab::UploadMyCustom(const FString& FunctionName, const FString& FieldName,const TArray<int> ItemIDs)
 {
 	TArray<FString> FirstCostumeData;
@@ -746,4 +751,187 @@ void UActorComponent_Playfab::UploadMyCustom(const FString& FunctionName, const 
 	}
 	// 커스텀 데이터 일단 저장
 	ScriptCustomArray(FunctionName, FieldName, FirstCostumeData);
+}
+
+void UActorComponent_Playfab::GetMyQuestToServer()
+{	
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	PlayFab::ClientModels::FGetUserDataRequest request;
+	FString targetKey = "Quest";
+	request.Keys.Add(targetKey);
+	request.PlayFabId = PlayFabID;
+
+
+	// 퀘스트 데이터 찾기
+	ClientAPI->GetUserData(
+		request,
+		PlayFab::UPlayFabClientAPI::FGetUserDataDelegate::CreateLambda([&, targetKey](const PlayFab::ClientModels::FGetUserDataResult& result) {
+
+			const PlayFab::ClientModels::FUserDataRecord* record = result.Data.Find(targetKey);
+			if (!record)
+			{
+				Change_Quest_Main_or_Step(true);
+				return;
+			}
+			// 서버 데이터를 가져와서 변수에 저장
+			TArray<FString> QuestKeys;
+			TSharedPtr<FJsonObject> JsonObject;
+			TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(record->Value); // json형식의 FString 을 jsonReader를 통해 데이터 읽음
+			//오브젝트가 없다면 == 퀘스트 데이터가 없다면 (초기 Init데이터 0으로 설정) ==> 퀘스트 데이터 변경시키기
+			if (!FJsonSerializer::Deserialize(JsonReader, JsonObject)) // 읽은 데이터를 jsonObject에 넣기
+			{
+				Change_Quest_Main_or_Step(true);
+				return;
+			}
+			
+			//MyQuestInfo 에 Main, Step 넣기 
+			JsonObject->Values.GetKeys(QuestKeys);
+			if (QuestKeys.IsValidIndex(0))
+			{
+				TArray<FString> ParseData;
+				QuestKeys[0].ParseIntoArray(ParseData, TEXT("/n"));
+				if (!ParseData[0].IsEmpty()) { MyQuestInfo.Quest_Name = FCString::Atoi(*ParseData[0]); }
+				if (!ParseData[1].IsEmpty()) { MyQuestInfo.Quest_Step = FCString::Atoi(*ParseData[1]); }
+			}
+
+			//MyQuestInfo 에 bool넣어주기
+			for (auto it : QuestKeys)
+			{
+				if (JsonObject->Values.Contains(it))
+				{
+					MyQuestInfo.indexCheck.Add(JsonObject->Values.Find(it)->Get()->AsBool());
+				}
+			}
+			
+			Setting_QuestData();							//저장된 변수로 데이터 테이블 불러오고
+			if (!MyQuestInfo.QuestTable) 	{	return;	}	//테이블이 없다면 모든퀘스트 완료했거나 테이블 없음
+			Play_Quest(MyQuestInfo.QuestTable,MyQuestInfo.Quest_Step);
+			}));
+	
+				
+}
+
+void UActorComponent_Playfab::UpdateMyQuest()
+{
+	if (!MyQuestInfo.indexCheck.IsValidIndex(0)) {		return;	}
+
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	TSharedPtr<FJsonObject> JsonObj = MakeShareable(new FJsonObject());
+	TSharedPtr<FJsonObject> JsonSubObj = MakeShareable(new FJsonObject());
+
+	if (!JsonObj.IsValid() && !JsonSubObj.IsValid())	{	UE_LOG(LogTemp, Log, TEXT("// JSonObj isValid "));		return;	}
+
+	//구조체 데이터 모아서 
+	FString ParseKey;
+	ParseKey.Append(FString::FromInt(MyQuestInfo.Quest_Name));
+	ParseKey.Append("/n");
+	ParseKey.Append(FString::FromInt(MyQuestInfo.Quest_Step));
+	ParseKey.Append("/n");
+
+	for (int i = 0; i< MyQuestInfo.indexCheck.Num(); i++)
+	{
+		FString QuestKey = ParseKey + FString::FromInt(i);
+		JsonSubObj->SetBoolField(QuestKey, MyQuestInfo.indexCheck[i]);
+	}
+	JsonObj->SetObjectField("Quest", JsonSubObj);
+
+	//서버로 전송
+	PlayFab::ClientModels::FExecuteCloudScriptRequest request;
+	request.FunctionName = "UpdateQuest";
+	request.FunctionParameter = JsonObj;
+	request.GeneratePlayStreamEvent = true;
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				PlayerOwner->Quest_Update();
+			}),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
+}
+
+TArray<int> UActorComponent_Playfab::GetQuestRowNames(const FString& QuestStep, UDataTable* QuestTable)
+{
+	TArray<FString> RowNames;
+	TArray<int> QuestRowNames;
+	RowNames = UDataTableFunctionLibrary::GetDataTableColumnAsString(QuestTable, FName("QuestName"));
+
+	for (int i = 0; i < RowNames.Num(); i++)
+	{
+		if (RowNames[i] == QuestStep)
+		{
+			QuestRowNames.Add(i + 1);
+		}
+	}
+	return QuestRowNames;
+}
+
+void UActorComponent_Playfab::Setting_QuestData()
+{
+	MyQuestInfo.QuestTable = nullptr;
+	
+	UGameInstance_Solaseado* MyInstance = Cast<UGameInstance_Solaseado>(GetWorld()->GetGameInstance());
+	UDataTable* Quest_Table = MyInstance->GetQuestTables();
+	FQuest_List* QuestList = Quest_Table->FindRow<FQuest_List>(FName(*FString::FromInt(MyQuestInfo.Quest_Name)), "MainQuest_Not_Found_cpp870");
+	//조건 맞는 DataTable 찾아서 세팅 //QuestList 없을때 메인퀘스트 완료 // MyQuestInfo.QuestTable 이 없을때 메인퀘스트의 DataTable없음
+	if (QuestList && QuestList->QuestData)
+	{
+		MyQuestInfo.QuestTable = QuestList->QuestData;
+	}
+}
+
+bool UActorComponent_Playfab::Play_Quest(UDataTable* QuestData, int Step)
+{
+	bool isChangeStep = false;
+
+	TArray<int> rowNames = GetQuestRowNames(FString::FromInt(Step), QuestData);
+
+	if (!rowNames.IsValidIndex(0))
+	{
+		Change_Quest_Main_or_Step(true);
+		return isChangeStep;
+	}
+	
+	//퀘스트 Play
+	for (int i = 0; i < rowNames.Num(); i++)
+	{
+		if (MyQuestInfo.indexCheck.IsValidIndex(i)) // 이미 데이터를 가지고 있는경우(change에서 clear안된 데이터 == getServer에서 바로 Play된 경우 )
+		{
+			if (MyQuestInfo.indexCheck[i]) {continue; } //데이터중 완료한 퀘스트는 실행안함
+		}
+		else // 데이터가 없는경우 ex) change, init character
+		{
+			MyQuestInfo.indexCheck.Add(false);
+		}
+		
+		FQuest_List QuestContents = *QuestData->FindRow<FQuest_List>(FName(*FString::FromInt(rowNames[i])), ""); // 퀘스트 실행
+		PlayerOwner->Quest_Binding(MyQuestInfo,i, QuestContents);
+	}
+	PlayerOwner->Quest_Play();
+
+	isChangeStep = true;
+	return isChangeStep;
+}
+
+void UActorComponent_Playfab::Change_Quest_Main_or_Step(bool isMain)
+{
+	MyQuestInfo.indexCheck.Reset();
+	
+	if (isMain) // MainQuest가 변경됬다면
+	{
+		MyQuestInfo.Quest_Name += 1;
+		MyQuestInfo.Quest_Step = 1;
+		Setting_QuestData(); // DataTable 채우기
+	}
+	else { MyQuestInfo.Quest_Step += 1;	} // Step이 변경됬다면
+
+	if (!MyQuestInfo.QuestTable)// 테이블이 없다면
+	{
+		UE_LOG(LogTemp, Error, TEXT("// All Main Quest Finished"));
+		return;
+	}
+
+	//Change 끝나고 서버로 업데이트하기
+	if (Play_Quest(MyQuestInfo.QuestTable, MyQuestInfo.Quest_Step))	{		UpdateMyQuest();	}
+	
 }
