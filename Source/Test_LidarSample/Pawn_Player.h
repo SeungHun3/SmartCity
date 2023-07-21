@@ -256,4 +256,12 @@ public:
 		void Pawn_StopMove();
 	UFUNCTION(BlueprintImplementableEvent)
 		void Pawn_StopMoveFinish(FVector Loc);
+
+	//Äù½ºÆ®
+	UFUNCTION(BlueprintImplementableEvent)
+		void Quest_Binding(FQuest_Info QuestInfo,int index, FQuest_List QuestContents);
+	UFUNCTION(BlueprintImplementableEvent)
+		void Quest_Play();
+	UFUNCTION(BlueprintImplementableEvent)
+		void Quest_Update();
 };

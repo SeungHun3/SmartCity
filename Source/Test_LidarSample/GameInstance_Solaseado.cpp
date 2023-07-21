@@ -47,6 +47,14 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		Special_Reward_Table = FindSpecialReward.Object;
 	}
+
+	////////////////////////////
+	// 퀘스트 데이터 세팅
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindQuestData(TEXT("/Game/Project/DataTable/Data_Folder/Quest_Folder/Data_Quest_Main"));
+	if (FindQuestData.Succeeded())
+	{
+		Quest_Table = FindQuestData.Object;
+	}
 }
 
 
