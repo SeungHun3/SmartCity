@@ -55,6 +55,13 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		Quest_Table = FindQuestData.Object;
 	}
+	//////////////////////////
+	// Npc 대화 데이터 세팅
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindDialogueNpcData(TEXT("/Game/Project/DataTable/Data_Folder/DialogueNpc_Folder/DialogueNpc_Main"));
+	if (FindDialogueNpcData.Succeeded())
+	{
+		DialogueNpc_Table = FindDialogueNpcData.Object;
+	}
 }
 
 

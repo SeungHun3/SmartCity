@@ -195,3 +195,31 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		int reward;
 };
+
+//Npc Main
+USTRUCT(Atomic, BlueprintType)
+struct FDialogueNpc_List : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int NpcName = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UDataTable* NpcDialogueTable;
+};
+//Npc 대화 내용
+USTRUCT(Atomic, BlueprintType)
+struct FDialogueNpc_Content :public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int idx = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString Message;
+};

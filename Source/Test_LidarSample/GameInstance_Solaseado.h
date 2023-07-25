@@ -28,6 +28,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		UDataTable* Quest_Table;
 
+	UPROPERTY(VisibleAnywhere)
+		UDataTable* DialogueNpc_Table;
+
 public:
 	UGameInstance_Solaseado();
 
@@ -44,5 +47,7 @@ public:
 		UDataTable* GetSpecialRewardTables() { return Special_Reward_Table; }
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 		UDataTable* GetQuestTables() { return Quest_Table; }
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+		UDataTable* GetDialogueNpcTable() { return DialogueNpc_Table;  }
 
 };
