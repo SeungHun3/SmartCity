@@ -55,9 +55,15 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		Quest_Table = FindQuestData.Object;
 	}
+
+	//업적데이터 세팅
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindAchieveData(TEXT("/Game/Project/DataTable/Data_Folder/Achieve_Folder/Data_Achievement"));
+	if (FindAchieveData.Succeeded())
+	{
+		Achieve_Table = FindAchieveData.Object;
+	}
 }
-
-
 
 // ITemID로 Mesh, Image,,을 담는 FCustomizing_Struct 구조체 반환처리하는 함수
 FCustomizing_Struct UGameInstance_Solaseado::Find_ITem(const FString& ITemID)

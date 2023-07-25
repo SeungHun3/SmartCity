@@ -538,7 +538,6 @@ void UActorComponent_Playfab::getIngamePlayerData()
 	GetMyQuestToServer();
 	// 공지 정보 체크
 	getNoticeEvent(3);
-
 	// updateUserTitleData(UserTitleData);
 }
 // 유저 닉네임
@@ -927,11 +926,88 @@ void UActorComponent_Playfab::Change_Quest_Main_or_Step(bool isMain)
 
 	if (!MyQuestInfo.QuestTable)// 테이블이 없다면
 	{
-		UE_LOG(LogTemp, Error, TEXT("// All Main Quest Finished"));
+		MyQuestInfo.Quest_Step = 1;
+		PlayerOwner->Quest_All_Finished();
 		return;
 	}
 
 	//Change 끝나고 서버로 업데이트하기
 	if (Play_Quest(MyQuestInfo.QuestTable, MyQuestInfo.Quest_Step))	{		UpdateMyQuest();	}
 	
+}
+
+void UActorComponent_Playfab::Change_QuestFinished(int index)
+{
+	if (MyQuestInfo.indexCheck.IsValidIndex(index))
+	{
+		MyQuestInfo.indexCheck[index] = true;
+	}
+	UpdateMyQuest();
+}
+
+//업적 데이터 서버로 업데이트하기
+void UActorComponent_Playfab::UpdateAchievement(int AchieveNumber)
+{
+	FString Temp;
+	FString AchieveCount = FString::FromInt(AchieveNumber); // AchieveNumber = 001~999 Naming 맞추기용
+	for (int i = 0; i < 3 - AchieveCount.Len(); i++)
+	{
+		Temp += "0";
+	}
+	AchieveCount = Temp + AchieveCount;
+	
+	FString FullName = AchieveName + AchieveCount;
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	TSharedPtr<FJsonObject> JsonObj = MakeShareable(new FJsonObject());
+	JsonObj->SetStringField("achieve", FullName);
+	PlayFab::ClientModels::FExecuteCloudScriptRequest request;
+	request.FunctionName = "Update_Achievement";
+	request.FunctionParameter = JsonObj;
+	request.GeneratePlayStreamEvent = true;
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, FullName, AchieveCount](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				//서버업데이트 끝날때 호출
+				PlayFab_Statistics.Add(FullName, 0);
+				PlayerOwner->Finished_UpdateAchieve(AchieveCount);
+			}));
+			
+}
+//업적데이터만 추려서 반환
+TArray<FString> UActorComponent_Playfab::GetAchievement()
+{
+	TArray<FString> AchieveNumber;
+	TArray<FString> Keys;
+	PlayFab_Statistics.GetKeys(Keys);
+	for (auto it : Keys)
+	{
+		if (it.Find(AchieveName) == 0) 
+		{
+			AchieveNumber.Add(it.Right(it.Len() - AchieveName.Len()));
+		}
+	}
+	return AchieveNumber;
+}
+
+void UActorComponent_Playfab::Debug_ClearAchievement()
+{
+	TArray<FString> Keys, RemoveKeys;
+	PlayFab_Statistics.GetKeys(Keys);
+
+	for (auto it : Keys)
+	{
+		if (it.Find(AchieveName) == 0)
+		{
+			RemoveKeys.Add(it);
+			//PlayFab_Statistics.Remove(it);
+
+		}
+	}
+	PlayFab_Statistics.GetKeys(Keys);
+	for (auto it : Keys)
+	{
+		UE_LOG(LogTemp, Log, TEXT("// statistics Key :: %s "), *it);
+		// 통계정보에서 클리어하는 방법 확인해보기
+	}
 }

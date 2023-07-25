@@ -62,6 +62,9 @@ public:
 	// 퀘스트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FQuest_Info MyQuestInfo;
+	//업적
+	FString AchieveName = "achieve_";
+
 
 protected:
 	// Called when the game starts
@@ -143,9 +146,19 @@ public:
 		bool Play_Quest(class UDataTable* QuestData, int Step);
 	UFUNCTION(BlueprintCallable)
 		void Change_Quest_Main_or_Step(bool isMain);
+	UFUNCTION(BlueprintCallable)
+		void Change_QuestFinished(int index);
 	////////////////////////////////////////////////////////////
 	// 업적, 플레이팹 리더보드 Name, Value(int) <-- 로그인시 업데이트된 Statistics 데이터
-	
+	UFUNCTION(BlueprintCallable)
+		void UpdateAchievement(int AchieveNumber);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		TArray<FString> GetAchievement();
+	//디버그__업적 초기화
+	UFUNCTION(BlueprintCallable)
+		void Debug_ClearAchievement();
+
+
 	// 출석데이터 가져오기
 	UFUNCTION(BlueprintCallable)
 	bool Is_Today_Checked();

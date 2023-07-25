@@ -264,4 +264,10 @@ public:
 		void Quest_Play();
 	UFUNCTION(BlueprintImplementableEvent)
 		void Quest_Update();
+	UFUNCTION(BlueprintImplementableEvent)
+		void Quest_All_Finished();
+
+	//¾÷Àû
+	UFUNCTION(BlueprintImplementableEvent)
+		void Finished_UpdateAchieve(const FString& AchieveNum);
 };

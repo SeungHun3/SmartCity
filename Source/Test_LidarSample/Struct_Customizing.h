@@ -164,17 +164,6 @@ public:
 };
 
 
-USTRUCT(Atomic)
-struct FQuest_Struct : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TMap<FString, bool > MyQuest;
-
-};
 USTRUCT(Atomic, BlueprintType)
 struct FQuest_Info : public FTableRowBase
 {
@@ -194,4 +183,16 @@ public:
 		class UDataTable* QuestTable;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		int reward;
+};
+//¾÷Àû
+
+USTRUCT(Atomic, BlueprintType)
+struct FAchieve_Info : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FString Explain;
+
 };
