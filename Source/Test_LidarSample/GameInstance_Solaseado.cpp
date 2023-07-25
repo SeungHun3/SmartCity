@@ -62,7 +62,6 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		DialogueNpc_Table = FindDialogueNpcData.Object;
 	}
-}
 
 	//업적데이터 세팅
 
