@@ -28,24 +28,24 @@ public:
 		class UButton* Button_Next;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int CurrentPage = 0;
+		int CurrentPage = 1;
+	//다음 대화로 넘어갈 수 있는 상태
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bOnNext = true;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FText> MessageList;
 
-	//다음 대화로 넘어갈 수 있는 상태
-	bool bOnNext = true;
-
 public:
 	virtual void NativeConstruct();
 
-	UFUNCTION(BlueprintCallable)
-		void Begin_Setting();
 	UFUNCTION()
 		void OnNextButtonClicked();
 	UFUNCTION(BlueprintCallable)
 		virtual void ClearMessageBox();
 	UFUNCTION(BlueprintCallable)
-		virtual void AddMessageBox(const FText title, const TArray<FText>& Message);
+		virtual void AddMessageBox(const FText title, const FText& Message);
+	UFUNCTION(BlueprintImplementableEvent)
+		void NextMessage();
 };

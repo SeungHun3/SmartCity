@@ -11,12 +11,6 @@ void UWidget_DialogueSystem::NativeConstruct()
 {
 	Super::NativeConstruct();
 	Button_Next->OnClicked.AddUniqueDynamic(this, &UWidget_DialogueSystem::OnNextButtonClicked);
-	Begin_Setting();
-}
-void UWidget_DialogueSystem::Begin_Setting()
-{
-	UGameInstance_Solaseado* MyInstance = Cast<UGameInstance_Solaseado>(GetGameInstance());
-	class UDataTable* DialogueNpc_Table = MyInstance->GetDialogueNpcTable();
 }
 //다음버튼 클릭
 void UWidget_DialogueSystem::OnNextButtonClicked()
@@ -24,21 +18,20 @@ void UWidget_DialogueSystem::OnNextButtonClicked()
 	if (bOnNext)
 	{
 		CurrentPage++;
+		NextMessage();
 	}
 }
 //메세지 초기화
 void UWidget_DialogueSystem::ClearMessageBox()
 {
-	RemoveFromParent();
-
 	SetVisibility(ESlateVisibility::Collapsed);
 
-	CurrentPage = 0;
+	CurrentPage = 1;
 }
 
-void UWidget_DialogueSystem::AddMessageBox(const FText title, const TArray<FText>& Message)
+void UWidget_DialogueSystem::AddMessageBox(const FText title, const FText& Message)
 {
+	SetVisibility(ESlateVisibility::Visible);
 	TextBlock_Title->SetText(title);
-
-	MessageList = Message;
+	TextBlock_Message->SetText(Message);
 }
