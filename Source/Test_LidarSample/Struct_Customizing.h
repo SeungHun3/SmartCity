@@ -223,4 +223,13 @@ public:
 		int idx = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FString Message;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		bool b2Key = false;
+};
+//Npc ¥Î»≠√¢
+UENUM(BlueprintType)
+enum class enum_DialogueStyle : uint8
+{
+	Dialogue1Key,
+	Dialogue2Key,
 };

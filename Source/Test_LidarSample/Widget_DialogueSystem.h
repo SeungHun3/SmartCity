@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Struct_Customizing.h"
 #include "Widget_DialogueSystem.generated.h"
 
 /**
@@ -24,9 +25,22 @@ public:
 	//1Key
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		class UOverlay* Overlay_1Key;
+	//2Key
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+		class UOverlay* Overlay_2Key;
+	//1Key Button
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* Button_Next;
-	
+	//2Key Button
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* Button_First;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* Button_FirstText;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* Button_Second;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* Button_SecondText;
+	//현재 페이지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int CurrentPage = 1;
 	//다음 대화로 넘어갈 수 있는 상태
@@ -39,13 +53,18 @@ protected:
 
 public:
 	virtual void NativeConstruct();
-
+	//1Key 버튼
 	UFUNCTION()
 		void OnNextButtonClicked();
+	//2Key 버튼
+	UFUNCTION()
+		void OnFirstButtonClicked();
+	UFUNCTION()
+		void OnSecondButtonClicked();
 	UFUNCTION(BlueprintCallable)
 		virtual void ClearMessageBox();
 	UFUNCTION(BlueprintCallable)
-		virtual void AddMessageBox(const FText title, const FText& Message);
+		virtual void AddMessageBox(enum_DialogueStyle style, const FText title, const FText& Message, const FText& FirstBtnText, const FText& SecondBtnText);
 	UFUNCTION(BlueprintImplementableEvent)
 		void NextMessage();
 };
