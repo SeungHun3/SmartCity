@@ -47,10 +47,12 @@ void UWidget_DialogueSystem::ClearMessageBox()
 void UWidget_DialogueSystem::AddMessageBox(enum_DialogueStyle style, const FText title, const FText& Message, const FText& FirstBtnText, const FText& SecondBtnText)
 {
 	SetVisibility(ESlateVisibility::Visible);
+
 	TextBlock_Title->SetText(title);
 	TextBlock_Message->SetText(Message);
 	Button_FirstText->SetText(FirstBtnText);
 	Button_SecondText->SetText(SecondBtnText);
+
 	switch (style)
 	{
 		case enum_DialogueStyle::Dialogue1Key:
