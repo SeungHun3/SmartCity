@@ -29,11 +29,13 @@ void UWidget_DialogueSystem::OnNextButtonClicked()
 // 첫 번째 버튼 바인드 함수
 void UWidget_DialogueSystem::OnFirstButtonClicked()
 {
+	OnNextButtonClicked();
 	//UE_LOG(LogTemp, Warning, TEXT("First Button"));
 }
 // 두 번째 버튼 바인드 함수
 void UWidget_DialogueSystem::OnSecondButtonClicked()
 {
+	OnNextButtonClicked();
 	//UE_LOG(LogTemp, Warning, TEXT("Second Button"));
 }
 //메세지 초기화
