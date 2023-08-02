@@ -47,28 +47,27 @@ UGameInstance_Solaseado::UGameInstance_Solaseado()
 	{
 		Special_Reward_Table = FindSpecialReward.Object;
 	}
-
-	////////////////////////////
 	// 퀘스트 데이터 세팅
 	static ConstructorHelpers::FObjectFinder<UDataTable> FindQuestData(TEXT("/Game/Project/DataTable/Data_Folder/Quest_Folder/Data_Quest_Main"));
 	if (FindQuestData.Succeeded())
 	{
 		Quest_Table = FindQuestData.Object;
 	}
+
+
+	//업적데이터 세팅
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindAchieveData(TEXT("/Game/Project/DataTable/Data_Folder/Achieve_Folder/Data_Achievement"));
+	if (FindAchieveData.Succeeded())
+	{
+		Achieve_Table = FindAchieveData.Object;
+	}
+
 	//////////////////////////
 	// Npc 대화 데이터 세팅
 	static ConstructorHelpers::FObjectFinder<UDataTable> FindDialogueNpcData(TEXT("/Game/Project/DataTable/Data_Folder/DialogueNpc_Folder/DialogueNpc_Main"));
 	if (FindDialogueNpcData.Succeeded())
 	{
 		DialogueNpc_Table = FindDialogueNpcData.Object;
-	}
-
-	//업적데이터 세팅
-
-	static ConstructorHelpers::FObjectFinder<UDataTable> FindAchieveData(TEXT("/Game/Project/DataTable/Data_Folder/Achieve_Folder/Data_Achievement"));
-	if (FindAchieveData.Succeeded())
-	{
-		Achieve_Table = FindAchieveData.Object;
 	}
 }
 

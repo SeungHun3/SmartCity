@@ -50,8 +50,10 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 		UDataTable* GetQuestTables() { return Quest_Table; }
 	UFUNCTION(BlueprintPure, BlueprintCallable)
-		UDataTable* GetDialogueNpcTable() { return DialogueNpc_Table;  }
-	UFUNCTION(BlueprintPure, BlueprintCallable)
 		UDataTable* GetAchieveTables() { return Achieve_Table; }
+
+
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+		UDataTable* GetDialogueNpcTable() { return DialogueNpc_Table;  }
 
 };

@@ -61,7 +61,8 @@ public:
 
 	// 퀘스트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FQuest_Info MyQuestInfo;
+	TArray<FQuest_Info> MyQuest_Info;
+
 	//업적
 	FString AchieveName = "achieve_";
 
@@ -131,23 +132,31 @@ public:
 
 	/////////////////////////////////////////////////////////////
 	//퀘스트
-	// 타이틀 데이터에서 Quest라는 Key를 읽고 없으면 0으로 초기화 // 완료가 됬을때 업적으로 시간을 남겨놓을 데이터가 있을땐 업적 등록
 	
-	void GetMyQuestToServer(); // 플레이팹에 있는 quest데이터 가져오기(접속할때)
+	// 퀘스트 구조체배열에서 조건에 맞는 인덱스 반환
+	int FindQuestInfo_Index(const FString& QuestName);
+	// PlayFab_Statistics 탐색 -> 퀘스트 있으면 Title데이터 탐색 후 구조체 Add
+	void CheckQuestInfo();
+	// Json데이터 그대로 가져와 구조체만들기
+	FQuest_Info MakeQuestInfo(const FString& QuestName, const FString& JsonParseData);
+	// 퀘스트 테이블 가져오기
+	UDataTable* FindQuestTable(const FString& QuestName);
+	// Playfab TitleData업데이트
+	void Quest_Update(const FString& QuestName);
+
+	FQuest_Info SetQuestInfo(const FString& QuestName, int Step);
+	TArray<int> GetQuestRowNames(const FString& QuestStepProp, class UDataTable* QuestTable);
+
 
 	UFUNCTION(BlueprintCallable)
-		void UpdateMyQuest(); // 플레이팹에 있는 quest데이터 업데이트하기(완료, 다음)
+	void Quest_Start(const FString& QuestName);
+	UFUNCTION(BlueprintCallable)
+	void Quest_Finish(const FString& QuestName, int index);
+	UFUNCTION(BlueprintCallable)
+	void Quest_Next(const FString& QuestName);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		TArray<int> GetQuestRowNames(const FString& QuestStep, class UDataTable* QuestTable);
-	UFUNCTION(BlueprintCallable)
-		void Setting_QuestData();
-	UFUNCTION(BlueprintCallable)
-		bool Play_Quest(class UDataTable* QuestData, int Step);
-	UFUNCTION(BlueprintCallable)
-		void Change_Quest_Main_or_Step(bool isMain);
-	UFUNCTION(BlueprintCallable)
-		void Change_QuestFinished(int index);
+	void Quest_Complete(const FString& QuestName);
+
 	////////////////////////////////////////////////////////////
 	// 업적, 플레이팹 리더보드 Name, Value(int) <-- 로그인시 업데이트된 Statistics 데이터
 	UFUNCTION(BlueprintCallable)
