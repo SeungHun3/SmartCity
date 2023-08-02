@@ -38,11 +38,14 @@ void UWidget_DialogueSystem::OnSecondButtonClicked()
 	OnNextButtonClicked();
 	//UE_LOG(LogTemp, Warning, TEXT("Second Button"));
 }
-//메세지 초기화
-void UWidget_DialogueSystem::ClearMessageBox()
+//메세지 박스 삭제
+void UWidget_DialogueSystem::RemoveMessageBox()
 {
 	SetVisibility(ESlateVisibility::Collapsed);
-
+}
+//대화 페이지 초기화
+void UWidget_DialogueSystem::PageReset()
+{
 	CurrentPage = 1;
 }
 //대화창 스타일 선택, 내용 추가
