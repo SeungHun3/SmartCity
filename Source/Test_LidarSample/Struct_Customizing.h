@@ -163,29 +163,26 @@ public:
 		int reward;
 };
 
-
 USTRUCT(Atomic, BlueprintType)
 struct FQuest_Info : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
 public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		int Quest_Name = 0;
+		FString Quest_Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		int Quest_Step = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TArray<bool> indexCheck;
+		TArray<bool> IsFinished;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UDataTable* QuestTable;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		int reward;
+		UDataTable* QuestTable = nullptr;
 };
-//업적
 
+
+//업적
 USTRUCT(Atomic, BlueprintType)
 struct FAchieve_Info : public FTableRowBase
 {
