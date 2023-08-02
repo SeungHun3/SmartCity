@@ -219,9 +219,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		int idx = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		FString Message;
+		FText Message;
+	//버튼 갯수
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		bool b2Key = false;
+		int keyNum = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FText Key1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FText Key2;
+	//이벤트가 있는 행인지
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		bool RowEvent = false;
 };
 //Npc 대화창
 UENUM(BlueprintType)

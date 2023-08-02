@@ -62,7 +62,9 @@ public:
 	UFUNCTION()
 		void OnSecondButtonClicked();
 	UFUNCTION(BlueprintCallable)
-		virtual void ClearMessageBox();
+		virtual void RemoveMessageBox();
+	UFUNCTION(BlueprintCallable)
+		void PageReset();
 	UFUNCTION(BlueprintCallable)
 		virtual void AddMessageBox(enum_DialogueStyle style, const FText title, const FText& Message, const FText& FirstBtnText, const FText& SecondBtnText);
 	UFUNCTION(BlueprintImplementableEvent)
