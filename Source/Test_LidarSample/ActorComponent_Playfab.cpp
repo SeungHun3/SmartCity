@@ -870,12 +870,19 @@ FQuest_Info UActorComponent_Playfab::SetQuestInfo(const FString& QuestName, int 
 	Quest.IsFinished.Reset();
 
 	UDataTable* MyQuestTable = FindQuestTable(QuestName);
-	int IndexSize = GetQuestRowNames(FString::FromInt(Step), MyQuestTable).Num();
+	TArray<int> RowNames = GetQuestRowNames(FString::FromInt(Step), MyQuestTable);
+	int IndexSize = RowNames.Num();
+	if (IndexSize == 0) { return Quest; } // 진행도가 없다면 Quest.IsFinished.Reset() 만 시키고 탈출
 
 	for (int i = 0; i < IndexSize; i++)
 	{
 		Quest.IsFinished.Add(false); // 퀘스트 완료여부
 	}
+
+	//퀘스트(선택된데이터테이블)가 가지고 있는 데이터테이블(대화시스템)
+	FString TablePropName = FString::FromInt(RowNames[0]); // 같은 진행도를 가진 인덱스중 첫번째의 데이터테이블
+	FQuest_Info CurrQuestTable = *MyQuestTable->FindRow<FQuest_Info>(FName(*TablePropName), "NoData_Questinfo_Table");
+	Quest.QuestTable = CurrQuestTable.QuestTable;
 
 	return Quest;
 }
@@ -916,8 +923,8 @@ void UActorComponent_Playfab::Quest_Start(const FString& QuestName)
 
 				FQuest_Info Quest = SetQuestInfo(QuestName, 1); // 퀘스트 시작정보 구조체 담아서
 				MyQuest_Info.Add(Quest); // 배열에 추가 후 
+				PlayerOwner->Quest_Start(Quest);
 				Quest_Update(QuestName); // 타이틀 데이터에 업데이트하기
-				PlayerOwner->Quest_Play(Quest);
 			}));
 }
 
@@ -935,7 +942,7 @@ void UActorComponent_Playfab::Quest_Finish(const FString& QuestName, int index)
 void UActorComponent_Playfab::Quest_Next(const FString& QuestName)
 {
 	int CurrQuest = FindQuestInfo_Index(QuestName);
-	if (CurrQuest == -1)	{	return; }	// 잘못된 이름이라면
+	if (CurrQuest == -1)	{	return; }	// 잘못된 이름이라면 탈출
 
 	int NextStep = MyQuest_Info[CurrQuest].Quest_Step + 1;
 
@@ -944,8 +951,9 @@ void UActorComponent_Playfab::Quest_Next(const FString& QuestName)
 	// 퀘스트가 끝났다면						// 퀘스트 완료 업적 업데이트
 	if (!Quest.IsFinished.IsValidIndex(0))		{	Quest_Complete(QuestName);	return;	}
 
-	MyQuest_Info[CurrQuest] = Quest; 
-	Quest_Update(QuestName);
+	MyQuest_Info[CurrQuest] = Quest; //정보담고
+	PlayerOwner->Quest_Next(MyQuest_Info[CurrQuest]);
+	Quest_Update(QuestName);		// 타이틀 데이터에 업데이트하기
 }
 //퀘스트완료 == 업적데이터 1로 바꿔주기
 void UActorComponent_Playfab::Quest_Complete(const FString& QuestName)
@@ -962,6 +970,7 @@ void UActorComponent_Playfab::Quest_Complete(const FString& QuestName)
 		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, QuestName](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
 			{
 				// 보상받기 // 받으면 타이틀 데이터 지우기
+				PlayerOwner->Quest_Complete(QuestName);
 			}));
 }
 //Quest_Complete

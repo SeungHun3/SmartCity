@@ -259,11 +259,11 @@ public:
 
 	//Äù½ºÆ®
 	UFUNCTION(BlueprintImplementableEvent)
-		void Quest_Play(FQuest_Info PlayQuest);
+		void Quest_Start(FQuest_Info PlayQuest);
 	UFUNCTION(BlueprintImplementableEvent)
-		void Quest_Update(const FString& QuestName);
+		void Quest_Next(const FQuest_Info& QuestInfo);
 	UFUNCTION(BlueprintImplementableEvent)
-		void Quest_All_Finished(const FString& QuestName);
+		void Quest_Complete(const FString& QuestName);
 
 	//¾÷Àû
 	UFUNCTION(BlueprintImplementableEvent)
