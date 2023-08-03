@@ -17,7 +17,7 @@ class TEST_LIDARSAMPLE_API UWidget_DialogueSystem : public UUserWidget
 	
 public:
 	//NPC 대화 내용
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* TextBlock_Message;
 	//NPC 대화 제목
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
