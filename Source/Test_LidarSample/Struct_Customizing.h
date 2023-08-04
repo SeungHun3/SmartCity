@@ -181,6 +181,15 @@ public:
 		UDataTable* QuestTable = nullptr;
 };
 
+UENUM(BlueprintType)
+enum class enum_Quest_Condition : uint8
+{
+	NotStart, // 시작가능
+	IsDoing, // 진행중
+	LastFinished,// 마지막 보상받기버튼 클릭안했을때
+	IsComplete, // 완료
+
+};
 
 //업적
 USTRUCT(Atomic, BlueprintType)

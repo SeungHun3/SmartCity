@@ -59,9 +59,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TMap<FString, int>  PlayFab_Statistics;
 
-	// 퀘스트
+	// 퀘스트 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FQuest_Info> MyQuest_Info;
+	TArray<FQuest_Info> MyQuest_Info;	// 진행 중인 퀘스트만 담기
 
 	//업적
 	FString AchieveName = "achieve_";
@@ -146,6 +146,7 @@ public:
 
 	FQuest_Info SetQuestInfo(const FString& QuestName, int Step);
 	TArray<int> GetQuestRowNames(const FString& QuestStepProp, class UDataTable* QuestTable);
+	int QuestTotalStepcount(const FString& QuestName);
 
 
 	UFUNCTION(BlueprintCallable)
@@ -156,6 +157,13 @@ public:
 	void Quest_Next(const FString& QuestName);
 
 	void Quest_Complete(const FString& QuestName);
+
+	bool Quest_Check_isDoing(const FString& QuestName);
+	bool Quest_Check_IsComplete(const FString& QuestName);
+	bool Quest_Check_IsLastFinished(const FString& QuestName);
+
+	UFUNCTION(BlueprintCallable)
+	enum_Quest_Condition Quest_Check_Condition(const FString& QuestName);
 
 	////////////////////////////////////////////////////////////
 	// 업적, 플레이팹 리더보드 Name, Value(int) <-- 로그인시 업데이트된 Statistics 데이터
