@@ -190,7 +190,13 @@ enum class enum_Quest_Condition : uint8
 	IsComplete, // 완료
 
 };
-
+UENUM()
+enum class enum_Quest_Update : uint8	//업적 업데이트용
+{
+	Drop, // 퀘스트포기
+	Start, // 시작
+	Complete, // 완료
+};
 //업적
 USTRUCT(Atomic, BlueprintType)
 struct FAchieve_Info : public FTableRowBase

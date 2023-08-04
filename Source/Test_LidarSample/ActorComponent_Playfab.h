@@ -141,8 +141,10 @@ public:
 	FQuest_Info MakeQuestInfo(const FString& QuestName, const FString& JsonParseData);
 	// 퀘스트 테이블 가져오기
 	UDataTable* FindQuestTable(const FString& QuestName);
-	// Playfab TitleData업데이트
-	void Quest_Update(const FString& QuestName);
+	// 퀘스트 Playfab TitleData업데이트
+	void Quest_Update_Title(const FString& QuestName);
+	// 퀘스트 Playfab Statistic업데이트
+	void Quest_Update_Statistic(const FString& QuestName, enum_Quest_Update Update);
 
 	FQuest_Info SetQuestInfo(const FString& QuestName, int Step);
 	TArray<int> GetQuestRowNames(const FString& QuestStepProp, class UDataTable* QuestTable);
@@ -155,6 +157,8 @@ public:
 	void Quest_Finish(const FString& QuestName, int index);
 	UFUNCTION(BlueprintCallable)
 	void Quest_Next(const FString& QuestName);
+	UFUNCTION(BlueprintCallable)
+	void Quest_Drop(const FString& QuestName);
 
 	void Quest_Complete(const FString& QuestName);
 
