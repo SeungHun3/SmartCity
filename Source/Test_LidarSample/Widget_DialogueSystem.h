@@ -69,4 +69,6 @@ public:
 		virtual void AddMessageBox(enum_DialogueStyle style, const FText title, const FText& Message, const FText& FirstBtnText, const FText& SecondBtnText);
 	UFUNCTION(BlueprintImplementableEvent)
 		void NextMessage();
+	UFUNCTION(BlueprintCallable)
+		void SetAllButton(bool IsEnabled);
 };

@@ -73,3 +73,17 @@ void UWidget_DialogueSystem::AddMessageBox(enum_DialogueStyle style, const FText
 		}
 	}
 }
+//모든 버튼 제어
+void UWidget_DialogueSystem::SetAllButton(bool IsEnabled)
+{
+	if (IsEnabled) {
+		Button_Next->SetIsEnabled(IsEnabled);
+		Button_First->SetIsEnabled(IsEnabled);
+		Button_Second->SetIsEnabled(IsEnabled);
+	}
+	else {
+		Button_Next->SetIsEnabled(IsEnabled);
+		Button_First->SetIsEnabled(IsEnabled);
+		Button_Second->SetIsEnabled(IsEnabled);
+	}
+}
