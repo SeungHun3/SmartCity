@@ -765,14 +765,14 @@ int UActorComponent_Playfab::FindQuestInfo_Index(const FString& QuestName)
 
 	return Index;
 }
-
+// 퀘스트 PlayFab_Statistics 없음, value 0 = 시작가능, value 1 = 진행중, value 2 = 완료
 void UActorComponent_Playfab::CheckQuestInfo()
 {
 	TArray<FString> QuestKey;
 	PlayFab_Statistics.GetKeys(QuestKey); 
 	for (auto it : QuestKey)
-	{
-		if ((it.Left(5) == "Quest") && (UserTitleData.Contains(it)) && (0 == *PlayFab_Statistics.Find(it))) // 업적데이터중 퀘스트를 추려서  value가 0인것들만
+	{	// 업적데이터중 퀘스트를 추려서  value가 1인것들만 == 진행중인 퀘스트만 담기
+		if ((it.Left(5) == "Quest") && (UserTitleData.Contains(it)) && (1 == *PlayFab_Statistics.Find(it))) 
 		{
 			FString val = *UserTitleData.Find(it);
 			FQuest_Info Quest = MakeQuestInfo(it, val);
@@ -820,8 +820,8 @@ UDataTable* UActorComponent_Playfab::FindQuestTable(const FString& QuestName)
 
 	return CurrQuest->QuestData;
 }
-
-void UActorComponent_Playfab::Quest_Update(const FString& QuestName)
+// 퀘스트 UserTitleData Update
+void UActorComponent_Playfab::Quest_Update_Title(const FString& QuestName)
 {
 	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 	TSharedPtr<FJsonObject> JsonObj = MakeShareable(new FJsonObject());
@@ -861,6 +861,73 @@ void UActorComponent_Playfab::Quest_Update(const FString& QuestName)
 			}),
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
+
+}
+
+void UActorComponent_Playfab::Quest_Update_Statistic(const FString& QuestName, enum_Quest_Update Update)
+{
+	const enum_Quest_Update QuestCondition = Update;
+	int JsonVal = static_cast<int>(QuestCondition);
+
+
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	TArray< TSharedPtr<FJsonValue> > EntriesArray;
+	EntriesArray.Add(MakeShareable(new FJsonValueString(QuestName)));
+	EntriesArray.Add(MakeShareable(new FJsonValueNumber(JsonVal)));
+	TSharedPtr<FJsonObject> JsonObj = MakeShareable(new FJsonObject());
+	JsonObj->SetArrayField("statistic", EntriesArray);
+
+	PlayFab::ClientModels::FExecuteCloudScriptRequest request; // 업적데이터에 퀘스트 Value 2로 넣어주기
+	request.FunctionName = "Update_Statistic";
+	request.FunctionParameter = JsonObj;
+	request.GeneratePlayStreamEvent = true;
+	ClientAPI->ExecuteCloudScript(
+		request,
+		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, QuestName, QuestCondition](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
+			{
+				FQuest_Info Quest;
+				int checkIndex;
+				int ENUM_Val = static_cast<int>(QuestCondition);
+				switch (QuestCondition)
+				{
+				case enum_Quest_Update::Drop:// 퀘스트포기
+
+					PlayFab_Statistics.Add(QuestName, ENUM_Val); // 업적데이터 0 으로 변경
+					PlayerOwner->Quest_Drop(QuestName);
+					for (int i = 0; i < MyQuest_Info.Num(); i++) // 퀘스트 데이터지우기
+					{
+						if (PlayFab_Statistics.Contains(QuestName)) { PlayFab_Statistics.Add(QuestName, 0); }
+						if (MyQuest_Info[i].Quest_Name == QuestName) { MyQuest_Info.RemoveAt(i);	break; }
+					}
+					break;
+
+
+				case enum_Quest_Update::Start:	//퀘스트 시작
+
+					PlayFab_Statistics.Add(QuestName, ENUM_Val); // 업적데이터 추가
+					checkIndex = FindQuestInfo_Index(QuestName);					// 초기화
+					if (checkIndex != -1) { MyQuest_Info.RemoveAt(checkIndex); }	//동일이름의 퀘스트명이 있다면 지우고
+
+					Quest = SetQuestInfo(QuestName, 1); // 퀘스트 시작정보 구조체 담아서
+					MyQuest_Info.Add(Quest); // 배열에 추가 후 
+					PlayerOwner->Quest_Start(Quest);
+					Quest_Update_Title(QuestName); // 타이틀 데이터에 업데이트하기
+					break;
+
+				case enum_Quest_Update::Complete:
+					// 보상받기 // 받으면 타이틀 데이터 지우기
+					PlayerOwner->Quest_Complete(QuestName);
+
+					for (int i = 0; i < MyQuest_Info.Num(); i++) // 퀘스트 데이터지우기
+					{
+						if (PlayFab_Statistics.Contains(QuestName)) { PlayFab_Statistics.Add(QuestName, ENUM_Val); }
+						if (MyQuest_Info[i].Quest_Name == QuestName) { MyQuest_Info.RemoveAt(i);	break; }
+					}
+
+					break;
+				}
+
+			}));
 
 }
 
@@ -923,28 +990,7 @@ int UActorComponent_Playfab::QuestTotalStepcount(const FString& QuestName)
 
 void UActorComponent_Playfab::Quest_Start(const FString& QuestName)
 {
-	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
-	TSharedPtr<FJsonObject> JsonObj = MakeShareable(new FJsonObject());
-	JsonObj->SetStringField("name", QuestName);
-	PlayFab::ClientModels::FExecuteCloudScriptRequest request; // 업적데이터에 퀘스트 시작넣기
-	request.FunctionName = "Upload_StatisticName";
-	request.FunctionParameter = JsonObj;
-	request.GeneratePlayStreamEvent = true;
-	ClientAPI->ExecuteCloudScript(
-		request,
-		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, QuestName](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
-			{
-				PlayFab_Statistics.Add(QuestName, 0); // 업적에 올려놓고
-
-				//퀘스트 시작
-				int checkIndex = FindQuestInfo_Index(QuestName);					// 초기화
-				if (checkIndex != -1)	{	MyQuest_Info.RemoveAt(checkIndex);	}	//동일이름의 퀘스트명이 있다면 지우고
-
-				FQuest_Info Quest = SetQuestInfo(QuestName, 1); // 퀘스트 시작정보 구조체 담아서
-				MyQuest_Info.Add(Quest); // 배열에 추가 후 
-				PlayerOwner->Quest_Start(Quest);
-				Quest_Update(QuestName); // 타이틀 데이터에 업데이트하기
-			}));
+	Quest_Update_Statistic(QuestName, enum_Quest_Update::Start);
 }
 
 void UActorComponent_Playfab::Quest_Finish(const FString& QuestName, int index)
@@ -955,7 +1001,7 @@ void UActorComponent_Playfab::Quest_Finish(const FString& QuestName, int index)
 
 
 	MyQuest_Info[CurrQuest].IsFinished[index] = true;
-	Quest_Update(QuestName);
+	Quest_Update_Title(QuestName);
 }
 
 void UActorComponent_Playfab::Quest_Next(const FString& QuestName)
@@ -972,32 +1018,17 @@ void UActorComponent_Playfab::Quest_Next(const FString& QuestName)
 
 	MyQuest_Info[CurrQuest] = Quest; //정보담고
 	PlayerOwner->Quest_Next(MyQuest_Info[CurrQuest]);
-	Quest_Update(QuestName);		// 타이틀 데이터에 업데이트하기
+	Quest_Update_Title(QuestName);		// 타이틀 데이터에 업데이트하기
 }
-//퀘스트완료 == 업적데이터 1로 바꿔주기
+//퀘스트포기 == 업적데이터 0로 바꿔주기
+void UActorComponent_Playfab::Quest_Drop(const FString& QuestName)
+{
+	Quest_Update_Statistic(QuestName, enum_Quest_Update::Drop);
+}
+//퀘스트완료 == 업적데이터 2로 바꿔주기
 void UActorComponent_Playfab::Quest_Complete(const FString& QuestName)
 {
-	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
-	TSharedPtr<FJsonObject> JsonObj = MakeShareable(new FJsonObject());
-	JsonObj->SetStringField("name", QuestName);
-	PlayFab::ClientModels::FExecuteCloudScriptRequest request; // 업적데이터에 퀘스트 시작넣기
-	request.FunctionName = "Quest_Complete";
-	request.FunctionParameter = JsonObj;
-	request.GeneratePlayStreamEvent = true;
-	ClientAPI->ExecuteCloudScript(
-		request,
-		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, QuestName](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
-			{
-				// 보상받기 // 받으면 타이틀 데이터 지우기
-				PlayerOwner->Quest_Complete(QuestName);
-
-				for (int i = 0; i < MyQuest_Info.Num(); i++) // 퀘스트 데이터지우기
-				{
-					if (PlayFab_Statistics.Contains(QuestName))		{	PlayFab_Statistics.Add(QuestName, 1);}
-					if (MyQuest_Info[i].Quest_Name == QuestName)	{	MyQuest_Info.RemoveAt(i);	break;	}
-				}
-
-			}));
+	Quest_Update_Statistic(QuestName, enum_Quest_Update::Complete);
 }
 
 bool UActorComponent_Playfab::Quest_Check_isDoing(const FString& QuestName)
@@ -1015,7 +1046,7 @@ bool UActorComponent_Playfab::Quest_Check_IsComplete(const FString& QuestName)
 	PlayFab_Statistics.GetKeys(QuestKey);
 	for (auto it : QuestKey)
 	{
-		if ((it == QuestName) && (1 == *PlayFab_Statistics.Find(it))) 	{	return true;}	// 업적데이터중 퀘스트이름을 찾아서  value가 1인것들만
+		if ((it == QuestName) && (2 == *PlayFab_Statistics.Find(it))) 	{	return true;}	// 업적데이터중 퀘스트이름을 찾아서  value가 2인것들만
 	}
 
 	//못찾으면 false

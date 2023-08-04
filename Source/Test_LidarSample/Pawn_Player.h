@@ -263,7 +263,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void Quest_Next(const FQuest_Info& QuestInfo);
 	UFUNCTION(BlueprintImplementableEvent)
-		void Quest_Complete(const FString& QuestName);
+		void Quest_Complete(const FString& QuestName); 
+	UFUNCTION(BlueprintImplementableEvent)
+		void Quest_Drop(const FString& QuestName);
 
 	//¾÷Àû
 	UFUNCTION(BlueprintImplementableEvent)
