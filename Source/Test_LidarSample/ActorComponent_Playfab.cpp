@@ -815,9 +815,10 @@ UDataTable* UActorComponent_Playfab::FindQuestTable(const FString& QuestName)
 {
 	UGameInstance_Solaseado* MyInstance = Cast<UGameInstance_Solaseado>(GetWorld()->GetGameInstance());
 	UDataTable* Quest_Table = MyInstance->GetQuestTables();
-	FQuest_List CurrQuest = *Quest_Table->FindRow<FQuest_List>(FName(*QuestName), "NoData_QuestName");
+	FQuest_List* CurrQuest = Quest_Table->FindRow<FQuest_List>(FName(*QuestName), "FindQuestTable_NoQuest");
+	if (CurrQuest == nullptr)	{ return nullptr;	}
 
-	return CurrQuest.QuestData;
+	return CurrQuest->QuestData;
 }
 
 void UActorComponent_Playfab::Quest_Update(const FString& QuestName)
@@ -832,6 +833,7 @@ void UActorComponent_Playfab::Quest_Update(const FString& QuestName)
 	if (CurrQuest == -1)
 	{
 		UE_LOG(LogTemp, Log, TEXT("// Invalid_Struct "));
+		return;
 	}
 
 	FString Step = FString::FromInt(MyQuest_Info[CurrQuest].Quest_Step);
@@ -903,6 +905,21 @@ TArray<int> UActorComponent_Playfab::GetQuestRowNames(const FString& QuestStepPr
 	}
 	return QuestRowNames;
 }
+// 퀘스트 총 진행도구하기
+int UActorComponent_Playfab::QuestTotalStepcount(const FString& QuestName)
+{
+	UDataTable* CheckTable = FindQuestTable(QuestName);
+	TArray<FName> checkRows = CheckTable->GetRowNames(); // 모든행을 구해서
+	TArray<int> Totalindex;
+	for (auto it : checkRows)
+	{
+		FQuest_Info* checkProp = CheckTable->FindRow<FQuest_Info>(it, "TotalStepCount, Nodata");
+
+		if (checkProp) 	{	Totalindex.AddUnique(checkProp->Quest_Step); 	}	// 프로퍼티 AddUnique로 추가 (중복없이넣기)
+	}
+	
+	return Totalindex.Num();
+}
 
 void UActorComponent_Playfab::Quest_Start(const FString& QuestName)
 {
@@ -917,6 +934,8 @@ void UActorComponent_Playfab::Quest_Start(const FString& QuestName)
 		request,
 		UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateLambda([&, QuestName](const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
 			{
+				PlayFab_Statistics.Add(QuestName, 0); // 업적에 올려놓고
+
 				//퀘스트 시작
 				int checkIndex = FindQuestInfo_Index(QuestName);					// 초기화
 				if (checkIndex != -1)	{	MyQuest_Info.RemoveAt(checkIndex);	}	//동일이름의 퀘스트명이 있다면 지우고
@@ -942,7 +961,7 @@ void UActorComponent_Playfab::Quest_Finish(const FString& QuestName, int index)
 void UActorComponent_Playfab::Quest_Next(const FString& QuestName)
 {
 	int CurrQuest = FindQuestInfo_Index(QuestName);
-	if (CurrQuest == -1)	{	return; }	// 잘못된 이름이라면 탈출
+	if (CurrQuest == -1)	{  return; }	// 잘못된 이름이라면 탈출
 
 	int NextStep = MyQuest_Info[CurrQuest].Quest_Step + 1;
 
@@ -971,9 +990,72 @@ void UActorComponent_Playfab::Quest_Complete(const FString& QuestName)
 			{
 				// 보상받기 // 받으면 타이틀 데이터 지우기
 				PlayerOwner->Quest_Complete(QuestName);
+
+				for (int i = 0; i < MyQuest_Info.Num(); i++) // 퀘스트 데이터지우기
+				{
+					if (PlayFab_Statistics.Contains(QuestName))		{	PlayFab_Statistics.Add(QuestName, 1);}
+					if (MyQuest_Info[i].Quest_Name == QuestName)	{	MyQuest_Info.RemoveAt(i);	break;	}
+				}
+
 			}));
 }
-//Quest_Complete
+
+bool UActorComponent_Playfab::Quest_Check_isDoing(const FString& QuestName)
+{
+	for (auto it : MyQuest_Info)
+	{
+		if (it.Quest_Name == QuestName)	{	return true;	}
+	}
+	return false;
+}
+
+bool UActorComponent_Playfab::Quest_Check_IsComplete(const FString& QuestName)
+{
+	TArray<FString> QuestKey;
+	PlayFab_Statistics.GetKeys(QuestKey);
+	for (auto it : QuestKey)
+	{
+		if ((it == QuestName) && (1 == *PlayFab_Statistics.Find(it))) 	{	return true;}	// 업적데이터중 퀘스트이름을 찾아서  value가 1인것들만
+	}
+
+	//못찾으면 false
+	return false;
+}
+
+bool UActorComponent_Playfab::Quest_Check_IsLastFinished(const FString& QuestName)
+{
+	int FindQuest = FindQuestInfo_Index(QuestName);
+	if (FindQuest == -1) {  return  false; }
+	
+	int StepTotalCount = QuestTotalStepcount(QuestName);
+
+	if (MyQuest_Info[FindQuest].Quest_Step >= StepTotalCount) // 진행도가 최대테이블을 넘어서는 경우 완료했는지 파악하기
+	{
+		for (auto it : MyQuest_Info[FindQuest].IsFinished)
+		{
+			if (!it) {  return false; }// 하나라도 퀘스트를 완료하지 못한상태라면 false탈출
+		}
+		return true; //모두완료했다면 true 탈출
+	} 
+
+	//진행도가 부족한경우
+	return false;
+}
+
+enum_Quest_Condition UActorComponent_Playfab::Quest_Check_Condition(const FString& QuestName)
+{
+	if (Quest_Check_isDoing(QuestName))
+	{
+		if (Quest_Check_IsLastFinished(QuestName))//마지막 보상받기 까지 왔는지여부
+		{
+			return enum_Quest_Condition::LastFinished;
+		}
+		return enum_Quest_Condition::IsDoing;//그냥 진행중일때
+	}
+	else if (Quest_Check_IsComplete(QuestName))	{	return	enum_Quest_Condition::IsComplete;	} // 보상까지 받고 끝난상태일때
+
+	return enum_Quest_Condition::NotStart;
+}
 
 
 //업적 데이터 서버로 업데이트하기
