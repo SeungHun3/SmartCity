@@ -147,14 +147,17 @@ public:
 	void Quest_Update_Statistic(const FString& QuestName, enum_Quest_Update Update);
 
 	FQuest_Info SetQuestInfo(const FString& QuestName, int Step);
+	//같은 진행도를 가진 테이블 행 숫자뽑아서 배열가져오기 // 프로퍼티 Quest_Step 을 진행도로 탐색 (FQuest_Info Quest; Quest.Quest_Step;)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	TArray<int> GetQuestRowNames(const FString& QuestStepProp, class UDataTable* QuestTable);
+
 	int QuestTotalStepcount(const FString& QuestName);
 
 
 	UFUNCTION(BlueprintCallable)
 	void Quest_Start(const FString& QuestName);
 	UFUNCTION(BlueprintCallable)
-	void Quest_Finish(const FString& QuestName, int index);
+	bool Quest_Finish(const FString& QuestName, int index);
 	UFUNCTION(BlueprintCallable)
 	void Quest_Next(const FString& QuestName);
 	UFUNCTION(BlueprintCallable)
