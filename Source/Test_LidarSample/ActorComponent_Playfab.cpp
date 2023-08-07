@@ -893,12 +893,12 @@ void UActorComponent_Playfab::Quest_Update_Statistic(const FString& QuestName, e
 				case enum_Quest_Update::Drop:// 퀘스트포기
 
 					PlayFab_Statistics.Add(QuestName, ENUM_Val); // 업적데이터 0 으로 변경
-					PlayerOwner->Quest_Drop(QuestName);
 					for (int i = 0; i < MyQuest_Info.Num(); i++) // 퀘스트 데이터지우기
 					{
 						if (PlayFab_Statistics.Contains(QuestName)) { PlayFab_Statistics.Add(QuestName, 0); }
 						if (MyQuest_Info[i].Quest_Name == QuestName) { MyQuest_Info.RemoveAt(i);	break; }
 					}
+					PlayerOwner->Quest_Drop(QuestName);
 					break;
 
 
@@ -907,23 +907,21 @@ void UActorComponent_Playfab::Quest_Update_Statistic(const FString& QuestName, e
 					PlayFab_Statistics.Add(QuestName, ENUM_Val); // 업적데이터 추가
 					checkIndex = FindQuestInfo_Index(QuestName);					// 초기화
 					if (checkIndex != -1) { MyQuest_Info.RemoveAt(checkIndex); }	//동일이름의 퀘스트명이 있다면 지우고
-
 					Quest = SetQuestInfo(QuestName, 1); // 퀘스트 시작정보 구조체 담아서
 					MyQuest_Info.Add(Quest); // 배열에 추가 후 
-					PlayerOwner->Quest_Start(Quest);
 					Quest_Update_Title(QuestName); // 타이틀 데이터에 업데이트하기
+
+					PlayerOwner->Quest_Start(Quest);
 					break;
 
 				case enum_Quest_Update::Complete:
 					// 보상받기 // 받으면 타이틀 데이터 지우기
-					PlayerOwner->Quest_Complete(QuestName);
-
 					for (int i = 0; i < MyQuest_Info.Num(); i++) // 퀘스트 데이터지우기
 					{
 						if (PlayFab_Statistics.Contains(QuestName)) { PlayFab_Statistics.Add(QuestName, ENUM_Val); }
 						if (MyQuest_Info[i].Quest_Name == QuestName) { MyQuest_Info.RemoveAt(i);	break; }
 					}
-
+					PlayerOwner->Quest_Complete(QuestName);
 					break;
 				}
 
