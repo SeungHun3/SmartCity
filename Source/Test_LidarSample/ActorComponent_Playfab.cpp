@@ -991,15 +991,22 @@ void UActorComponent_Playfab::Quest_Start(const FString& QuestName)
 	Quest_Update_Statistic(QuestName, enum_Quest_Update::Start);
 }
 
-void UActorComponent_Playfab::Quest_Finish(const FString& QuestName, int index)
+bool UActorComponent_Playfab::Quest_Finish(const FString& QuestName, int index)
 {
 	int CurrQuest = FindQuestInfo_Index(QuestName);
-	if (CurrQuest == -1)												{	return;	}	// 잘못된 이름이거나
-	if (!MyQuest_Info[CurrQuest].IsFinished.IsValidIndex(index))	{	return; }	// 잘못된 인덱스 접근이라면
-
+	if (CurrQuest == -1)												{	return false;	}	// 잘못된 이름이거나
+	if (!MyQuest_Info[CurrQuest].IsFinished.IsValidIndex(index))	{	return false; }	// 잘못된 인덱스 접근이라면
 
 	MyQuest_Info[CurrQuest].IsFinished[index] = true;
 	Quest_Update_Title(QuestName);
+
+	for (int i = 0; i < MyQuest_Info[CurrQuest].IsFinished.Num(); i++)
+	{
+		if (!MyQuest_Info[CurrQuest].IsFinished[i]) { return false; } // index가 전부 true가 아니라면
+	}
+
+	//Step의 index가 모두 true라면
+	return true;
 }
 
 void UActorComponent_Playfab::Quest_Next(const FString& QuestName)
