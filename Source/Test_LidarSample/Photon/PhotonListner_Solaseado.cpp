@@ -93,6 +93,8 @@ void PhotonListner_Solaseado::onPlayerPropertiesChange(int playerNr, const Commo
 void PhotonListner_Solaseado::onRoomPropertiesChange(const Common::Hashtable& changes)
 {
 	m_pView->updateRoomProperties(changes);
+
+	//UE_LOG(LogTemp, Warning, TEXT("// onRoomPropertiesChange :: (%d)"), m_pClient->getLocalPlayer().getNumber());
 }
 
 //채널 뷰 설정 세팅 // channel = 1 ~ 20 // 총 20개의 룸 탐색함수 // RoomMaxSize; 
@@ -204,7 +206,28 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 		nByte Maxcount = myRoom.getMaxPlayers();
 		m_pView->CurrentRoomInfo(CurRoomName, Count, Maxcount);
 
+		//이전 채널의 NPC가 남아있다면 제거한다.
+		m_pView->ClearNpc();
+
 		m_pView->updateRoomProperties(props);
+
+		//첫 접속에 마스터 플레이어일 경우엔 방을 생성하는 경우이므로 이때 NPC들을 스폰한다.
+		if (myRoom.getMasterClientID() == localPlayerNr)
+		{
+			//데이터 테이블에 있는 NPC들을 소환한다.
+
+			//TArray<FVector> aa;
+			//aa.Add(FVector(-9840.0f, -12157.0, 240.0f));
+			//aa.Add(FVector(-9490.0f, -12157.0, 240.0f));
+			//
+			//int count = 0;
+			//for (auto it : aa)
+			//{
+			//	FString NpcId = "NPC" + FString::FromInt(++count);
+			//	m_pView->AddNpc(NpcId, it, FVector(1.0f), FVector(1.0f));
+			//}
+			m_pView->InitNpc();
+		}
 
 		// 기존 방에 있는 플레이어 정보 출력 
 		const JVector<Player*>& players = myRoom.getPlayers();
@@ -746,6 +769,45 @@ void PhotonListner_Solaseado::MoveStopFinish(FVector Loc)
 	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
 
 	m_pClient->opRaiseEvent(false, data, 52, option);
+}
+
+//NPC 업데이트
+void PhotonListner_Solaseado::UpdateNPC(TArray<FString> aID, TArray<FVector> aLoc)
+{
+	MutableRoom& CheckRoom = m_pClient->getCurrentlyJoinedRoom();
+	Hashtable data;
+
+	int n = aID.Num();
+
+	int npcSize[] = { static_cast<int>(n) };
+	{
+		FString str = "NPCSize";
+		data.put(TCHAR_TO_UTF8(*str), npcSize, 1);
+	}
+
+	for (int i = 1; i <= n; ++i)
+	{
+		float coords[] = { static_cast<float>(aLoc[i-1].X),static_cast<float>(aLoc[i-1].Y),static_cast<float>(aLoc[i-1].Z) };
+		data.put(TCHAR_TO_UTF8(*(aID[i-1])), coords, 3);
+	}
+
+	//UE_LOG(LogTemp, Log, TEXT("// PhotonListner_Solaseado::UpdateNPC"));
+	CheckRoom.addCustomProperties(data);
+}
+
+
+//NPC 위치 이동
+void PhotonListner_Solaseado::SetNPCMove(FString sName, FVector vLoc)
+{
+	MutableRoom& CheckRoom = m_pClient->getCurrentlyJoinedRoom();
+	Hashtable data;
+
+	float coords[] = { static_cast<float>(vLoc.X),static_cast<float>(vLoc.Y),static_cast<float>(vLoc.Z) };
+	data.put(TCHAR_TO_UTF8(*sName), coords, 3);
+
+	CheckRoom.addCustomProperties(data);
+
+	//UE_LOG(LogTemp, Log, TEXT("//  PhotonListner_Solaseado::SetNPCMove"));
 }
 
 

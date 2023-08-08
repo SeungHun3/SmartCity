@@ -159,6 +159,11 @@ public:
 	void MoveStop();
 	void MoveStopFinish(FVector Loc);
 
+/////NPC
+	// NPC 업데이트
+	void UpdateNPC(TArray<FString> aID, TArray<FVector> aLoc);
+	void SetNPCMove(FString sName,FVector vLoc);
+////NPC 끝
 };
 
 

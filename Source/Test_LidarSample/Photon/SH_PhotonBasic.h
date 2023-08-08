@@ -58,4 +58,9 @@ public:
 	virtual void UpdateMove(int PlayerNum, FVector Loc) {}
 	virtual void UpdateStop(int PlayerNum) {}
 	virtual void UpdateStopFinished(int PlayerNum, FVector Loc) {}
+
+	//NPC
+	virtual void InitNpc() {}
+	virtual void AddNpc(const FString& NpcId, FVector Loc, FVector Rot, FVector Scale) {}
+	virtual void ClearNpc() {}
 };

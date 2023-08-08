@@ -5,6 +5,7 @@
 #include "GameModeBase_Solaseado.h"
 #include "Actor_PhotonChat.h"
 #include "Actor_PhotonVoice.h"
+#include "Pawn_NPC.h"
 
 #include "Engine/LevelStreaming.h"
 
@@ -23,7 +24,6 @@ AActor_SolaseadoPhoton::AActor_SolaseadoPhoton() : serverAddress(TEXT(Photon_Ser
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FClassFinder<APawn_Player> FindtargetCharacter(TEXT("Blueprint'/Game/Project/Pawn/Solaseado/BP_OtherPlayer.BP_OtherPlayer_C'"));
-	//FindtargetCharacter(TEXT("/Game/Project/BP_targetPlayer")); 
 	if (FindtargetCharacter.Succeeded())
 		targetCharacter = FindtargetCharacter.Class;
 
@@ -31,7 +31,15 @@ AActor_SolaseadoPhoton::AActor_SolaseadoPhoton() : serverAddress(TEXT(Photon_Ser
 	moveSpeed = 500.0f;
 	//이 거리 이상 멀어지면 강제 위치 보정을 해준다.
 	lerpDistance = 200.0f;
-}
+
+	static ConstructorHelpers::FClassFinder<APawn_NPC> FindtargetNPC(TEXT("Blueprint'/Game/Project/Pawn/NPC/BP_NPCMulti.BP_NPCMulti_C'"));
+	if (FindtargetNPC.Succeeded())
+		targetNPC = FindtargetNPC.Class;
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> FindNPCTableData(TEXT("DataTable'/Game/Project/DataTable/NPC/Data_NPC.Data_NPC'"));
+	if (FindNPCTableData.Succeeded())
+		CustomNPCDataTable = FindNPCTableData.Object;
+}	
 
 AActor_SolaseadoPhoton::~AActor_SolaseadoPhoton()
 {
@@ -678,6 +686,38 @@ void AActor_SolaseadoPhoton::updateRoomProperties(const Hashtable& changes)
 		nByte roomEvent = ((ValueObject<nByte>*)changes.getValue("Ev"))->getDataCopy();
 		//LocalPlayer->ChangeRoomEvent((uint8)roomEvent);
 	}
+
+	FString str = "NPCSize"; // + FString::FromInt(0);
+	Object const* objn = changes.getValue(TCHAR_TO_UTF8(*str));
+	if (objn)
+	{
+		int n = (((ValueObject<int*>*)objn)->getDataCopy())[0];
+
+		for (int i = 1; i <= n; ++i)
+		{
+			str = "NPC"+FString::FromInt(i);
+			Object const* objTemp = changes.getValue(TCHAR_TO_UTF8(*str));
+
+			if (objTemp)
+			{
+				float* NpcLocationArray = ((ValueObject<float*>*)objTemp)->getDataCopy();
+				AddNpc(str, FVector(NpcLocationArray[0], NpcLocationArray[1], NpcLocationArray[2]), FVector(1.0f), FVector(1.0f));
+			}
+		}
+	}
+
+	if (NPCList.IsValidIndex(0))
+	{
+		for (auto it : NPCList)
+		{		
+			Object const* objTemp = changes.getValue(TCHAR_TO_UTF8(*(it->CharacterID)));
+			if (objTemp)
+			{
+				float* NpcLocationArray = ((ValueObject<float*>*)objTemp)->getDataCopy();
+				it->NPCMove(FVector(NpcLocationArray[0], NpcLocationArray[1], NpcLocationArray[2]));
+			}
+		}
+	}
 }
 
 // 캐릭터 데이터 저장
@@ -762,6 +802,65 @@ void AActor_SolaseadoPhoton::updateLocalPlayerPosion()
 	}
 }
 
+
+///NPC ///////////////////////////////////////
+
+//처음 시작할때 NPC 세팅
+void AActor_SolaseadoPhoton::InitNpc()
+{
+	int count = 0;
+	TArray<FString> aID;
+	TArray<FVector> aLoc;
+
+	for (auto it : CustomNPCDataTable->GetRowNames())
+	{
+		FNpcCustomizing_Struct* NPCTable = CustomNPCDataTable->FindRow<FNpcCustomizing_Struct>(it, TEXT(""));
+
+		FString NpcId = it.ToString();
+
+		aID.Add(NpcId);
+		aLoc.Add(NPCTable->NpcLocation);
+
+		AddNpc(NpcId, NPCTable->NpcLocation, FVector(1.0f), FVector(1.0f));
+	}
+
+	m_pListener->UpdateNPC(aID, aLoc);
+}
+
+
+//멀티 NPC 추가
+void AActor_SolaseadoPhoton::AddNpc(const FString& NpcId, FVector Loc, FVector Rot, FVector Scale)
+{
+	FActorSpawnParameters actorSpawnParam;
+	actorSpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	APawn_NPC* target = GetWorld()->SpawnActor<APawn_NPC>(targetNPC, FTransform(FRotator(Rot.X, Rot.Y, Rot.Z), Loc, Scale), actorSpawnParam);
+	if (target)
+	{
+		NPCList.Add(target);
+		target->eNPCType= enum_NPCMultiType::Multi;
+		target->CharacterID = NpcId;
+		target->InitNPC(NpcId);
+	}
+}
+
+
+// 채널 이동 후 남은 NPC 제거
+void AActor_SolaseadoPhoton::ClearNpc()
+{
+	for (auto it : NPCList)
+	{
+		it->SelfDestroy();
+	}
+	NPCList.Empty();
+}
+
+//NPC 이동 좌표를 서버에 보낸다.
+void AActor_SolaseadoPhoton::NPCMove(const APawn_NPC* pawnNPC,FVector NpcLocation)
+{
+	m_pListener->SetNPCMove(pawnNPC->CharacterID, NpcLocation);
+}
+
+///NPC ///////////////////////////////////////
 
 //상태 애니메이션을 서버에 갱신하기
 /*

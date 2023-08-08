@@ -298,4 +298,25 @@ public:
 
 	virtual void updateLocalPlayerPosion() override;
 
+//NPC 로직///////////
+public:
+	//NPC 리스트
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<class APawn_NPC*> NPCList;
+	// 스폰 NPC
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class APawn_NPC> targetNPC;
+
+	//NPC 정보 데이터테이블
+	UDataTable* CustomNPCDataTable;
+	
+	virtual void InitNpc() override;
+	virtual void AddNpc(const FString& NpcId, FVector Loc, FVector Rot, FVector Scale) override;
+	virtual void ClearNpc() override;
+
+	//NPC 이동
+	UFUNCTION(BlueprintCallable)
+	void NPCMove(const APawn_NPC *pawnNPC, FVector NpcLocation);
+
+//NPC 로직 끝///////////
 };
