@@ -23,18 +23,22 @@ AActor_SolaseadoPhoton::AActor_SolaseadoPhoton() : serverAddress(TEXT(Photon_Ser
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FClassFinder<APawn_Player> FindtargetCharacter(TEXT("Blueprint'/Game/Project/Pawn/Solaseado/BP_OtherPlayer.BP_OtherPlayer_C'"));
-	if (FindtargetCharacter.Succeeded())
-		targetCharacter = FindtargetCharacter.Class;
+
+	
+	//static ConstructorHelpers::FClassFinder<APawn_Player> FindtargetCharacter(TEXT("Blueprint'/Game/Project/Pawn/Solaseado/BP_OtherPlayer.BP_OtherPlayer_C'"));
+	//if (FindtargetCharacter.Succeeded())
+	//	targetCharacter = FindtargetCharacter.Class;
 
 	//플레이어 스피드 임시 처리
 	moveSpeed = 500.0f;
 	//이 거리 이상 멀어지면 강제 위치 보정을 해준다.
 	lerpDistance = 200.0f;
 
-	static ConstructorHelpers::FClassFinder<APawn_NPC> FindtargetNPC(TEXT("Blueprint'/Game/Project/Pawn/NPC/BP_NPCMulti.BP_NPCMulti_C'"));
-	if (FindtargetNPC.Succeeded())
-		targetNPC = FindtargetNPC.Class;
+
+	
+	//static ConstructorHelpers::FClassFinder<APawn_NPC> FindtargetNPC(TEXT("Blueprint'/Game/Project/Pawn/NPC/BP_NPCMulti.BP_NPCMulti_C'"));
+	//if (FindtargetNPC.Succeeded())
+	//	targetNPC = FindtargetNPC.Class;
 
 	static ConstructorHelpers::FObjectFinder<UDataTable> FindNPCTableData(TEXT("DataTable'/Game/Project/DataTable/NPC/Data_NPC.Data_NPC'"));
 	if (FindNPCTableData.Succeeded())

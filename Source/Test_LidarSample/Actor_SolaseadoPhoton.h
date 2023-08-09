@@ -70,7 +70,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class APawn_Player> targetCharacter;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<APawn_Player> OtherNpc;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
