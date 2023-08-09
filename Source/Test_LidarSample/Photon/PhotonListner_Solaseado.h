@@ -92,18 +92,9 @@ public:
 
 	// // Custom Event 
 	// 위치 정보 
-	void SetMovePlayer(int vX, int vY, int vz);						// 6
-	void SetMovePlayerRotation(float fZ);							// 7
 	void SetMoveAndRotation(int vX, int vY, int vZ, int yaw);		// 7
 
 	void SetPlayerAnim(int Anim);									// 15
-
-	//입력 받은 회전값
-	void SetPlayerRotationCommand(float vYaw);						// 16
-	void SetPlayerCommand(int ICommand);							// 17
-	void SendTestDelay(int lDelay);									// 18
-	void SetPlayerRotationAndTime(float fX, int time);				// 19
-	void SetPlayerMoveAndTime(int vX, int vY, int time);			// 20
 
 	// 텍스트 정보
 	void PlayerTargetMessage(const int* target, int size, nByte text);	// 2

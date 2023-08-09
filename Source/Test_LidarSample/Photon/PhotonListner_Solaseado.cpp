@@ -315,39 +315,6 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 		return;
 	}
 
-	if (eventCode == 6) // vector3 위치 데이터
-	{
-		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
-		if (obj->getDimensions() == 1)
-		{
-			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
-			
-			int vX = data[0];
-			int vY = data[1];
-			int vZ = data[2];
-
-			//UE_LOG(LogTemp, Log, TEXT("// %d"), sizeof(*data));
-			//UE_LOG(LogTemp, Log, TEXT("//Player %d eventCode == 6 :: x: %d,y: %d,z: %d"), playerNr,vX, vY, vZ);
-
-			m_pView->GetMovePlayer(playerNr, vX, vY, vZ);
-			return;
-		}
-	}
-	else if (eventCode == 7)
-	{
-		if (obj->getDimensions() == 1) // float 캐릭터 회전 데이터
-		{
-			if (obj->getType() == TypeCode::EG_FLOAT)
-			{
-				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
-				float fX = data[0];
-
-				//UE_LOG(LogTemp, Log, TEXT("//Player %d eventCode == 7 :: yaw: %f"), playerNr, fX);
-				m_pView->GetMovePlayerRotation(playerNr, fX);
-				return;
-			}
-		}
-	}
 	else if (eventCode == 8)
 	{
 		if (obj->getDimensions() == 1)
@@ -391,72 +358,6 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 				m_pView->GetPlayerAnim(playerNr, vX);
 				return;
 			}
-		}
-	}
-	//플레이어 회전
-	else if (eventCode == 16)
-	{
-		//입력받은 커맨드와 보간을 위환 좌표값
-		if (obj->getDimensions() == 1)
-		{
-			if (obj->getType() == TypeCode::EG_FLOAT)
-			{
-				float* data = ((ValueObject<float*>*)obj)->getDataCopy();
-
-				float vX = data[0];
-
-				m_pView->GetPlayerRotationYaw(playerNr, vX);
-				return;
-			}
-		}
-	}
-	//플레이어 이동
-	else if (eventCode == 17)
-	{
-		if (obj->getDimensions() == 1)
-		{
-			if (obj->getType() == TypeCode::INTEGER)
-			{
-				int* data = ((ValueObject<int*>*)obj)->getDataCopy();
-
-				int vX = data[0];
-
-				m_pView->GetMovePlayerCommand(playerNr, vX);
-				return;
-			}
-		}
-	}
-	//테스트 지연 샘플링(테스트 로그 출력용)
-	else if (eventCode == 18)
-	{
-		if (obj->getDimensions() == 1)
-		{
-			if (obj->getType() == TypeCode::INTEGER)
-			{
-				int* data = ((ValueObject<int*>*)obj)->getDataCopy();
-				int vX = data[0];
-
-				//UE_LOG(LogTemp, Log, TEXT("// Send PlayerNr : %d, Recv PlayerNr : %d,RecvTimeDelay : %d ,Now Timdelay-RecvTimeDelay RTT : %d, eventCode : 18"), playerNr, m_pClient->getLocalPlayer().getNumber(), vX,GETTIMEMS() % 10000- vX);
-				return;
-			}
-		}
-	}
-	//이동 딜레이 보정
-	else if (eventCode == 20)
-	{
-		//UE_LOG(LogTemp, Log, TEXT("// %d eventCode == 6 "), playerNr);
-		if (obj->getDimensions() == 1)
-		{
-			int* data = ((ValueObject<int*>*)obj)->getDataCopy();
-
-			int vX = data[0];
-			int vY = data[1];
-			int Delay = data[2];
-			int nowTime = m_pClient->getServerTime() % 10000;
-			
-			//UE_LOG(LogTemp, Log, TEXT("// GetMovePlayerAndTime RTT :: %d, eventCode == 20 "), (nowTime > Delay) ? nowTime - Delay : (10000 - Delay) + nowTime);
-			m_pView->GetMovePlayerAndTime(playerNr, vX, vY, (nowTime> Delay)? nowTime - Delay : (10000-Delay)+ nowTime);
-			return;
 		}
 	}
 	//MoveForward
@@ -506,26 +407,6 @@ void PhotonListner_Solaseado::leaveRoomReturn(int errorCode, const Common::JStri
 	}
 }
 
-// 위치 전송 // Location & Rotation 
-void PhotonListner_Solaseado::SetMovePlayer(int vX, int vY, int vz)
-{
-	Hashtable HashData;
-	int coords[] = { static_cast<int>(vX) , static_cast<int>(vY) ,static_cast<int>(vz) };
-	//UE_LOG(LogTemp, Log, TEXT("// updateLocalPlayerPosion x=%d ,y=%d ,z=%d "), coords[0], coords[1], coords[2]);
-	HashData.put((nByte)1, coords, 3);
-	m_pClient->opRaiseEvent(false, HashData, 6);
-}
-
-// Rotation 
-void PhotonListner_Solaseado::SetMovePlayerRotation(float fZ)
-{
-	Hashtable data;
-	float coords[] = { static_cast<float>(fZ) };
-	//UE_LOG(LogTemp, Log, TEXT("// updateLocalPlayerPosion yaw=%f "), coords[0]);
-	data.put((nByte)1, coords, 1);
-	m_pClient->opRaiseEvent(false, data, 7);
-}
-
 void PhotonListner_Solaseado::SetMoveAndRotation(int vX, int vY, int vZ, int yaw)
 {
 	Hashtable data;
@@ -544,63 +425,6 @@ void PhotonListner_Solaseado::SetPlayerAnim(int Anim)
 	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
 	//option.
 	m_pClient->opRaiseEvent(false, data, 15, option);
-}
-
-void PhotonListner_Solaseado::SetPlayerRotationCommand(float vYaw)
-{
-	Hashtable data;
-	float coords[] = { static_cast<float>(vYaw) };
-	data.put((nByte)1, coords, 1);
-	RaiseEventOptions option;
-	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	m_pClient->opRaiseEvent(false, data, 16, option);
-}
-
-void PhotonListner_Solaseado::SetPlayerCommand(int ICommand)
-{
-	Hashtable data;
-	int coords[] = { static_cast<int>(ICommand) };
-	data.put((nByte)1, coords, 1);
-	RaiseEventOptions option;
-	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	//option.
-	m_pClient->opRaiseEvent(false, data, 17, option);
-}
-
-//송수신 간의 지연 시간을 체크하기 송신 컴퓨터의 현재 시간을 보낸다.
-void PhotonListner_Solaseado::SendTestDelay(int lDelay) //18
-{
-	Hashtable data;
-	int coords[] = { static_cast<int>(lDelay) };
-	data.put((nByte)1, coords, 1);
-	RaiseEventOptions option;
-	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	//option.
-	m_pClient->opRaiseEvent(false, data, 18, option);
-}
-
-//현재 미사용
-void PhotonListner_Solaseado::SetPlayerRotationAndTime(float fX, int time) //19
-{
-	Hashtable data;
-	int coords[] = { static_cast<int>(fX),static_cast<int>(time) };
-	data.put((nByte)1, coords, 2);
-	RaiseEventOptions option;
-	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	//option.
-	m_pClient->opRaiseEvent(false, data, 19, option);
-}
-
-//RTT(왕복타임)과 현재위치를 보내서 보정해줄 위치값을 알아낸다.
-void PhotonListner_Solaseado::SetPlayerMoveAndTime(int vX, int vY, int time)
-{
-	Hashtable data;
-	int coords[] = { static_cast<int>(vX),static_cast<int>(vY),static_cast<int>(time) };
-	data.put((nByte)1, coords, 3);
-	RaiseEventOptions option;
-	option.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
-	//option.
-	m_pClient->opRaiseEvent(false, data, 20, option);
 }
 
 // 캐릭터 움직임, 애니메이션

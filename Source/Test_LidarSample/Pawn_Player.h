@@ -53,7 +53,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		bool isInRoom = false;
 	UPROPERTY(BlueprintReadWrite)
-		bool isInLoby = false;
+		bool isInLobby = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Playfab")
 		int Test_LoadingCount;
@@ -87,61 +87,6 @@ public:
 	// 애니매이션 상태설정
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		enum_PlayerAnimationState eAnimationState = enum_PlayerAnimationState::Idle;
-	
-	
-	// 이전 위치값
-	UPROPERTY(BlueprintReadWrite)
-		FVector vPrePos;
-	// 받은 가속도값
-	UPROPERTY(BlueprintReadWrite)
-		FVector vVelocity;
-
-	//FPS 측정
-	float FPStimer = 0.0;
-	UPROPERTY(BlueprintReadWrite)
-	int CountFPS = 0;//FPS 결과값
-	int tickFPS = 0;
-
-	//지연테스트용 변수
-	UPROPERTY(BlueprintReadWrite)
-	int32 PhotonTimer=0;
-
-
-	//입력 이벤트 Forward, Right
-	UPROPERTY(BlueprintReadWrite)
-	float fForward = 0.0f;
-	UPROPERTY(BlueprintReadWrite)
-	float fRight = 0.0f;
-	//입력 이벤트 Forward, Right
-	UPROPERTY(BlueprintReadWrite)
-	enum_InputPlayer PrevForward= enum_InputPlayer::ForwardStop;
-	UPROPERTY(BlueprintReadWrite)
-	enum_InputPlayer PrevRight = enum_InputPlayer::RightStop;
-
-
-	//입력 회전
-	UPROPERTY(BlueprintReadWrite)
-	float fRotationX = 0.0f;
-
-	// 보간 이동 타이머
-	UPROPERTY(BlueprintReadWrite)
-	float lerpMoveTimer = 0.0f;
-	UPROPERTY(BlueprintReadWrite)
-		float lerpRotationTimer = 0.0f;
-
-	//보간 이동 좌표
-	UPROPERTY(BlueprintReadWrite)
-		float fLerpMoveX = 0.0f;
-	UPROPERTY(BlueprintReadWrite)
-		float fLerpMoveY = 0.0f;
-	UPROPERTY(BlueprintReadWrite)
-		float fLerpMoveZ = 0.0f;
-	UPROPERTY(BlueprintReadWrite)
-		float fLerpRotationX = 0.0f;
-
-
-	UPROPERTY(BlueprintReadWrite)
-	bool bRotation = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -245,9 +190,6 @@ public:
 	void Change_Scene(int TabNumber);
 	virtual void Change_Scene_Implementation(int TabNumber);
 
-	// 메쉬 변경시 포톤 동기화
-	UFUNCTION(BlueprintCallable)
-	bool InputMoveCommand(const enum_InputPlayer& _Command);
 
 	// 이동
 	UFUNCTION(BlueprintImplementableEvent)

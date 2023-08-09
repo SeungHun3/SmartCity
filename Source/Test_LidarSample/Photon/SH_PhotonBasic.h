@@ -40,13 +40,6 @@ public:
 	virtual void updateRoomProperties(const ExitGames::Common::Hashtable& changes) {}
 	virtual void UpdateRoomList(const TMap<int, int>& Channel_Count) {}
 	// Game
-
-	virtual void GetMovePlayerRotation(int playerNr, float fX) {}
-	virtual void GetMovePlayer(int playerNr, int vX, int vY, int vZ) {}
-	virtual void GetMovePlayerCommand(int playerNr, int iCommand) {}
-	virtual void GetPlayerRotationYaw(int playerNr, float fYaw) {}
-	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX,int time) {}
-	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) {}
 	virtual void GetMoveAndRotation(int playerNr, int vX, int vY, int vZ,int vYaw) {}
 	virtual void GetPlayerAnim(int playerNr, int Anim) {}
 

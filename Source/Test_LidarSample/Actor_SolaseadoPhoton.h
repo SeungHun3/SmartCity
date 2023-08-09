@@ -82,13 +82,6 @@ protected:
 	ExitGames::LoadBalancing::Client* m_pClient;
 	PhotonListner_Solaseado* m_pListener;
 
-	// 캐릭터 위치 포톤 업데이트
-	UFUNCTION(BlueprintCallable)
-		void movePlayer(FVector Loc);
-		void movePlayer(int vx, int vy, int vz);
-
-	UFUNCTION(BlueprintCallable)
-		void movePlayerRotation(float fZ);
 
 	// 현재 입장 방 정보
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -97,12 +90,6 @@ protected:
 		uint8 CurrentPeople;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		uint8 MaxPeople;
-
-	// 이전 위치
-	FVector CurrentLocation = FVector::ZeroVector;
-	float CurrentRotation = 0.f;
-
-	FVector ForwardVector = FVector::ZeroVector;
 
 	// 플레이어 유저
 	class APawn_Player* LocalPlayer;
@@ -135,16 +122,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void Blueprint_ResetPlayer();
 
-	// 커맨드 입력이 되었을때 서버에 송신
-	UFUNCTION(BlueprintCallable)
-		void movePlayerCommand(enum_InputPlayer _Commnad);
-	// 캐릭터 회전 Yaw
-	UFUNCTION(BlueprintCallable)
-		void RotationPlayerX(float fX);
-	//회전 보정용 함수(미구현, 필요시 구현)
-		void MovePlayerRotationAndTime(float fX, int time);
-	//위치 보정용 함수
-		void MovePlayerAndTime(int vX, int vY, int time);
+	//시작시 위치 보내주는 용도
 	UFUNCTION(BlueprintCallable)
 		void MoveAndRotation(FVector Loc, int vYaw);
 	
@@ -170,12 +148,6 @@ public:
 	virtual void updateRoomProperties(const Hashtable& changes) override;
 
 	// 포톤 사용자 위지 정보 업데이트
-	virtual void GetMovePlayer(int playerNr, int vX, int vY, int vZ) override;
-	virtual void GetMovePlayerRotation(int playerNr, float fX) override;
-	virtual void GetPlayerRotationYaw(int playerNr, float fYaw) override;
-	virtual void GetMovePlayerCommand(int playerNr, int iCommand) override;
-	virtual void GetMovePlayerRotationAndTime(int playerNr, float fX, int time) override;
-	virtual void GetMovePlayerAndTime(int playerNr, int vX, int vY, int time) override;
 	virtual void GetMoveAndRotation(int playerNr, int vX, int vY, int vZ, int vYaw) override;
 	
 	//사용자 애니메이션 정보 업데이트
@@ -215,37 +187,8 @@ public:
 
 
 protected:
-	float PlayerHeight = 266.f;
-
-	//임시 플레이어 스피드
-	float moveSpeed;
-	//보정 거리 한계치
-	//이 거리 이상 멀어지면 강제 위치 보정을 해준다.
-	float lerpDistance;
-
 	//플레이어 코스튬 개수
 	int DataCount = 0;
-
-	//이동 동기화에 쓰일 변수
-	//0.1초 동안 이동 오차 값을 보간하여 이동해준다.
-	float lerpTimer = 0.1f;
-	
-	//아직 테스트 중인 움직임 동기화 부분 OnOff
-	//false : 이동 보정 없음
-	//true : 일정 거리 멀어지면 이동값 보정해줌
-	bool bOnTimeMove = true;
-
-	// 이전에 움직인 시간
-	unsigned long lastMoveTime = 0;
-	// 움직이기 시작한 시간
-	unsigned long startMoveTime = 0;
-
-	//로컬 플레이어의 움직임이 있는지
-	bool bIsMoving = false;
-
-
-
-
 ////////////////////////////////////
 /////////// 채널 ///////////////////   cpp 140
 protected:
@@ -296,7 +239,6 @@ public:
 
 ////////////////////////////////////////////////이동 끝
 
-	virtual void updateLocalPlayerPosion() override;
 
 //NPC 로직///////////
 public:
