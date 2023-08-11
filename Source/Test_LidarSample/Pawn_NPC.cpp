@@ -4,7 +4,7 @@
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/WidgetComponent.h"
+//#include "Components/WidgetComponent.h"
 
 
 // Sets default values
@@ -36,7 +36,7 @@ APawn_NPC::APawn_NPC()
 
 	Shoes = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Shoes"));
 	Shoes->SetupAttachment(BodyComp);
-
+	/*
 	NameTagComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("NameTagComp"));
 	NameTagComp->SetupAttachment(Root);
 
@@ -44,7 +44,7 @@ APawn_NPC::APawn_NPC()
 	MessageComp->SetupAttachment(Root);
 	//MessageComp->SetVisibility(false);
 	MessageComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	*/
 
 
 }
