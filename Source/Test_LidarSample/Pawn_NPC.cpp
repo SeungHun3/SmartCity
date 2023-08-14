@@ -13,29 +13,9 @@ APawn_NPC::APawn_NPC()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
-	RootComponent = Root;
 	Root->SetRelativeTransform(FTransform(FQuat(0.0f, 0.0f, 0.0f, 0.0f), FVector(0.0f, 0.0f, 0.0f), FVector(1.0f, 1.0f, 1.0f)));
+	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
 
-
-	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
-	CapsuleComp->SetupAttachment(Root);
-
-	BodyComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
-	BodyComp->SetupAttachment(CapsuleComp);
-	BodyComp->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
-
-	Hair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));
-	Hair->SetupAttachment(BodyComp);
-
-	Top = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Top"));
-	Top->SetupAttachment(BodyComp);
-
-	Bottoms = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Bottoms"));
-	Bottoms->SetupAttachment(BodyComp);
-
-	Shoes = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Shoes"));
-	Shoes->SetupAttachment(BodyComp);
 	/*
 	NameTagComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("NameTagComp"));
 	NameTagComp->SetupAttachment(Root);

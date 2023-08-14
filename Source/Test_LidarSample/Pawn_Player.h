@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Pawn_Basic.h"
 #include "Struct_Customizing.h"
-#include "GameFramework/Pawn.h"
 #include "Pawn_Player.generated.h"
 
 //플레이어의 애니메이션 상태 enum
@@ -19,7 +19,7 @@ enum class enum_PlayerAnimationState : uint8
 	Death,
 };
 
- 
+
 //입력받은 이동 커맨드에 대한 상태 열거형
 UENUM(BlueprintType)
 enum class enum_InputPlayer : uint8
@@ -36,7 +36,7 @@ enum class enum_InputPlayer : uint8
 
 
 UCLASS()
-class TEST_LIDARSAMPLE_API APawn_Player : public APawn
+class TEST_LIDARSAMPLE_API APawn_Player : public APawn_Basic
 {
 	GENERATED_BODY()
 
@@ -68,19 +68,7 @@ public:
 	//참가 인원수
 	uint8 ParticipantClient;
 
-	// 캐릭터 스켈레톤 설정
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class UCapsuleComponent* Root;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Body;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Hair;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Top;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Bottoms;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Shoes;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class USpringArmComponent* BP_SpringArm;
 

@@ -10,8 +10,7 @@
 #include "GameFramework/Actor.h"
 
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Engine/SkeletalMesh.h"
+
 #include "ActorComponent_PlayfabStore.h"
 #include "Actor_SolaseadoPhoton.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -22,29 +21,6 @@ APawn_Player::APawn_Player()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-
-	// 스켈레톤 컴포넌트 구조설정
-	Root = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Root"));
-	RootComponent = Root;
-	Root->SetRelativeTransform(FTransform(FQuat(0.0f, 0.0f, 0.0f, 0.0f), FVector(0.0f, 0.0f, 0.0f), FVector(1.0f, 1.0f, 1.0f)));
-	Body = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Body"));
-	Body->SetupAttachment(Root);
-
-	Hair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));
-	Hair->SetupAttachment(Body);
-
-	Top = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Top"));
-	Top->SetupAttachment(Body);
-
-	Bottoms = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Bottoms"));
-	Bottoms->SetupAttachment(Body);
-
-	Shoes = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Shoes"));
-	Shoes->SetupAttachment(Body);
-	
-	Body->SetRelativeLocation(FVector(0.0f, 0.0f, -40.0f));
-
 
 
 	//애니매이션 설정

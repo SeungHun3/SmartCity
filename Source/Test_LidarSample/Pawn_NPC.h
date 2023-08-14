@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
-#include "Engine/DataTable.h"
+#include "Pawn_Basic.h"
 
+#include "Engine/DataTable.h"
 #include "Pawn_NPC.generated.h"
 
 UENUM(BlueprintType)
@@ -52,7 +52,7 @@ public:
 
 
 UCLASS()
-class TEST_LIDARSAMPLE_API APawn_NPC : public APawn
+class TEST_LIDARSAMPLE_API APawn_NPC : public APawn_Basic
 {
 	GENERATED_BODY()
 
@@ -61,21 +61,6 @@ public:
 	APawn_NPC();
 
 	// Ä³¸¯ÅÍ ½ºÄÌ·¹Åæ ¼³Á¤
-
-	UPROPERTY(EditAnywhere)
-		class USceneComponent* Root;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class UCapsuleComponent* CapsuleComp;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* BodyComp;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Hair;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Top;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Bottoms;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USkeletalMeshComponent* Shoes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UWidgetComponent* NameTagComp;
