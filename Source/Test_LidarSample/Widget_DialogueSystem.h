@@ -40,6 +40,9 @@ public:
 		class UButton* Button_Second;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* Button_SecondText;
+	//대화 스킵 버튼
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* Button_Skip;
 	//현재 페이지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int CurrentPage = 1;
