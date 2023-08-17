@@ -20,7 +20,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* TextBlock_Message;
 	//NPC 대화 제목
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* TextBlock_Title;
 	//1Key
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
