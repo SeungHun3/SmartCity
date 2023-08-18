@@ -20,7 +20,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* TextBlock_Message;
 	//NPC 대화 제목
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* TextBlock_Title;
 	//1Key
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
@@ -40,12 +40,21 @@ public:
 		class UButton* Button_Second;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* Button_SecondText;
+	//대화 스킵 버튼
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* Button_Skip;
 	//현재 페이지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int CurrentPage = 1;
 	//다음 대화로 넘어갈 수 있는 상태
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bOnNext = true;
+	
+	//퀘스트 버튼
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* Button_Accept;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* Button_Drop;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

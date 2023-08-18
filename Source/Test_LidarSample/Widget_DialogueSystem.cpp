@@ -81,11 +81,15 @@ void UWidget_DialogueSystem::SetAllButton(bool IsEnabled)
 		Button_Next->SetIsEnabled(IsEnabled);
 		Button_First->SetIsEnabled(IsEnabled);
 		Button_Second->SetIsEnabled(IsEnabled);
+		Button_Accept->SetIsEnabled(IsEnabled);
+		Button_Drop->SetIsEnabled(IsEnabled);
 	}
 	else 
 	{
 		Button_Next->SetIsEnabled(IsEnabled);
 		Button_First->SetIsEnabled(IsEnabled);
 		Button_Second->SetIsEnabled(IsEnabled);
+		Button_Accept->SetIsEnabled(IsEnabled);
+		Button_Drop->SetIsEnabled(IsEnabled);
 	}
 }
