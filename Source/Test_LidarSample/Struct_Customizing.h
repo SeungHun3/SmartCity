@@ -253,3 +253,12 @@ enum class enum_DialogueStyle : uint8
 	Dialogue1Key,
 	Dialogue2Key,
 };
+//옵션
+UENUM(BlueprintType)
+enum class enum_Option : uint8
+{
+	Logout, //로그아웃
+	GameExit, // 게임 종료
+	Withdrawal,// 회원탈퇴
+
+};

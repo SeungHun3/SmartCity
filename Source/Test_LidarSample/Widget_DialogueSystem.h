@@ -49,7 +49,11 @@ public:
 	//다음 대화로 넘어갈 수 있는 상태
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bOnNext = true;
-	
+	//퀘스트 대화 중인지 아닌지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool IsQuestDialogue = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UDataTable* QuestTable;
 	//퀘스트 버튼
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* Button_Accept;
