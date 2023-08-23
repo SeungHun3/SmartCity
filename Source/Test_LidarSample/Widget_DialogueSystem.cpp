@@ -5,6 +5,8 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "Components/Overlay.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include <cmath>
 
 #include "GameInstance_Solaseado.h"
 
@@ -91,5 +93,45 @@ void UWidget_DialogueSystem::SetAllButton(bool IsEnabled)
 		Button_Second->SetIsEnabled(IsEnabled);
 		Button_Accept->SetIsEnabled(IsEnabled);
 		Button_Drop->SetIsEnabled(IsEnabled);
+	}
+}
+
+void UWidget_DialogueSystem::Write(const FString text)
+{
+	UWorld* World = GetWorld();
+	//대화가 진행 중이 아닐 때
+	if (!Writing) 
+	{
+		Writing = true;
+		MyText = text;
+		//현재 월드가 유효한 경우 시간 기록
+		if (World) {
+			StartTimestamp = UKismetSystemLibrary::GetGameTimeInSeconds(World);
+		}
+		//대화 내용 초기화
+		TextBlock_Message->SetText(FText::GetEmpty());//메세지 비워줌
+	}
+}
+//대화 글씨 타이핑 효과
+void UWidget_DialogueSystem::WriteText()
+{
+	UWorld* World = GetWorld();
+	//프레임에 표시되어야 하는 문자 수 계산, 프레임당 표시할 문자 수 계산 후 제한 범위 설정
+	float DeltaTime = (UKismetSystemLibrary::GetGameTimeInSeconds(World) - StartTimestamp) * 20;
+	NumCharsToDisplay = FMath::Clamp(static_cast<int32>(std::floor(DeltaTime)), 0, MyText.Len());
+
+	//화면에 텍스트를 부분적으로 표시
+	FString Substring = MyText.Mid(0, NumCharsToDisplay);
+	TextBlock_Message->SetText(FText::FromString(Substring));
+
+	//작성 완료 확인
+	if (NumCharsToDisplay >= MyText.Len()) 
+	{
+		SetAllButton(true);
+		Writing = false;
+	}
+	else 
+	{
+		SetAllButton(false);
 	}
 }

@@ -59,6 +59,17 @@ public:
 		class UButton* Button_Accept;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* Button_Drop;
+public:
+	//타이핑 상태
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Writing = false;
+	//타이핑 효과 텍스트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString MyText;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float StartTimestamp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 NumCharsToDisplay;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -84,4 +95,8 @@ public:
 		void NextMessage();
 	UFUNCTION(BlueprintCallable)
 		void SetAllButton(bool IsEnabled);
+	UFUNCTION(BlueprintCallable)
+		void Write(const FString text);
+	UFUNCTION(BlueprintCallable)
+		void WriteText();
 };
