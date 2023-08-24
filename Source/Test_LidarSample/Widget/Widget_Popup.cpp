@@ -46,7 +46,7 @@ void UWidget_Popup::MenuOff()
 	PopupCancelEvent.Broadcast(PopupRun);
 }
 //팝업창 style 결정
-void UWidget_Popup::CheckPopup(enum_PopupStyle style, FText message, FText title, enum_PopupRun run)
+void UWidget_Popup::AddPopup(enum_PopupStyle style, FText message, FText title, enum_PopupRun run, FText btn_yes, FText btn_no, FText btn_confirm, bool slot_Image)
 {
 	//경고
 	Overlay_Caption->SetVisibility(ESlateVisibility::Collapsed);
@@ -58,48 +58,32 @@ void UWidget_Popup::CheckPopup(enum_PopupStyle style, FText message, FText title
 	CanvasPanel_Checkpopup->SetVisibility(ESlateVisibility::Visible);
 	switch (style)
 	{
-		case enum_PopupStyle::Popup1Key:
-		{
-			CanvasPanel_1Key->SetVisibility(ESlateVisibility::Visible);
-			CanvasPanel_2Key->SetVisibility(ESlateVisibility::Collapsed);
-			break;
-		}
-		case enum_PopupStyle::Popup2Key:
-		{
-			CanvasPanel_1Key->SetVisibility(ESlateVisibility::Collapsed);
-			CanvasPanel_2Key->SetVisibility(ESlateVisibility::Visible);
-			break;
-		}
+	case enum_PopupStyle::Popup1Key:
+	{
+		CanvasPanel_1Key->SetVisibility(ESlateVisibility::Visible);
+		CanvasPanel_2Key->SetVisibility(ESlateVisibility::Collapsed);
+		SetButtonText(TextBlock_Confirm, btn_confirm);
+		break;
+	}
+	case enum_PopupStyle::Popup2Key:
+	{
+		CanvasPanel_1Key->SetVisibility(ESlateVisibility::Collapsed);
+		CanvasPanel_2Key->SetVisibility(ESlateVisibility::Visible);
+		SetButtonText(TextBlock_Yes, btn_yes);
+		SetButtonText(TextBlock_No, btn_no);
+		break;
+	}
+	}
+	if (slot_Image)
+	{
+		setPopupSlotImage();
 	}
 	PopupRun = run;
 	TextBlock_Notice->SetText(message);
 	TextBlock_Title->SetText(title);
 }
-// 경고 팝업
-void UWidget_Popup::CheckPopup_Caution(FText message, enum_PopupRun run)
-{
-	CheckPopup(enum_PopupStyle::Popup1Key, message, FText::FromString(FString("Caution")), run);
-	Overlay_Caption->SetVisibility(ESlateVisibility::HitTestInvisible);
-}
-// 서브 팝업 , 숫자 팝업
-void UWidget_Popup::CheckPopup_SubPanel(enum_PopupStyle style, const FText& message, const FText& title, const FText& subMessage, enum_PopupRun run, int number)
-{
-	CheckPopup(style, message, title, run);
-	Overlay_Sub->SetVisibility(ESlateVisibility::HitTestInvisible);
-	TextBlock_SubText->SetText(subMessage);
-	// 숫자 표기
-	if (number != 0)
-	{
-		Blueprint_CheckPrice(number);
-		HorizontalBox_Coin->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	}
-	else
-	{
-		HorizontalBox_Coin->SetVisibility(ESlateVisibility::Collapsed);
-	}
-}
 //  경고 문구 추가 
-void UWidget_Popup::setRedText(const FText& red)
+void UWidget_Popup::setRedText(FText red)
 {
 	if (red.IsEmpty())
 	{
@@ -111,12 +95,13 @@ void UWidget_Popup::setRedText(const FText& red)
 		TextBlock_RedText->SetText(red);
 	}
 }
+//슬롯 이미지
 void UWidget_Popup::setPopupSlotImage()
 {
 	Overlay_Image->SetVisibility(ESlateVisibility::Visible);
 	setItemTexture();
 }
-
+//슬롯 이미지 닫기
 void UWidget_Popup::ClosePopupSlotImage()
 {
 	Overlay_Image->SetVisibility(ESlateVisibility::Collapsed);
@@ -134,4 +119,9 @@ void UWidget_Popup::setButtonDisabled()
 	Button_Confirm->SetIsEnabled(false);
 	Button_NO->SetIsEnabled(false);
 	Button_Yes->SetIsEnabled(false);
+}
+//버튼 텍스트 변경
+void UWidget_Popup::SetButtonText(UTextBlock* ButtonTextBlock, FText ButtonText)
+{
+	ButtonTextBlock->SetText(ButtonText);
 }

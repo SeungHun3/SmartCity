@@ -19,12 +19,9 @@ class TEST_LIDARSAMPLE_API UWidget_Popup : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-		void CheckPopup(enum_PopupStyle style, FText message, FText title, enum_PopupRun run);
+		void AddPopup(enum_PopupStyle style, FText message, FText title, enum_PopupRun run, FText btn_yes, FText btn_no, FText btn_confirm, bool slot_Image);
 	UFUNCTION(BlueprintCallable)
-		void CheckPopup_Caution(FText message, enum_PopupRun run);
-	void CheckPopup_SubPanel(enum_PopupStyle style, const FText& message, const FText& title, const FText& subMessage, enum_PopupRun run, int number);
-	UFUNCTION(BlueprintCallable)
-		void setRedText(const FText& red);
+		void setRedText(FText red);
 	UFUNCTION(BlueprintImplementableEvent)
 		void setItemTexture();
 	UFUNCTION(BlueprintCallable)
@@ -35,6 +32,8 @@ public:
 		void setButtonEnabled();
 	UFUNCTION(BlueprintCallable)
 		void setButtonDisabled();
+	UFUNCTION(BlueprintCallable)
+		void SetButtonText(UTextBlock* ButtonTextBlock, FText ButtonText);
 
 	UPROPERTY(EditAnywhere)
 		bool bIsClikedNo;
@@ -58,6 +57,13 @@ public:
 	// 이미지
 	UPROPERTY(meta = (BindWidget))
 		class UOverlay* Overlay_Image;
+	//버튼 텍스트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* TextBlock_Confirm;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* TextBlock_Yes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* TextBlock_No;
 
 	// 1Key
 	UPROPERTY()
