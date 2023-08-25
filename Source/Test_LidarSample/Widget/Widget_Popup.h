@@ -64,10 +64,7 @@ public:
 		class UTextBlock* TextBlock_Yes;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* TextBlock_No;
-	//현재 팝업을 쓰고 있는 위젯
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UUserWidget* CurrentWidget;
-
+	
 	// 1Key
 	UPROPERTY()
 		FPopupConfirmEvent PopupConfirmEvent;
