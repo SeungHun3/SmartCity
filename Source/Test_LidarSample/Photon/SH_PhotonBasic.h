@@ -56,4 +56,7 @@ public:
 	virtual void InitNpc() {}
 	virtual void AddNpc(const FString& NpcId, FVector Loc, FVector Rot, FVector Scale) {}
 	virtual void ClearNpc() {}
+
+	//Ä£±¸
+	virtual void RecvFriendRequest(int PlayerNum, const FString& FriendPlayFabID) {}
 };

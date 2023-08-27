@@ -200,4 +200,9 @@ public:
 	//诀利
 	UFUNCTION(BlueprintImplementableEvent)
 		void Finished_UpdateAchieve(const FString& AchieveNum);
+
+	//模备
+	// 模备 脚没
+	UFUNCTION(BlueprintCallable)
+	void UpdateFriendRequests(FString PlayfabID, FString PlayName);
 };

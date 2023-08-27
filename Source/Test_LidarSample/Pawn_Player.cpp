@@ -237,3 +237,17 @@ void APawn_Player::Change_Scene_Implementation(int TabNumber)
 {
 	
 }
+
+//친구 요청 업데이트
+void APawn_Player::UpdateFriendRequests(FString PlayfabID, FString PlayName)
+{
+	FFriendStruct FriendRequest;
+	FriendRequest.PlayFabID = PlayfabID;
+	FriendRequest.TitleID = PlayName;
+
+	if (BP_ActorComponent_Playfab->FriendList.Find(PlayName)==nullptr)
+	{
+		BP_ActorComponent_Playfab->FriendRequestList.Add(PlayName, FriendRequest);
+		//플레이어 알람 추가 예정 줄 수도 있음
+	}
+}

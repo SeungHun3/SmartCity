@@ -162,6 +162,8 @@ public:
 	virtual void LeaveRoomComplete(void) override;
 	virtual void CurrentRoomInfo(const ExitGames::Common::JString& name, nByte Count, nByte MaxCount) override;
 
+	//친구 신청 받기
+	virtual void RecvFriendRequest(int PlayerNum, const FString& FriendPlayFabID) override;
 public:
 	// 캐릭터 정보 데이터(아바타...) 추가 함수
 	UFUNCTION(BlueprintCallable)
@@ -184,7 +186,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void InputAnimationState(enum_PlayerAnimationState _State);
 
+	// 친구 신청
+	UFUNCTION(BlueprintCallable)
+	void SendFriendInfo(int Target, FString PlayfabID);
 
+	
 protected:
 	//플레이어 코스튬 개수
 	int DataCount = 0;

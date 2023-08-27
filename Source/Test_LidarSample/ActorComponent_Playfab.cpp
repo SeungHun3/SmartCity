@@ -8,10 +8,12 @@
 #include "GameInstance_Solaseado.h"
 
 #include "Core/PlayFabClientAPI.h"
+#include "Misc/DateTime.h"
 
 #include "PlayFabJsonObject.h"
 #include "PlayFabJsonValue.h"
 #include "Kismet/DataTableFunctionLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 using namespace PlayFab;
@@ -438,6 +440,15 @@ void UActorComponent_Playfab::ScriptResponseEvent(FJsonValue* value)
 		if (PlayerOwner)
 			PlayerOwner->Blueprint_UpdateEquipmentItem(getStringData);
 	}
+
+	else if (Selection == "AddFriend")
+	{
+		getFriendListEvent();
+	}
+	else if (Selection == "RemoveFriend")
+	{
+		getFriendListEvent();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -739,6 +750,7 @@ void UActorComponent_Playfab::getNoticeEvent(int NoticeCount)
 		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
 				);
 }
+
 
 /////////////////////////////////Grant -> getinGamePlayerData -> level이동
 // FunctionName : Create_Grant  == 코스튬 플레이팹에 업로드 
@@ -1160,3 +1172,101 @@ void UActorComponent_Playfab::Debug_ClearAchievement()
 		// 통계정보에서 클리어하는 방법 확인해보기
 	}
 }
+
+////////////////////////////////////////////////
+//Friend
+//친구 리스트 업데이트
+void UActorComponent_Playfab::getFriendListEvent()
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	
+	//친구 계정들의 프로필을 받기 위해서 이렇게 따로 설정해줘야 한다.
+	//PlayFab의 타이틀 설정에서도 해제해줘야한다.
+	TSharedPtr<PlayFab::ClientModels::FPlayerProfileViewConstraints> ProfileConstraints(new PlayFab::ClientModels::FPlayerProfileViewConstraints);
+	ProfileConstraints->ShowCreated=true;
+	ProfileConstraints->ShowDisplayName = true;
+	ProfileConstraints->ShowLastLogin = true;
+	ProfileConstraints->ShowLocations = true;
+
+	PlayFab::ClientModels::FGetFriendsListRequest request;
+	request.ProfileConstraints = ProfileConstraints;
+
+	
+	//PlayFab::UPlayFabClientAPI::FGetFriendsListDelegate::;
+	ClientAPI->GetFriendsList(
+		request,
+		PlayFab::UPlayFabClientAPI::FGetFriendsListDelegate::CreateUObject(this,&UActorComponent_Playfab::UpdateFriendList),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+				);
+}
+
+void UActorComponent_Playfab::UpdateFriendList(const PlayFab::ClientModels::FGetFriendsListResult& result)
+{
+	bool bBlock = false;
+	FriendList.Empty();
+	for (auto it : result.Friends)
+	{
+		//if (it.Tags.Num() > 0)
+		//	bBlock = true;
+
+		//it.Profile->L
+		//updateFriendsList(it.TitleDisplayName, it.FriendPlayFabId, bBlock);
+		//it.Profile
+		if (true /* 여기에 한국인지 체크*/)
+		{
+			UE_LOG(LogTemp, Log, TEXT("// UpdateFriendList :: city : %s , time %d : %d "), *it.Profile->Locations[0].City, it.Profile->LastLogin.mValue.UtcNow().GetHour()+9%24, it.Profile->LastLogin.mValue.UtcNow().GetMinute());
+
+			
+			FFriendStruct sTemp;
+			sTemp.LastLogin= it.Profile->LastLogin.mValue;
+			sTemp.PlayFabID= it.Profile->PlayerId;
+			sTemp.TitleID= it.Profile->DisplayName;
+			FriendList.Add(sTemp.TitleID, sTemp);
+			
+		}
+	}
+
+	UpdateFriend.Broadcast();
+}
+
+void UActorComponent_Playfab::getProfileEvent()
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+
+	//ClientAPI->UpdateAvatarUrl();
+	//FUpdateCharacterDataRequest;
+	//PlayFab::ClientModels::FUpdateAvatarUrlRequest;
+	//FUpdateCharacterDataRequest();
+
+	PlayFab::ClientModels::FGetFriendsListRequest request;
+	request.ProfileConstraints->ShowCreated = true;
+
+
+
+	//for (auto it : FriendList)
+	//{
+	//	if (it.Value.TitleID != "sdsd")
+	//	{
+	//
+	//	}
+	//}
+}
+
+void UActorComponent_Playfab::UpdateLoginTimeEvent()
+{
+	PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
+	PlayFab::ClientModels::FUpdateUserDataRequest request;
+
+
+	ClientAPI->UpdateUserData(
+		request,
+		PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateUObject(this, &UActorComponent_Playfab::UpdateLoginTIme),
+		PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &UActorComponent_Playfab::ErrorScript)
+	);
+}
+
+void UActorComponent_Playfab::UpdateLoginTIme(const PlayFab::ClientModels::FUpdateUserDataResult& result)
+{
+	UKismetMathLibrary::UtcNow();
+}
+////////////////////////////////////////////////

@@ -13,6 +13,9 @@
 #include "Components/ActorComponent.h"
 #include "ActorComponent_Playfab.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdateFriend);
+
+
 // 금칙어 정보 
 USTRUCT(BlueprintType)
 struct FBadNameTable : public FTableRowBase
@@ -53,7 +56,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bForbidden = false;
 
-
 	////////////////////////////////////////////////////////////
 	// 업적데이터= { 로그인, 출석, 미션}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -66,6 +68,19 @@ public:
 	//업적
 	FString AchieveName = "achieve_";
 
+
+	////////////////////////////////
+	//친구
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FString, FFriendStruct> FriendList;	//현재 친구 목록
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TMap<FString, FFriendStruct> FriendRequestList;	//친구 신청 목록
+
+	UPROPERTY(BlueprintAssignable)
+	FUpdateFriend UpdateFriend;
+	//////////////////////////////////////////
 
 protected:
 	// Called when the game starts
@@ -223,4 +238,23 @@ public:
 	// 공지 내용
 	void getNoticeEvent(int NoticeCount);
 
+	///////////////////////
+	//친구 관련
+	// 
+	// 친구 리스트 갱신
+	UFUNCTION(BlueprintCallable)
+	void getFriendListEvent();
+
+	// 친구 업데이트
+	void UpdateFriendList(const PlayFab::ClientModels::FGetFriendsListResult& result);
+
+	// 친구 리스트 갱신
+	UFUNCTION(BlueprintCallable)
+		void getProfileEvent();
+
+	// 로그인 시간 갱신
+	UFUNCTION(BlueprintCallable)
+	void UpdateLoginTimeEvent();
+	// 로그인 업데이트
+	void UpdateLoginTIme(const PlayFab::ClientModels::FUpdateUserDataResult& result);
 };

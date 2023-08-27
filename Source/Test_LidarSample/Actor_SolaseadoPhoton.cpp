@@ -455,6 +455,8 @@ void AActor_SolaseadoPhoton::CurrentRoomInfo(const ExitGames::Common::JString& n
 	//UE_LOG(LogTemp, Log, TEXT("// MaxPeople :: %d , CurrentPeople:: %d "), MaxCount, Count);
 }
 
+
+
 // photon : 룸 커스텀 데이터 변경 호출
 void AActor_SolaseadoPhoton::ChangeRoomEventProperty(uint8 Ev)
 {
@@ -649,6 +651,33 @@ void AActor_SolaseadoPhoton::InputAnimationState(enum_PlayerAnimationState _Stat
 	}
 }
 
+
+//// 친구
+
+void AActor_SolaseadoPhoton::SendFriendInfo(int Target,FString PlayfabID)
+{
+	if (m_pListener)
+	{
+		m_pListener->SetFriendRequest(Target,PlayfabID);
+	}
+}
+
+//다른 플레이어에게 받은 친구 신청목록 함수에 처리한다.
+void AActor_SolaseadoPhoton::RecvFriendRequest(int PlayerNum,const FString& FriendPlayFabID)
+{
+	FString PlayerName;
+
+	for (auto it : PlayerList)
+	{
+		if (it->PlayerNr == PlayerNum)
+		{
+			PlayerName = it->PlayerName;
+			LocalPlayer->UpdateFriendRequests(FriendPlayFabID, it->PlayerName);
+		}
+	}
+
+	//UE_LOG(LogTemp, Log, TEXT("// RecvFriendRequest :: %s"), *FriendPlayFabID);
+}
 
 //방에 들어가기 전에 playfab에서 받은 플레이어 데이터 채우고 연결하기
 void AActor_SolaseadoPhoton::InitPlayerData_Implementation()

@@ -100,13 +100,15 @@ public:
 	void PlayerTargetMessage(const int* target, int size, nByte text);	// 2
 	void TextMessage(const JString& message, const JString& type);		// 1
 
-	// 애니메이션
+	// 애니메이션D
 	void setPlayerAnimationData(uint8 anim); // addCustomProperties
 
 	// 방 진행중인 이벤트 체크
 	void setRoomEventProperties(uint8 Ev);
 	// 진행중인 이벤트 일시정지
 	void setEventPause(bool ev);
+
+	void SetFriendRequest(const int& Target, const FString& PlayFabID);
 
 protected:
 

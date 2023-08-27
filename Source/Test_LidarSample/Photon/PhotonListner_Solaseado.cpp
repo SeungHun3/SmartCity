@@ -215,17 +215,6 @@ void PhotonListner_Solaseado::joinOrCreateRoomReturn(int localPlayerNr, const Co
 		if (myRoom.getMasterClientID() == localPlayerNr)
 		{
 			//데이터 테이블에 있는 NPC들을 소환한다.
-
-			//TArray<FVector> aa;
-			//aa.Add(FVector(-9840.0f, -12157.0, 240.0f));
-			//aa.Add(FVector(-9490.0f, -12157.0, 240.0f));
-			//
-			//int count = 0;
-			//for (auto it : aa)
-			//{
-			//	FString NpcId = "NPC" + FString::FromInt(++count);
-			//	m_pView->AddNpc(NpcId, it, FVector(1.0f), FVector(1.0f));
-			//}
 			m_pView->InitNpc();
 		}
 
@@ -332,6 +321,33 @@ void PhotonListner_Solaseado::customEventAction(int playerNr, nByte eventCode, c
 		}
 	}
 	else if (eventCode == 11)
+	{
+		if (obj->getDimensions() == 1) // 이벤트 일시정지
+		{
+			if (obj->getType() == TypeCode::BOOLEAN)
+			{
+				bool* data = ((ValueObject<bool*>*)obj)->getDataCopy();
+				bool pause = data[0];
+				m_pView->getEventPause(pause);
+				return;
+			}
+		}
+	}
+	//친구 신청
+	else if (eventCode == 12)
+	{
+		if (obj->getDimensions() == 1) // 친구 신청
+		{
+			JString* data = ((ValueObject<JString*>*)obj)->getDataCopy();
+			FString PlayFabID = FString(UTF8_TO_TCHAR(data[0].UTF8Representation().cstr()));
+
+			m_pView->RecvFriendRequest(playerNr,PlayFabID);
+			return;
+			
+		}
+	}
+	//친구 수락
+	else if (eventCode == 13)
 	{
 		if (obj->getDimensions() == 1) // 이벤트 일시정지
 		{
@@ -462,6 +478,17 @@ void PhotonListner_Solaseado::setEventPause(bool ev)
 	RaiseEventOptions Options;
 	Options.setReceiverGroup(ExitGames::Lite::ReceiverGroup::ALL);
 	m_pClient->opRaiseEvent(false, data, 11, Options);
+}
+
+void PhotonListner_Solaseado::SetFriendRequest(const int& Target ,const FString& PlayFabID)
+{
+	Hashtable data;
+	JString coords[] = { static_cast<JString>(TCHAR_TO_UTF8(*PlayFabID)) };
+	data.put((nByte)1, coords, 1);
+	//
+	RaiseEventOptions Options;
+	Options.setTargetPlayers(&Target, 1);
+	m_pClient->opRaiseEvent(false, data, 12, Options);
 }
 
 // 접속 오류 처리 
