@@ -22,6 +22,10 @@ Saved/*
 # Binary Files
 Binaries/*
 
+
+Plugins/MyAndroidLocation/Intermediate/*
+Plugins/MyAndroidLocation/Binaries/*
+
 # Compiled Object files 
 *.slo
 *.lo
